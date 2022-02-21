@@ -1,0 +1,6 @@
+framework module Pods_FourthProject {
+  umbrella header "Pods-FourthProject-umbrella.h"
+
+  export *
+  module * { export * }
+}
