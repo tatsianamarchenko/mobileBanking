@@ -4,6 +4,8 @@
 <dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>To search for nearby locations, MapSearch needs access to the user&apos;s location when running.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>To search for nearby locations, MapSearch needs access to the user&apos;s location when running.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

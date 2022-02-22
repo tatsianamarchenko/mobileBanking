@@ -54,16 +54,17 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
 
      func collectionView(_ collectionView: UICollectionView,
                          cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-      guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier:
+       guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier:
                                                             DetailedCollectionViewCell.reuseIdentifier, for: indexPath)
               as? DetailedCollectionViewCell else {
-        return UICollectionViewCell()
-      }
-       cell.timeLabel.text = arrayOfATMs[indexPath.row].availability.standardAvailability.day[0].closingTime.rawValue
+                return UICollectionViewCell()
+              }
+       cell.timeLabel.text =
+       arrayOfATMs[indexPath.row].availability.standardAvailability.day[0].openingTime.rawValue + "-" + arrayOfATMs[indexPath.row].availability.standardAvailability.day[0].closingTime.rawValue
        cell.placeLabel.text = arrayOfATMs[indexPath.row].address.addressLine
-      cell.currancyLabel.text = arrayOfATMs[indexPath.row].currency.rawValue
-      return cell
-    }
+       cell.currancyLabel.text = arrayOfATMs[indexPath.row].currency.rawValue
+       return cell
+     }
 
     func collectionView(_ collectionView: UICollectionView,
                         willDisplay cell: UICollectionViewCell,
