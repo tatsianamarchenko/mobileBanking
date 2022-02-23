@@ -5,7 +5,7 @@ public class APIService {
     public init(urlString: String) {
         self.urlString = urlString
     }
-
+    
     public func getJSON<T: Decodable>(completion: @escaping (T) -> Void) {
         guard let url = URL(string: urlString) else {
             fatalError("Error: Invalid URL.")
@@ -13,17 +13,18 @@ public class APIService {
         let request = URLRequest(url: url)
         URLSession.shared.dataTask(with: request) { (data, response, error) in
             if let error = error {
-                fatalError("Error: \(error.localizedDescription)")
+              print(error)
             }
             guard let data = data else {
-                fatalError("Error: Data is corrupt.")
+                print("Error: Data is corrupt.")
+              return
             }
             let decoder = JSONDecoder()
             do {
                 let decodedData = try decoder.decode(T.self, from: data)
                 completion(decodedData)
             } catch {
-                fatalError("Error: \(error.localizedDescription)")
+                print("Error: \(error.localizedDescription)")
             }
         }.resume()
     }

@@ -8,11 +8,21 @@
 import UIKit
 import SnapKit
 import MapKit
+import Network
 
 class MainViewController: UIViewController {
-
+  let monitor = NWPathMonitor()
   let locationManager = CLLocationManager()
-  var array = [ATM]()
+  var arrayq = [ATM]()
+  var array = [String]()
+  var array1 = [String]()
+
+   var alert: UIAlertController = {
+    let alert = UIAlertController(title: "интернет на телефоне отключен", message: "", preferredStyle: .alert)
+    alert.addAction(UIAlertAction(title: "cancel", style: .cancel, handler: nil))
+    return alert
+  }()
+
   private var displayedAnnotations: [MKAnnotation]? {
       willSet {
           if let currentAnnotations = displayedAnnotations {
@@ -41,7 +51,7 @@ class MainViewController: UIViewController {
       center: minskCenter.coordinate,
       latitudinalMeters: 10000,
       longitudinalMeters: 10000)
-    map.register(MKMarkerAnnotationView.self, forAnnotationViewWithReuseIdentifier: NSStringFromClass(MapPin.self))
+    map.register(MKMarkerAnnotationView.self, forAnnotationViewWithReuseIdentifier: NSStringFromClass(MapPinAnnotation.self))
     //    map.setCameraBoundary(
     //         MKMapView.CameraBoundary(coordinateRegion: region),
     //         animated: true)
@@ -69,11 +79,26 @@ class MainViewController: UIViewController {
     view.backgroundColor = .systemBackground
     view.addSubview(mapOrListsegmentedControl)
     view.addSubview(mapView)
-    checkAccessToLocation()
 
+    monitor.pathUpdateHandler = { [self] path in
+      switch path.status {
+      case .satisfied :
+        DispatchQueue.main.async {
+          checkAccessToLocation()
+        }
+      case .unsatisfied :
+        DispatchQueue.main.async {
+          present(alert, animated: true)
+        }
+      default : break
+      }
+    }
+
+    let queue = DispatchQueue(label: "Monitor")
+    monitor.start(queue: queue)
     mapView.delegate = self
-
       self.createPins()
+    monitor.cancel()
 
       mapOrListsegmentedControl.snp.makeConstraints { (make) -> Void in
         make.leading.trailing.equalToSuperview().inset(30)
@@ -128,19 +153,26 @@ class MainViewController: UIViewController {
         let loc = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
         setPinUsingMKAnnotation(title: item.address.streetName+" "+item.address.buildingNumber,
                                 locationName: item.address.addressLine,
-                                location: loc)
-        array.append(item)
+                                location: loc, workTime: "item.availability.standardAvailability.day[0].", currency: item.currency.rawValue, isCash: item.currentStatus.rawValue)
+
+
+
+        array.append(item.address.townName)
+
       }
+
+      let filteredArray = Array(NSOrderedSet(array: array)) as? [String]
+   print(filteredArray!)
     }
   }
 
-  func setPinUsingMKAnnotation(title: String, locationName: String, location: CLLocationCoordinate2D) {
+  func setPinUsingMKAnnotation(title: String, locationName: String, location: CLLocationCoordinate2D, workTime: String, currency: String, isCash: String) {
     DispatchQueue.main.async { [self] in
-      let pinAnnotation = MapPin(title: title,
+      let pinAnnotation = MapPinAnnotation(title: title,
                                  locationName: locationName,
-                                 workTime: "lol",
-                                 currency: "lol",
-                                 isCash: "lol",
+                                 workTime: workTime,
+                                 currency: currency,
+                                 isCash: isCash,
                                  coordinate: location)
        let coordinateRegion = MKCoordinateRegion(center: pinAnnotation.coordinate,
                                                  latitudinalMeters: 5000,
@@ -181,14 +213,14 @@ extension MainViewController: CLLocationManagerDelegate, MKMapViewDelegate {
 
   func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
     var annotationView: MKAnnotationView?
-    if let annotation = annotation as? MapPin {
+    if let annotation = annotation as? MapPinAnnotation {
       annotationView = setupAnnotationView(for: annotation, on: mapView)
     }
     return annotationView
   }
 
-  private func setupAnnotationView(for annotation: MapPin, on mapView: MKMapView) -> MKAnnotationView {
-    let identifier = NSStringFromClass(MapPin.self)
+  private func setupAnnotationView(for annotation: MapPinAnnotation, on mapView: MKMapView) -> MKAnnotationView {
+    let identifier = NSStringFromClass(MapPinAnnotation.self)
     let view = mapView.dequeueReusableAnnotationView(withIdentifier: identifier, for: annotation)
     view.canShowCallout = false
     if let markerAnnotationView = view as? MKMarkerAnnotationView {
@@ -203,26 +235,28 @@ extension MainViewController: CLLocationManagerDelegate, MKMapViewDelegate {
   func mapView(_ mapView: MKMapView,
                didSelect view: MKAnnotationView) {
 
-     let annotation = view.annotation as? MapPin
-    //{
-//          let detailNavController = FullInformationViewController(fullInformationTextView: annotation.title!!,
-//                                                                  lat: annotation.coordinate.latitude,
-//                                                                  lng: annotation.coordinate.longitude)
-//          detailNavController.modalPresentationStyle = .popover
-//          let presentationController = detailNavController.popoverPresentationController
-//          presentationController?.permittedArrowDirections = .any
-//          present(detailNavController, animated: true, completion: nil)
-//        }
-    let sheetViewController = ButtomPresentationViewController(adressOfATM: "sfg", timeOfWork: "gbdfbdb", currancy: "svfhs", cashIn: "fvdfv")
-    if let sheet = sheetViewController.sheetPresentationController {
-      sheet.prefersGrabberVisible = true
-      sheet.preferredCornerRadius = 32
-      sheet.prefersScrollingExpandsWhenScrolledToEdge = true
-              sheet.prefersGrabberVisible = true
-      sheet.detents = [.medium(), .large()]
+    if let annotation = view.annotation as? MapPinAnnotation {
+      let sheetViewController = ButtomPresentationViewController(adressOfATM: annotation.locationName, timeOfWork: annotation.workTime, currancy: annotation.currency, cashIn: annotation.isCash)
+      if let sheet = sheetViewController.sheetPresentationController {
+        sheet.prefersGrabberVisible = true
+        sheet.preferredCornerRadius = 32
+        sheet.prefersScrollingExpandsWhenScrolledToEdge = true
+        sheet.prefersGrabberVisible = true
+        sheet.detents = [.medium(), .large()]
+      }
+      present(sheetViewController, animated: true)
     }
-    present(sheetViewController, animated: true)
   }
+    
+  //{
+  //          let detailNavController = FullInformationViewController(fullInformationTextView: annotation.title!!,
+  //                                                                  lat: annotation.coordinate.latitude,
+  //                                                                  lng: annotation.coordinate.longitude)
+  //          detailNavController.modalPresentationStyle = .popover
+  //          let presentationController = detailNavController.popoverPresentationController
+  //          presentationController?.permittedArrowDirections = .any
+  //          present(detailNavController, animated: true, completion: nil)
+  //        }
 }
 
 private extension MKMapView {
@@ -306,3 +340,32 @@ private extension MKMapView {
 // При любой сетевой ошибке во время выполнения запроса показывать алерт с сообщением и кнопками “Повторить ещё раз”
 // (выполняет повторно запрос) и “Закрыть” (закрывает алерт).
 //
+
+//можешь сделать список городов, если их немного (эт не обязательно, просто ответ должен быть больше 20 символов)
+//enum Cities: String { case moscow = “Москва”}
+//
+//и просто используешь фильтр
+//
+//ports.filter{$0.city == Cities.moscow}
+//
+//И это не сортировка, а фильтрация. Сортировка - это, когда ты упорядочиваешь элементы массива согласно определенной логике
+
+
+
+//      for index in 0..<self.arrayOfATMs.count {
+//        array.append(self.arrayOfATMs[index].address.townName)
+//      }
+//
+//      sectionsNameArray = (Array(NSOrderedSet(array: array)) as? [String])!
+//      print(sectionsNameArray.count)
+
+
+
+//var sectionItems: [String:[Person]] = [:]
+//пример результата закомментированы справой стороны переменных(в самом начале)
+//пониже так-же отписал что никак не выведу:
+//
+//self.sectionItems = ...
+//["2019":[соответствующий массив где года равны 2019]]
+//["2018":[соответствующий массив где года равны 2018]]
+//let sectionItems = Dictionary(grouping: peopleArray, by: { String($0.date.prefix(4)) })

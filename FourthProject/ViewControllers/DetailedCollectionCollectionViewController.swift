@@ -9,7 +9,8 @@ import UIKit
 
 class DetailedCollectionViewController: UIViewController, UICollectionViewDelegateFlowLayout {
 
-var arrayOfATMs = [ATM]()
+  var arrayOfATMs = [ATM]()
+  var sectionItems = [String: [ATM]]()
 
   private lazy var collectionView: UICollectionView = {
     let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
@@ -34,22 +35,29 @@ var arrayOfATMs = [ATM]()
       make.bottom.equalToSuperview()
     }
 
-      let apiService = APIService(urlString: "https://belarusbank.by/open-banking/v1.0/atms")
-      apiService.getJSON { (atms: ATMResponse) in
-        let atms = atms
-        self.arrayOfATMs = atms.data.atm
-        DispatchQueue.main.async {
-          self.collectionView.reloadData()
-        }
-        print((self.arrayOfATMs.count))
+    let apiService = APIService(urlString: "https://belarusbank.by/open-banking/v1.0/atms")
+    apiService.getJSON { [self] (atms: ATMResponse) in
+      let atms = atms
+      self.arrayOfATMs = atms.data.atm
+      sectionItems = Dictionary(grouping: arrayOfATMs, by: { String($0.address.townName) })
+      print(    sectionItems.keys)
+      DispatchQueue.main.async {
+        self.collectionView.reloadData()
+      }
+      print((self.arrayOfATMs.count))
 
     }
   }
 }
 
 extension DetailedCollectionViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+
   func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
     arrayOfATMs.count
+  }
+
+  func numberOfSections(in collectionView: UICollectionView) -> Int {
+    sectionItems.count
   }
 
      func collectionView(_ collectionView: UICollectionView,
@@ -86,7 +94,7 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
                          canPerformAction action: Selector,
                          forItemAt indexPath: IndexPath,
                          withSender sender: Any?) -> Bool {
-        return false
+        return true
     }
 
      func collectionView(_ collectionView: UICollectionView,

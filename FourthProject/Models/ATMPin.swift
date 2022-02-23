@@ -8,7 +8,7 @@
 import MapKit
 import SwiftUI
 
-class MapPin: NSObject, MKAnnotation {
+class MapPinAnnotation: NSObject, MKAnnotation {
   @objc dynamic var coordinate: CLLocationCoordinate2D
   let title: String?
   let locationName: String
