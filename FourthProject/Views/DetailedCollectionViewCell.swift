@@ -45,8 +45,6 @@ class DetailedCollectionViewCell: UICollectionViewCell {
     addSubview(placeLabel)
     addSubview(timeLabel)
    addSubview(currancyLabel)
-
-
   }
 
   override func layoutSubviews() {

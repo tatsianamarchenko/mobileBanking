@@ -5,7 +5,7 @@ public class APIService {
     public init(urlString: String) {
         self.urlString = urlString
     }
-    
+
     public func getJSON<T: Decodable>(completion: @escaping (T) -> Void) {
         guard let url = URL(string: urlString) else {
             fatalError("Error: Invalid URL.")

@@ -27,7 +27,7 @@ var arrayOfATMs = [ATM]()
     collectionView.dataSource = self
 
     view.addSubview(collectionView)
-    
+
     collectionView.snp.makeConstraints { (make) -> Void in
       make.leading.trailing.equalToSuperview()
       make.top.equalToSuperview()
@@ -60,7 +60,8 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
                 return UICollectionViewCell()
               }
        cell.timeLabel.text =
-       arrayOfATMs[indexPath.row].availability.standardAvailability.day[0].openingTime.rawValue + "-" + arrayOfATMs[indexPath.row].availability.standardAvailability.day[0].closingTime.rawValue
+       arrayOfATMs[indexPath.row].availability.standardAvailability.day[0].openingTime.rawValue + "-"
+       + arrayOfATMs[indexPath.row].availability.standardAvailability.day[0].closingTime.rawValue
        cell.placeLabel.text = arrayOfATMs[indexPath.row].address.addressLine
        cell.currancyLabel.text = arrayOfATMs[indexPath.row].currency.rawValue
        return cell
@@ -81,26 +82,39 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
         return false
     }
 
-     func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
+     func collectionView(_ collectionView: UICollectionView,
+                         canPerformAction action: Selector,
+                         forItemAt indexPath: IndexPath,
+                         withSender sender: Any?) -> Bool {
         return false
     }
 
-     func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {
+     func collectionView(_ collectionView: UICollectionView,
+                         performAction action: Selector,
+                         forItemAt indexPath: IndexPath, withSender sender: Any?) {
 
     }
 
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        sizeForItemAt indexPath: IndexPath) -> CGSize {
       return CGSize(width: 100, height: 100)
     }
 
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
       return 1
     }
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        minimumLineSpacingForSectionAt section: Int) -> CGFloat {
       return 1
     }
 
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        insetForSectionAt section: Int) -> UIEdgeInsets {
       return UIEdgeInsets(top: 1, left: 1, bottom: 1, right: 1)
     }
 
@@ -109,7 +123,7 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
 
     /*
     // Uncomment this method to specify if the specified item should be highlighted during tracking
-    override func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
+  override func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
         return true
     }
     */
@@ -120,6 +134,3 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
         return true
     }
     */
-
-
-

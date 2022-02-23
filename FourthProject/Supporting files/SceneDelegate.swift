@@ -14,17 +14,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   func scene(_ scene: UIScene,
              willConnectTo session: UISceneSession,
              options connectionOptions: UIScene.ConnectionOptions) {
-    if let ws = scene as? UIWindowScene {
-      let myWindow = UIWindow(windowScene: ws)
+    if let windowScene = scene as? UIWindowScene {
+      let myWindow = UIWindow(windowScene: windowScene)
       let navVC = UINavigationController()
-      let vc = MainViewController()
+      let viewController = MainViewController()
       let emailButton = UIBarButtonItem(image: UIImage(systemName: "arrow.counterclockwise")!,
                                         style: .plain,
                                         target: self,
                                         action: #selector(action))
-      vc.navigationItem.rightBarButtonItem = emailButton
-      vc.title = "Банкоматы"
-      navVC.viewControllers = [vc]
+      viewController.navigationItem.rightBarButtonItem = emailButton
+      viewController.title = "Банкоматы"
+      navVC.viewControllers = [viewController]
       myWindow.rootViewController = navVC
       self.window = myWindow
       myWindow.makeKeyAndVisible()

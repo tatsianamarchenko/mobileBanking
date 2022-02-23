@@ -12,17 +12,43 @@ import MapKit
 class MainViewController: UIViewController {
 
   let locationManager = CLLocationManager()
+  var array = [ATM]()
+  private var displayedAnnotations: [MKAnnotation]? {
+      willSet {
+          if let currentAnnotations = displayedAnnotations {
+              mapView.removeAnnotations(currentAnnotations)
+          }
+      }
+      didSet {
+          if let newAnnotations = displayedAnnotations {
+              mapView.addAnnotations(newAnnotations)
+          }
+        centerMapOnMinsk()
+      }
+  }
+
+  private func centerMapOnMinsk() {
+      let span = MKCoordinateSpan(latitudeDelta: 0.15, longitudeDelta: 0.15)
+      let center = CLLocationCoordinate2D(latitude: 53.716, longitude: 27.9776)
+      mapView.setRegion(MKCoordinateRegion(center: center, span: span), animated: true)
+  }
 
   var mapView: MKMapView = {
     var map = MKMapView()
-    var annotation =  MKPointAnnotation()
-//    let loc = CLLocationCoordinate2DMake(53.716, 27.9776)
-//    annotation.coordinate = loc
-//    map.addAnnotation(annotation)
-//    let span = MKCoordinateSpan(latitudeDelta: 0.2, longitudeDelta: 0.2)
-//    let region = MKCoordinateRegion(center: loc, span: span)
-//    map.setRegion(region, animated: true)
-//    annotation.title = "Minsk"
+    let minskCenter = CLLocation(latitude: 53.716, longitude: 27.9776)
+    map.centerToLocation(minskCenter)
+    let region = MKCoordinateRegion(
+      center: minskCenter.coordinate,
+      latitudinalMeters: 10000,
+      longitudinalMeters: 10000)
+    map.register(MKMarkerAnnotationView.self, forAnnotationViewWithReuseIdentifier: NSStringFromClass(MapPin.self))
+    //    map.setCameraBoundary(
+    //         MKMapView.CameraBoundary(coordinateRegion: region),
+    //         animated: true)
+    //
+    //       let zoomRange = MKMapView.CameraZoomRange(maxCenterCoordinateDistance: 200000)
+    //    map.setCameraZoomRange(zoomRange, animated: true)
+
     return map
   }()
 
@@ -57,17 +83,8 @@ class MainViewController: UIViewController {
         make.leading.trailing.equalToSuperview()
         make.top.equalTo(mapOrListsegmentedControl).inset(50)
         make.bottom.equalToSuperview()
-
     }
-  }
 
-  func setPinUsingMKAnnotation(title: String, locationName: String, location: CLLocationCoordinate2D) {
-    DispatchQueue.main.async { [self] in
-      let pin1 = MapPin(title: title, locationName: locationName, coordinate: location)
-       let coordinateRegion = MKCoordinateRegion(center: pin1.coordinate, latitudinalMeters: 5000, longitudinalMeters: 5000)
-       mapView.setRegion(coordinateRegion, animated: true)
-       mapView.addAnnotations([pin1])
-    }
   }
 
   @objc func action (_ sender: UISegmentedControl) {
@@ -109,12 +126,29 @@ class MainViewController: UIViewController {
                                                   item.address.geolocation.geographicCoordinates.longitude)!.doubleValue
 
         let loc = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-        setPinUsingMKAnnotation(title: item.address.townName, locationName: item.address.streetName, location: loc)
+        setPinUsingMKAnnotation(title: item.address.streetName+" "+item.address.buildingNumber,
+                                locationName: item.address.addressLine,
+                                location: loc)
+        array.append(item)
       }
     }
   }
 
-static let locationBelarus = CLLocation(latitude: 53.7169, longitude: 27.9776)
+  func setPinUsingMKAnnotation(title: String, locationName: String, location: CLLocationCoordinate2D) {
+    DispatchQueue.main.async { [self] in
+      let pinAnnotation = MapPin(title: title,
+                                 locationName: locationName,
+                                 workTime: "lol",
+                                 currency: "lol",
+                                 isCash: "lol",
+                                 coordinate: location)
+       let coordinateRegion = MKCoordinateRegion(center: pinAnnotation.coordinate,
+                                                 latitudinalMeters: 5000,
+                                                 longitudinalMeters: 5000)
+     //  mapView.setRegion(coordinateRegion, animated: true)
+       mapView.addAnnotations([pinAnnotation])
+    }
+  }
 
 func checkAuthorizationStatus() {
   switch locationManager.authorizationStatus {
@@ -137,9 +171,6 @@ func checkAuthorizationStatus() {
   }
 }
 
-
-
-
   func setUpManager () {
     locationManager.delegate = self
     locationManager.desiredAccuracy = kCLLocationAccuracyBest
@@ -147,22 +178,131 @@ func checkAuthorizationStatus() {
 }
 
 extension MainViewController: CLLocationManagerDelegate, MKMapViewDelegate {
+
   func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-
-    let identifier = "Pin"
-    let annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) ?? MKAnnotationView(annotation: annotation, reuseIdentifier: identifier)
-
-    annotationView.canShowCallout = true
-
-    annotationView.clusteringIdentifier = "PinCluster"
-
-    if annotation is MKUserLocation {
-      return nil
-    } else if annotation is MapPin {
-      annotationView.image =  UIImage(systemName: "mappin.circle.fill")?.withTintColor(.systemPink, renderingMode: .automatic)
-      return annotationView
-    } else {
-      return nil
+    var annotationView: MKAnnotationView?
+    if let annotation = annotation as? MapPin {
+      annotationView = setupAnnotationView(for: annotation, on: mapView)
     }
+    return annotationView
+  }
+
+  private func setupAnnotationView(for annotation: MapPin, on mapView: MKMapView) -> MKAnnotationView {
+    let identifier = NSStringFromClass(MapPin.self)
+    let view = mapView.dequeueReusableAnnotationView(withIdentifier: identifier, for: annotation)
+    view.canShowCallout = false
+    if let markerAnnotationView = view as? MKMarkerAnnotationView {
+      markerAnnotationView.animatesWhenAdded = true
+      markerAnnotationView.clusteringIdentifier = "PinCluster"
+      markerAnnotationView.markerTintColor = .systemMint
+      markerAnnotationView.titleVisibility = .visible
+    }
+    return view
+  }
+
+  func mapView(_ mapView: MKMapView,
+               didSelect view: MKAnnotationView) {
+
+     let annotation = view.annotation as? MapPin
+    //{
+//          let detailNavController = FullInformationViewController(fullInformationTextView: annotation.title!!,
+//                                                                  lat: annotation.coordinate.latitude,
+//                                                                  lng: annotation.coordinate.longitude)
+//          detailNavController.modalPresentationStyle = .popover
+//          let presentationController = detailNavController.popoverPresentationController
+//          presentationController?.permittedArrowDirections = .any
+//          present(detailNavController, animated: true, completion: nil)
+//        }
+    let sheetViewController = ButtomPresentationViewController(adressOfATM: "sfg", timeOfWork: "gbdfbdb", currancy: "svfhs", cashIn: "fvdfv")
+    if let sheet = sheetViewController.sheetPresentationController {
+      sheet.prefersGrabberVisible = true
+      sheet.preferredCornerRadius = 32
+      sheet.prefersScrollingExpandsWhenScrolledToEdge = true
+              sheet.prefersGrabberVisible = true
+      sheet.detents = [.medium(), .large()]
+    }
+    present(sheetViewController, animated: true)
   }
 }
+
+private extension MKMapView {
+  func centerToLocation(
+    _ location: CLLocation,
+    regionRadius: CLLocationDistance = 650000
+  ) {
+    let coordinateRegion = MKCoordinateRegion(
+      center: location.coordinate,
+      latitudinalMeters: regionRadius,
+      longitudinalMeters: regionRadius)
+    setRegion(coordinateRegion, animated: true)
+  }
+}
+
+// На главном экране отображается нав. бар с заголовком и кнопкой обновить в правом верхнем углу.
+//
+// Под нав. баром добавить UISegmentedControl, который переключается между картой и списком. По умолчанию выбрана карта.
+//
+// 1) Карта с банкоматами
+//
+// Можно использовать Apple Maps / Google Maps / Yandex Maps.
+//
+// При нажатии на точку показать всплывающее окно на карте с информацией о:
+//
+// место установки банкомата
+// режим работы
+// выдаваемая валюта
+// есть ли cash in
+// кнопка “Подробнее”
+// Окно закрывается по нажатию вне области окна / по тапу на крестик в верхнем правом углу модального окна.
+//
+// Кнопка “Подробнее”
+//
+// При нажатию на это кнопку показать новый контроллер, на котором вывести всю доступную информацию о банкомате.
+//
+// Если информация не помещается на экран, то она должна скроллиться.
+//
+// В самом низу экрана расположить кнопку “Построить маршрут”,
+// которая перебрасывает пользователя в карты, установленные на его телефоне,
+// с построенным маршрутом от текущего местоположения пользователя до банкомата.
+// Кнопка “Построить маршрут” видна внизу экрана всегда.
+// Контент, который не влазит, скроллится выше кнопки.
+//
+// 2) Список банкоматов
+//
+// При переходе на данный экран отображать банкоматы в виде списка-коллекции (UICollectionView) по 3 банкомата в ряд.
+//
+// Каждый банкомат представлен прямоугольной карточкой, на которой есть информация о:
+//
+// место установки банкомата
+// режим работы
+// выдаваемая валюта
+// Нажатие на карточку банкомата возвращает пользователя на экран с картой,
+// на которой нужно показать всплывающее окно с информацией о выбранном банкомате (окно идентичное тому,
+// когда пользователь сам выбирает банкомат из точки на карте)
+//
+// Банкоматы в коллекции сгруппированы по городу (в заголовке каждой секции вывести название города).
+// Внутри секции банкоматы сортируются по atmId по возрастанию.
+//
+// 3) Кнопка обновить
+//
+// При нажатии на кнопку приложение запрашивает данные о банкоматах. Кнопка неактивна, пока выполняется запрос
+// (по желанию можно поменять кнопку на крутящийся индикатор)
+//
+// Логика работы приложения
+//
+// При первом запуске приложение запрашивает доступ к геолокации пользователя. Если пользователь не разрешил доступ,
+// то при последующих запусках уведомляем его об этом и предлагаем перейти в настройки,
+// чтобы включить геолокацию (реализацию можно подсмотреть в Яндекс.Картах при выключенном доступе к геолокации)
+//
+// При каждом запуске приложения центрируем карту относительно текущего местоположения пользователя.
+// Если она недоступна, то делаем так, чтобы была видна вся Беларусь на карте.
+//
+// Приложение запрашивает банкоматы у API и отображает их на карте в виде точек и в виде списка-коллекции.
+//
+// До выполнения запроса проверить включен ли интернет.
+// Если интернет-соединение отсутствует,
+// то вывести алерт пользователю с информацией о том, что приложение не работает без доступа к интернету.
+//
+// При любой сетевой ошибке во время выполнения запроса показывать алерт с сообщением и кнопками “Повторить ещё раз”
+// (выполняет повторно запрос) и “Закрыть” (закрывает алерт).
+//

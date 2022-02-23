@@ -13,6 +13,8 @@
 		BF10002327C536A8006C4E07 /* DetailedCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002227C536A8006C4E07 /* DetailedCollectionViewCell.swift */; };
 		BF10002527C54EA3006C4E07 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002427C54EA3006C4E07 /* Constants.swift */; };
 		BF10002D27C58057006C4E07 /* ATMPin.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002C27C58057006C4E07 /* ATMPin.swift */; };
+		BF10002F27C5AE97006C4E07 /* FullInformationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002E27C5AE96006C4E07 /* FullInformationViewController.swift */; };
+		BFAC088C27C651E9003B1F21 /* ButtomPresentationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFAC088B27C651E9003B1F21 /* ButtomPresentationViewController.swift */; };
 		BFC89D8527C44FD8004DBEC9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFC89D8427C44FD8004DBEC9 /* AppDelegate.swift */; };
 		BFC89D8727C44FD8004DBEC9 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFC89D8627C44FD8004DBEC9 /* SceneDelegate.swift */; };
 		BFC89D8927C44FD8004DBEC9 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFC89D8827C44FD8004DBEC9 /* MainViewController.swift */; };
@@ -31,6 +33,8 @@
 		BF10002227C536A8006C4E07 /* DetailedCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedCollectionViewCell.swift; sourceTree = "<group>"; };
 		BF10002427C54EA3006C4E07 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		BF10002C27C58057006C4E07 /* ATMPin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ATMPin.swift; sourceTree = "<group>"; };
+		BF10002E27C5AE96006C4E07 /* FullInformationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullInformationViewController.swift; sourceTree = "<group>"; };
+		BFAC088B27C651E9003B1F21 /* ButtomPresentationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtomPresentationViewController.swift; sourceTree = "<group>"; };
 		BFC89D8127C44FD8004DBEC9 /* FourthProject.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FourthProject.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BFC89D8427C44FD8004DBEC9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		BFC89D8627C44FD8004DBEC9 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -96,6 +100,8 @@
 			isa = PBXGroup;
 			children = (
 				BFC89D8827C44FD8004DBEC9 /* MainViewController.swift */,
+				BFAC088B27C651E9003B1F21 /* ButtomPresentationViewController.swift */,
+				BF10002E27C5AE96006C4E07 /* FullInformationViewController.swift */,
 				BF10002027C53646006C4E07 /* DetailedCollectionCollectionViewController.swift */,
 			);
 			path = ViewControllers;
@@ -283,9 +289,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				BF10002327C536A8006C4E07 /* DetailedCollectionViewCell.swift in Sources */,
+				BFAC088C27C651E9003B1F21 /* ButtomPresentationViewController.swift in Sources */,
 				BF10002127C53646006C4E07 /* DetailedCollectionCollectionViewController.swift in Sources */,
 				BFC89D8927C44FD8004DBEC9 /* MainViewController.swift in Sources */,
 				BF10001D27C50B1F006C4E07 /* APIService.swift in Sources */,
+				BF10002F27C5AE97006C4E07 /* FullInformationViewController.swift in Sources */,
 				BF10001F27C50F19006C4E07 /* BankomatsModel.swift in Sources */,
 				BFC89D8527C44FD8004DBEC9 /* AppDelegate.swift in Sources */,
 				BFC89D8727C44FD8004DBEC9 /* SceneDelegate.swift in Sources */,

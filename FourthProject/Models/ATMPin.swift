@@ -6,14 +6,28 @@
 //
 
 import MapKit
-class MapPin: NSObject, MKAnnotation {
-   let title: String?
-   let locationName: String
-   let coordinate: CLLocationCoordinate2D
+import SwiftUI
 
-init(title: String, locationName: String, coordinate: CLLocationCoordinate2D) {
-      self.title = title
-      self.locationName = locationName
-      self.coordinate = coordinate
-   }
+class MapPin: NSObject, MKAnnotation {
+  @objc dynamic var coordinate: CLLocationCoordinate2D
+  let title: String?
+  let locationName: String
+  let workTime: String
+  let currency: String
+  let isCash: String
+
+  init(title: String,
+       locationName: String,
+       workTime: String,
+       currency: String,
+       isCash: String,
+       coordinate: CLLocationCoordinate2D) {
+    self.coordinate = coordinate
+    self.title = title
+    self.locationName = locationName
+    self.workTime = workTime
+    self.currency = currency
+    self.isCash = isCash
+    super.init()
+  }
 }
