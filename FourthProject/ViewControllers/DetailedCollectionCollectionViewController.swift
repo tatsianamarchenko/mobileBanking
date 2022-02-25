@@ -21,9 +21,9 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
     var collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
     collectionView.register(DetailedCollectionViewCell.self,
                             forCellWithReuseIdentifier: DetailedCollectionViewCell.reuseIdentifier)
-    collectionView.register(SelectIconHeaderViewCell.self,
+    collectionView.register(SectionHeaderView.self,
                             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-                            withReuseIdentifier: SelectIconHeaderViewCell.reuseId)
+                            withReuseIdentifier: SectionHeaderView.reuseId)
     collectionView.clipsToBounds = true
     return collectionView
   }()
@@ -43,7 +43,8 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 
     let apiService = APIService(urlString: "https://belarusbank.by/open-banking/v1.0/atms")
     apiService.getJSON { [self] (atms: ATMResponse) in
-      let sectionItems = Dictionary(grouping: atms.data.atm.sorted {$0.atmID < $1.atmID}, by: { String($0.address.townName) })
+      let sectionItems = Dictionary(grouping: atms.data.atm.sorted {$0.atmID < $1.atmID},
+                                    by: { String($0.address.townName) })
       for index in 0..<sectionItems.count {
         sections.append(Section(sectionName: Array(sectionItems.keys)[index],
                                 rowData: Array(sectionItems.values)[index]))
@@ -82,8 +83,8 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
                       viewForSupplementaryElementOfKind kind: String,
                       at indexPath: IndexPath) -> UICollectionReusableView {
     guard let cell = self.collectionView.dequeueReusableSupplementaryView(ofKind: kind,
-                                                                          withReuseIdentifier: SelectIconHeaderViewCell.reuseId,
-                                                                          for: indexPath) as? SelectIconHeaderViewCell
+                                                                          withReuseIdentifier: SectionHeaderView.reuseId,
+                                                                          for: indexPath) as? SectionHeaderView
     else {
       return UICollectionReusableView()
     }
@@ -111,7 +112,7 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
 //    }
 //  }
 
-  // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
+// Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
   func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
     return false
   }
@@ -168,41 +169,6 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
         return true
     }
     */
-
-class SelectIconHeaderViewCell: UICollectionViewCell {
-
-  static var reuseId = "reuseId"
-
-  var title: UILabel = {
-    var lable = UILabel()
-    lable.textColor = .systemPink
-    lable.numberOfLines = 1
-    return lable
-  }()
-
-  override init(frame: CGRect) {
-    super.init(frame: frame)
-  }
-
-  required init?(coder: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
-
-  func initializeUI() {
-
-    self.addSubview(title)
-    backgroundColor = .systemMint
-
-    title.snp.makeConstraints { (make) in
-      make.leading.equalTo(contentView.snp_leadingMargin).inset(30)
-      make.top.equalTo(contentView).offset(20)
-    }
-  }
-
-  func setTitle(title: String) {
-    self.title.text = title
-  }
-}
 
 //  self.arrayOfATMs = atms.data.atm
 

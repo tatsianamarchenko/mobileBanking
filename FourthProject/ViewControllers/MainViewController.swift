@@ -14,9 +14,7 @@ import Network
 class MainViewController: UIViewController {
   let monitor = NWPathMonitor()
   let locationManager = CLLocationManager()
-  var arrayq = [ATM]()
-  var array = [String]()
-  var array1 = [String]()
+  var array = [ATM]()
 
   private lazy var internetAccessAlert: UIAlertController = {
     let alert = UIAlertController(title: "No access to internet connection",
@@ -153,31 +151,28 @@ class MainViewController: UIViewController {
           return
         }
 
+        var openingTime = [String]()
+        var closingTime = [String]()
+        for index in 0..<item.availability.standardAvailability.day.count {
+          openingTime.append(item.availability.standardAvailability.day[index].openingTime.rawValue)
+          closingTime.append(item.availability.standardAvailability.day[index].closingTime.rawValue)
+        }
+
         let loc = CLLocationCoordinate2D(latitude: latitude,
                                          longitude: longitude)
-        setPinUsingMKAnnotation(title: item.address.streetName + " " + item.address.buildingNumber,
-                                locationName: item.address.addressLine,
-                                location: loc,
-                                workTime: "item.availability.standardAvailability.day[0].",
-                                currency: item.currency.rawValue,
-                                isCash: item.currentStatus.rawValue)
-        array.append(item.address.townName)
+        setPinUsingMKAnnotation(title: item.address.streetName + " " + item.address.buildingNumber, atm: item,
+                                location: loc)
+
       }
     }
   }
 
   func setPinUsingMKAnnotation(title: String,
-                               locationName: String,
-                               location: CLLocationCoordinate2D,
-                               workTime: String,
-                               currency: String,
-                               isCash: String) {
+                               atm: ATM,
+                               location: CLLocationCoordinate2D) {
     DispatchQueue.main.async { [self] in
       let pinAnnotation = MapPinAnnotation(title: title,
-                                 locationName: locationName,
-                                 workTime: workTime,
-                                 currency: currency,
-                                 isCash: isCash,
+                                           atm: atm,
                                  coordinate: location)
        mapView.addAnnotations([pinAnnotation])
     }
@@ -190,7 +185,6 @@ func checkAuthorizationStatus() {
   case .authorizedWhenInUse, .authorizedAlways :
     locationManager.startUpdatingLocation()
     mapView.showsUserLocation = true
-    locationManager.stopUpdatingLocation()
   case .restricted, .denied :
     let alert = UIAlertController(title: "у приложения нет доступа к локации", message: "", preferredStyle: .alert)
     alert.addAction(UIAlertAction(title: "cancel", style: .cancel, handler: nil))
@@ -201,24 +195,19 @@ func checkAuthorizationStatus() {
     }))
     present(alert, animated: true)
   @unknown default:
-    fatalError()
+    break
   }
 }
 
 }
 
 extension MainViewController: CLLocationManagerDelegate {
-  func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-  }
-  func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-      print(error.localizedDescription)
-  }
-
   func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-    guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else { return }
+    guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else {
+      return }
     let span = MKCoordinateSpan(latitudeDelta: 0.15, longitudeDelta: 0.15)
     let center = CLLocationCoordinate2D(latitude: locValue.latitude, longitude: locValue.longitude)
-    manager.stopUpdatingHeading()
+    manager.stopUpdatingLocation()
     DispatchQueue.main.async {
       self.mapView.setRegion(MKCoordinateRegion(center: center, span: span), animated: true)
     }
@@ -250,12 +239,25 @@ extension MainViewController: MKMapViewDelegate {
 
   func mapView(_ mapView: MKMapView,
                didSelect view: MKAnnotationView) {
-
     if let annotation = view.annotation as? MapPinAnnotation {
-      let sheetViewController = ButtomPresentationViewController(adressOfATM: annotation.locationName,
-                                                                 timeOfWork: annotation.workTime,
-                                                                 currancy: annotation.currency,
-                                                                 cashIn: annotation.isCash)
+
+var breake = " "
+      if  annotation.atm.availability.standardAvailability.day[0].dayBreak.breakFromTime.rawValue != "00:00" {
+        breake = annotation.atm.availability.standardAvailability.day[0].dayBreak.breakFromTime.rawValue + "-" +
+        annotation.atm.availability.standardAvailability.day[0].dayBreak.breakToTime.rawValue}
+
+      let sheetViewController = ButtomPresentationViewController(adressOfATM: annotation.atm.address.streetName + "-"
+                                                                 + annotation.atm.address.buildingNumber,
+                                                                 atm: annotation.atm,
+                                                                 timeOfWork: annotation.atm.availability.standardAvailability.day[0].openingTime.rawValue
+                                                                 + " " +
+                                                                 annotation.atm.availability.standardAvailability.day[0].closingTime.rawValue
+                                                                 + " " + breake,
+                                                                 currancy: annotation.atm.currency.rawValue,
+                                                                 cashIn: annotation.atm.services[0].serviceType.rawValue)
+      mapView.centerToLocation(CLLocation(latitude: annotation.coordinate.latitude,
+                                          longitude: annotation.coordinate.longitude),
+                               regionRadius: 3000)
       if let sheet = sheetViewController.sheetPresentationController {
         sheet.prefersGrabberVisible = true
         sheet.preferredCornerRadius = 32

@@ -11,23 +11,14 @@ import SwiftUI
 class MapPinAnnotation: NSObject, MKAnnotation {
   @objc dynamic var coordinate: CLLocationCoordinate2D
   let title: String?
-  let locationName: String
-  let workTime: String
-  let currency: String
-  let isCash: String
+  let atm: ATM
 
   init(title: String,
-       locationName: String,
-       workTime: String,
-       currency: String,
-       isCash: String,
+       atm: ATM,
        coordinate: CLLocationCoordinate2D) {
     self.coordinate = coordinate
     self.title = title
-    self.locationName = locationName
-    self.workTime = workTime
-    self.currency = currency
-    self.isCash = isCash
+    self.atm = atm
     super.init()
   }
 }

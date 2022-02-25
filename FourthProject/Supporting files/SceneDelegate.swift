@@ -31,9 +31,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
   }
   @objc func action() {
-
-
-
+  
   }
 
 }
