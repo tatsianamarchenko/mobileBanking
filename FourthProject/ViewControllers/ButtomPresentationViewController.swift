@@ -9,7 +9,7 @@ import UIKit
 
 class ButtomPresentationViewController: UIViewController {
 
-  public var complition : (([ATM]) -> Void)?
+  public var complition: (([ATM]) -> Void)?
 
   private lazy var infoButton: UIButton = {
     var button = UIButton(type: .roundedRect)

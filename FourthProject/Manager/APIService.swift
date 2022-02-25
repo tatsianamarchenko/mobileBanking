@@ -5,13 +5,12 @@ public class APIService {
     public init(urlString: String) {
         self.urlString = urlString
     }
-    
     public func getJSON<T: Decodable>(completion: @escaping (T) -> Void) {
         guard let url = URL(string: urlString) else {
             fatalError("Error: Invalid URL.")
         }
         let request = URLRequest(url: url)
-        URLSession.shared.dataTask(with: request) { (data, response, error) in
+        URLSession.shared.dataTask(with: request) { (data, _, error) in
             if let error = error {
               print(error)
             }

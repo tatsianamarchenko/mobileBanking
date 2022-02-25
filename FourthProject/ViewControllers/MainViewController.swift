@@ -8,6 +8,7 @@
 import UIKit
 import SnapKit
 import MapKit
+import CoreLocation
 import Network
 
 class MainViewController: UIViewController {
@@ -17,41 +18,35 @@ class MainViewController: UIViewController {
   var array = [String]()
   var array1 = [String]()
 
-   var alert: UIAlertController = {
-    let alert = UIAlertController(title: "интернет на телефоне отключен", message: "", preferredStyle: .alert)
+  private lazy var internetAccessAlert: UIAlertController = {
+    let alert = UIAlertController(title: "No access to internet connection",
+                                  message: "приложение не работает без доступа к интернету.",
+                                  preferredStyle: .alert)
     alert.addAction(UIAlertAction(title: "cancel", style: .cancel, handler: nil))
     return alert
   }()
 
-  private var displayedAnnotations: [MKAnnotation]? {
-      willSet {
-          if let currentAnnotations = displayedAnnotations {
-              mapView.removeAnnotations(currentAnnotations)
-          }
-      }
-      didSet {
-          if let newAnnotations = displayedAnnotations {
-              mapView.addAnnotations(newAnnotations)
-          }
-        centerMapOnMinsk()
-      }
-  }
-
-  private func centerMapOnMinsk() {
-      let span = MKCoordinateSpan(latitudeDelta: 0.15, longitudeDelta: 0.15)
-      let center = CLLocationCoordinate2D(latitude: 53.716, longitude: 27.9776)
-      mapView.setRegion(MKCoordinateRegion(center: center, span: span), animated: true)
-  }
+  private lazy var internetErrorAlert: UIAlertController = {
+    let alert = UIAlertController(title: "No access to internet connection",
+                                  message: "приложение не работает без доступа к интернету.",
+                                  preferredStyle: .alert)
+    alert.addAction(UIAlertAction(title: "Закрыть", style: .cancel, handler: nil))
+    alert.addAction(UIAlertAction(title: "Повторить ещё раз", style: .default, handler: { _ in
+      self.createPins()
+    }))
+    return alert
+  }()
 
   var mapView: MKMapView = {
     var map = MKMapView()
     let minskCenter = CLLocation(latitude: 53.716, longitude: 27.9776)
-    map.centerToLocation(minskCenter)
+    map.centerToLocation(minskCenter, regionRadius: 650000)
     let region = MKCoordinateRegion(
       center: minskCenter.coordinate,
       latitudinalMeters: 10000,
       longitudinalMeters: 10000)
-    map.register(MKMarkerAnnotationView.self, forAnnotationViewWithReuseIdentifier: NSStringFromClass(MapPinAnnotation.self))
+    map.register(MKMarkerAnnotationView.self,
+                 forAnnotationViewWithReuseIdentifier: NSStringFromClass(MapPinAnnotation.self))
     //    map.setCameraBoundary(
     //         MKMapView.CameraBoundary(coordinateRegion: region),
     //         animated: true)
@@ -80,6 +75,8 @@ class MainViewController: UIViewController {
     view.addSubview(mapOrListsegmentedControl)
     view.addSubview(mapView)
 
+    mapView.delegate = self
+
     monitor.pathUpdateHandler = { [self] path in
       switch path.status {
       case .satisfied :
@@ -88,7 +85,11 @@ class MainViewController: UIViewController {
         }
       case .unsatisfied :
         DispatchQueue.main.async {
-          present(alert, animated: true)
+          present(internetAccessAlert, animated: true)
+        }
+      case .requiresConnection :
+        DispatchQueue.main.async {
+          present(internetErrorAlert, animated: true)
         }
       default : break
       }
@@ -96,7 +97,6 @@ class MainViewController: UIViewController {
 
     let queue = DispatchQueue(label: "Monitor")
     monitor.start(queue: queue)
-    mapView.delegate = self
       self.createPins()
     monitor.cancel()
 
@@ -122,8 +122,10 @@ class MainViewController: UIViewController {
     }
 
   func checkAccessToLocation () {
-    if CLLocationManager.locationServicesEnabled() {
-      setUpManager()
+      if CLLocationManager.locationServicesEnabled() {
+          locationManager.delegate = self
+          locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+          locationManager.startUpdatingLocation()
       checkAuthorizationStatus()
     } else {
       let alert = UIAlertController(title: "локация телефона отключена", message: "", preferredStyle: .alert)
@@ -144,29 +146,32 @@ class MainViewController: UIViewController {
 
       for atm in 0..<atms.data.atm.count {
         let item =  atms.data.atm[atm]
-        let latitude = NumberFormatter().number(from:
-                                                  item.address.geolocation.geographicCoordinates.latitude)!.doubleValue
+        guard let latitude = Double(item.address.geolocation.geographicCoordinates.latitude) else {
+          return
+        }
+        guard let longitude = Double(item.address.geolocation.geographicCoordinates.longitude) else {
+          return
+        }
 
-        let longitude = NumberFormatter().number(from:
-                                                  item.address.geolocation.geographicCoordinates.longitude)!.doubleValue
-
-        let loc = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-        setPinUsingMKAnnotation(title: item.address.streetName+" "+item.address.buildingNumber,
+        let loc = CLLocationCoordinate2D(latitude: latitude,
+                                         longitude: longitude)
+        setPinUsingMKAnnotation(title: item.address.streetName + " " + item.address.buildingNumber,
                                 locationName: item.address.addressLine,
-                                location: loc, workTime: "item.availability.standardAvailability.day[0].", currency: item.currency.rawValue, isCash: item.currentStatus.rawValue)
-
-
-
+                                location: loc,
+                                workTime: "item.availability.standardAvailability.day[0].",
+                                currency: item.currency.rawValue,
+                                isCash: item.currentStatus.rawValue)
         array.append(item.address.townName)
-
       }
-
-      let filteredArray = Array(NSOrderedSet(array: array)) as? [String]
-   print(filteredArray!)
     }
   }
 
-  func setPinUsingMKAnnotation(title: String, locationName: String, location: CLLocationCoordinate2D, workTime: String, currency: String, isCash: String) {
+  func setPinUsingMKAnnotation(title: String,
+                               locationName: String,
+                               location: CLLocationCoordinate2D,
+                               workTime: String,
+                               currency: String,
+                               isCash: String) {
     DispatchQueue.main.async { [self] in
       let pinAnnotation = MapPinAnnotation(title: title,
                                  locationName: locationName,
@@ -174,10 +179,6 @@ class MainViewController: UIViewController {
                                  currency: currency,
                                  isCash: isCash,
                                  coordinate: location)
-       let coordinateRegion = MKCoordinateRegion(center: pinAnnotation.coordinate,
-                                                 latitudinalMeters: 5000,
-                                                 longitudinalMeters: 5000)
-     //  mapView.setRegion(coordinateRegion, animated: true)
        mapView.addAnnotations([pinAnnotation])
     }
   }
@@ -185,11 +186,12 @@ class MainViewController: UIViewController {
 func checkAuthorizationStatus() {
   switch locationManager.authorizationStatus {
   case .notDetermined :   locationManager.requestAlwaysAuthorization()
+    fallthrough
   case .authorizedWhenInUse, .authorizedAlways :
-    mapView.showsUserLocation = true
     locationManager.startUpdatingLocation()
-
-  case   .restricted, .denied :
+    mapView.showsUserLocation = true
+    locationManager.stopUpdatingLocation()
+  case .restricted, .denied :
     let alert = UIAlertController(title: "у приложения нет доступа к локации", message: "", preferredStyle: .alert)
     alert.addAction(UIAlertAction(title: "cancel", style: .cancel, handler: nil))
     alert.addAction(UIAlertAction(title: "on", style: .default, handler: { _ in
@@ -203,13 +205,27 @@ func checkAuthorizationStatus() {
   }
 }
 
-  func setUpManager () {
-    locationManager.delegate = self
-    locationManager.desiredAccuracy = kCLLocationAccuracyBest
+}
+
+extension MainViewController: CLLocationManagerDelegate {
+  func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+  }
+  func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+      print(error.localizedDescription)
+  }
+
+  func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else { return }
+    let span = MKCoordinateSpan(latitudeDelta: 0.15, longitudeDelta: 0.15)
+    let center = CLLocationCoordinate2D(latitude: locValue.latitude, longitude: locValue.longitude)
+    manager.stopUpdatingHeading()
+    DispatchQueue.main.async {
+      self.mapView.setRegion(MKCoordinateRegion(center: center, span: span), animated: true)
+    }
   }
 }
 
-extension MainViewController: CLLocationManagerDelegate, MKMapViewDelegate {
+extension MainViewController: MKMapViewDelegate {
 
   func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
     var annotationView: MKAnnotationView?
@@ -236,7 +252,10 @@ extension MainViewController: CLLocationManagerDelegate, MKMapViewDelegate {
                didSelect view: MKAnnotationView) {
 
     if let annotation = view.annotation as? MapPinAnnotation {
-      let sheetViewController = ButtomPresentationViewController(adressOfATM: annotation.locationName, timeOfWork: annotation.workTime, currancy: annotation.currency, cashIn: annotation.isCash)
+      let sheetViewController = ButtomPresentationViewController(adressOfATM: annotation.locationName,
+                                                                 timeOfWork: annotation.workTime,
+                                                                 currancy: annotation.currency,
+                                                                 cashIn: annotation.isCash)
       if let sheet = sheetViewController.sheetPresentationController {
         sheet.prefersGrabberVisible = true
         sheet.preferredCornerRadius = 32
@@ -247,16 +266,6 @@ extension MainViewController: CLLocationManagerDelegate, MKMapViewDelegate {
       present(sheetViewController, animated: true)
     }
   }
-    
-  //{
-  //          let detailNavController = FullInformationViewController(fullInformationTextView: annotation.title!!,
-  //                                                                  lat: annotation.coordinate.latitude,
-  //                                                                  lng: annotation.coordinate.longitude)
-  //          detailNavController.modalPresentationStyle = .popover
-  //          let presentationController = detailNavController.popoverPresentationController
-  //          presentationController?.permittedArrowDirections = .any
-  //          present(detailNavController, animated: true, completion: nil)
-  //        }
 }
 
 private extension MKMapView {
@@ -272,14 +281,6 @@ private extension MKMapView {
   }
 }
 
-// На главном экране отображается нав. бар с заголовком и кнопкой обновить в правом верхнем углу.
-//
-// Под нав. баром добавить UISegmentedControl, который переключается между картой и списком. По умолчанию выбрана карта.
-//
-// 1) Карта с банкоматами
-//
-// Можно использовать Apple Maps / Google Maps / Yandex Maps.
-//
 // При нажатии на точку показать всплывающее окно на карте с информацией о:
 //
 // место установки банкомата
@@ -292,15 +293,6 @@ private extension MKMapView {
 // Кнопка “Подробнее”
 //
 // При нажатию на это кнопку показать новый контроллер, на котором вывести всю доступную информацию о банкомате.
-//
-// Если информация не помещается на экран, то она должна скроллиться.
-//
-// В самом низу экрана расположить кнопку “Построить маршрут”,
-// которая перебрасывает пользователя в карты, установленные на его телефоне,
-// с построенным маршрутом от текущего местоположения пользователя до банкомата.
-// Кнопка “Построить маршрут” видна внизу экрана всегда.
-// Контент, который не влазит, скроллится выше кнопки.
-//
 // 2) Список банкоматов
 //
 // При переходе на данный экран отображать банкоматы в виде списка-коллекции (UICollectionView) по 3 банкомата в ряд.
@@ -313,10 +305,6 @@ private extension MKMapView {
 // Нажатие на карточку банкомата возвращает пользователя на экран с картой,
 // на которой нужно показать всплывающее окно с информацией о выбранном банкомате (окно идентичное тому,
 // когда пользователь сам выбирает банкомат из точки на карте)
-//
-// Банкоматы в коллекции сгруппированы по городу (в заголовке каждой секции вывести название города).
-// Внутри секции банкоматы сортируются по atmId по возрастанию.
-//
 // 3) Кнопка обновить
 //
 // При нажатии на кнопку приложение запрашивает данные о банкоматах. Кнопка неактивна, пока выполняется запрос
@@ -330,9 +318,6 @@ private extension MKMapView {
 //
 // При каждом запуске приложения центрируем карту относительно текущего местоположения пользователя.
 // Если она недоступна, то делаем так, чтобы была видна вся Беларусь на карте.
-//
-// Приложение запрашивает банкоматы у API и отображает их на карте в виде точек и в виде списка-коллекции.
-//
 // До выполнения запроса проверить включен ли интернет.
 // Если интернет-соединение отсутствует,
 // то вывести алерт пользователю с информацией о том, что приложение не работает без доступа к интернету.
@@ -340,32 +325,3 @@ private extension MKMapView {
 // При любой сетевой ошибке во время выполнения запроса показывать алерт с сообщением и кнопками “Повторить ещё раз”
 // (выполняет повторно запрос) и “Закрыть” (закрывает алерт).
 //
-
-//можешь сделать список городов, если их немного (эт не обязательно, просто ответ должен быть больше 20 символов)
-//enum Cities: String { case moscow = “Москва”}
-//
-//и просто используешь фильтр
-//
-//ports.filter{$0.city == Cities.moscow}
-//
-//И это не сортировка, а фильтрация. Сортировка - это, когда ты упорядочиваешь элементы массива согласно определенной логике
-
-
-
-//      for index in 0..<self.arrayOfATMs.count {
-//        array.append(self.arrayOfATMs[index].address.townName)
-//      }
-//
-//      sectionsNameArray = (Array(NSOrderedSet(array: array)) as? [String])!
-//      print(sectionsNameArray.count)
-
-
-
-//var sectionItems: [String:[Person]] = [:]
-//пример результата закомментированы справой стороны переменных(в самом начале)
-//пониже так-же отписал что никак не выведу:
-//
-//self.sectionItems = ...
-//["2019":[соответствующий массив где года равны 2019]]
-//["2018":[соответствующий массив где года равны 2018]]
-//let sectionItems = Dictionary(grouping: peopleArray, by: { String($0.date.prefix(4)) })

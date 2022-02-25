@@ -30,6 +30,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
       myWindow.makeKeyAndVisible()
     }
   }
-  @objc func action() {}
+  @objc func action() {
+
+
+
+  }
 
 }
