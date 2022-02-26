@@ -51,6 +51,7 @@ class ButtomPresentationViewController: UIViewController {
   init(adressOfATM: String, atm: ATM, timeOfWork: String, currancy: String, cashIn: String) {
     self.atm = atm
     super.init(nibName: nil, bundle: nil)
+    title = atm.address.townName
     self.adressOfATMLable.text = adressOfATM
     self.timeOfWorkLable.text = timeOfWork
     self.currancyLable.text = currancy
@@ -65,6 +66,11 @@ class ButtomPresentationViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
+    navigationItem.rightBarButtonItem = UIBarButtonItem(
+      barButtonSystemItem: .close,
+      target: self,
+      action: #selector(cancel))
+
     view.backgroundColor = .systemBackground
 
     view.addSubview(placeStack)
@@ -72,29 +78,38 @@ class ButtomPresentationViewController: UIViewController {
     view.addSubview(currenceStack)
     view.addSubview(cashInStack)
     view.addSubview(infoButton)
+
+    createConstraints()
+  }
+
+  @objc func cancel() {
+dismiss(animated: true)
+  }
+
+  func createConstraints() {
     placeStack.snp.makeConstraints { (make) -> Void in
-      make.leading.trailing.equalToSuperview().inset(10)
-      make.top.equalToSuperview().inset(30)
+      make.centerX.equalToSuperview()
+      make.top.equalTo(view.snp_topMargin)
     }
     timeStack.snp.makeConstraints { (make) -> Void in
-      make.leading.trailing.equalTo(placeStack)
+      make.centerX.equalToSuperview()
       make.top.equalTo(placeStack.snp_bottomMargin).inset(-3)
     }
     currenceStack.snp.makeConstraints { (make) -> Void in
-      make.leading.trailing.equalTo(placeStack)
+      make.centerX.equalToSuperview()
       make.top.equalTo(timeStack.snp_bottomMargin).inset(-3)
     }
     cashInStack.snp.makeConstraints { (make) -> Void in
-      make.leading.trailing.equalTo(placeStack)
+      make.centerX.equalToSuperview()
       make.top.equalTo(currenceStack.snp_bottomMargin).inset(-3)
     }
     infoButton.snp.makeConstraints { (make) -> Void in
-      make.leading.trailing.equalToSuperview().inset(10)
+      make.leading.trailing.equalToSuperview().inset(screenSize.width*0.05)
       make.bottom.equalToSuperview().inset(80)
     }
   }
 
-  @objc func didTapClose() {
+  @objc func done () {
     dismiss(animated: true)
   }
 
@@ -107,19 +122,18 @@ class ButtomPresentationViewController: UIViewController {
     contentLable.numberOfLines = 0
 
     let stack = UIStackView(arrangedSubviews: [lableName, contentLable])
-    stack.translatesAutoresizingMaskIntoConstraints = false
     stack.axis = .vertical
-    stack.alignment = .leading
+    stack.alignment = .center
     stack.addSubview(contentLable)
     stack.addSubview(lableName)
 
     lableName.snp.makeConstraints { (make) -> Void in
-      make.leading.equalToSuperview()
+      make.centerX.equalToSuperview()
       make.top.equalToSuperview()
     }
     contentLable.snp.makeConstraints { (make) -> Void in
-      make.leading.equalToSuperview()
-      make.top.equalTo(lableName.snp_topMargin)
+      make.centerX.equalToSuperview()
+      make.top.equalTo(lableName.snp_topMargin).inset(10)
     }
     return stack
   }
@@ -133,9 +147,12 @@ class ButtomPresentationViewController: UIViewController {
                                                             availability: atm.availability.access24Hours.description,
                                                             contact: atm.contactDetails.phoneNumber,
                                                             service: atm.services[0].serviceType.rawValue,
-                                                            currency: atm.currency.rawValue,
-                                                            lat:   Double(atm.address.geolocation.geographicCoordinates.latitude)!,
-                                                            lng: Double(atm.address.geolocation.geographicCoordinates.longitude)!)
-    present(detailNavController, animated: true, completion: nil)
+                                                            currency: atm.currency.rawValue, city: atm.address.townName,
+                                                            lat: Double(atm.address.geolocation.geographicCoordinates
+                                                                            .latitude)!,
+                                                            lng: Double(atm.address.geolocation.geographicCoordinates
+                                                                          .longitude)!)
+    let navController = UINavigationController(rootViewController: detailNavController)
+    present(navController, animated: true, completion: nil)
   }
 }

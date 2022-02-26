@@ -29,7 +29,7 @@ class FullInformationViewController: UIViewController {
     return button
   }()
 
-private lazy var atmlable = UILabel()
+  private lazy var atmlable = UILabel()
   private lazy var typelable = UILabel()
   private lazy var currencylable = UILabel()
   private lazy var cardslable = UILabel()
@@ -87,6 +87,7 @@ private lazy var atmlable = UILabel()
 
   var lng: Double = 0
   var lat: Double = 0
+
   init(id: String,
        type: String,
        card: String,
@@ -96,6 +97,7 @@ private lazy var atmlable = UILabel()
        contact: String,
        service: String,
        currency: String,
+       city: String,
        lat: Double,
        lng: Double) {
     super.init(nibName: nil, bundle: nil)
@@ -108,6 +110,7 @@ private lazy var atmlable = UILabel()
     self.contactDetailslable.text = contact
     self.servicelable.text = service
     self.currencylable.text = currency
+    title = city
     self.lat = lat
     self.lng = lng
   }
@@ -116,21 +119,17 @@ private lazy var atmlable = UILabel()
     fatalError("init(coder:) has not been implemented")
   }
 
-  @objc func createRout() {
-    let source = MKMapItem(coordinate: .init(latitude: lat, longitude: lng), name: "Source")
-    let destination = MKMapItem(coordinate: .init(latitude: lat, longitude: lng), name: "Destination")
-
-    MKMapItem.openMaps(
-      with: [source, destination],
-      launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving]
-    )
-  }
-
   override func viewDidLoad() {
     super.viewDidLoad()
     view.backgroundColor = .systemBackground
     view.addSubview(scrollView)
     view.addSubview(routButton)
+
+    navigationItem.leftBarButtonItem = UIBarButtonItem(
+      barButtonSystemItem: .close,
+      target: self,
+      action: #selector(done))
+
     scrollView.addSubview(atmStack)
     scrollView.addSubview(typeStack)
     scrollView.addSubview(cardsStack)
@@ -143,7 +142,21 @@ private lazy var atmlable = UILabel()
     addConstraints()
   }
 
- private func addConstraints () {
+  @objc func createRout() {
+    let source = MKMapItem(coordinate: .init(latitude: lat, longitude: lng), name: "Source")
+    let destination = MKMapItem(coordinate: .init(latitude: lat, longitude: lng), name: "Destination")
+
+    MKMapItem.openMaps(
+      with: [source, destination],
+      launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving]
+    )
+  }
+
+  @objc func done () {
+    dismiss(animated: true)
+  }
+
+  private func addConstraints () {
     scrollView.snp.makeConstraints { (make) -> Void in
       make.leading.trailing.equalToSuperview()
       make.top.equalToSuperview().inset(50)
@@ -151,49 +164,49 @@ private lazy var atmlable = UILabel()
     }
 
     atmStack.snp.makeConstraints { (make) -> Void in
-      make.leading.trailing.equalTo(scrollView).inset(10)
+      make.centerX.equalToSuperview()
       make.top.equalTo(scrollView).inset(10)
     }
 
-  typeStack.snp.makeConstraints { (make) -> Void in
-      make.leading.trailing.equalTo(scrollView).inset(10)
-    make.top.equalTo(atmlable.snp_bottomMargin).inset(-10)
+    typeStack.snp.makeConstraints { (make) -> Void in
+      make.centerX.equalToSuperview()
+      make.top.equalTo(atmlable.snp_bottomMargin).inset(-10)
     }
 
     cardsStack.snp.makeConstraints { (make) -> Void in
-        make.leading.trailing.equalTo(scrollView).inset(10)
-        make.top.equalTo(typeStack.snp_bottomMargin).inset(-10)
-      }
+      make.centerX.equalToSuperview()
+      make.top.equalTo(typeStack.snp_bottomMargin).inset(-10)
+    }
 
     addessStack.snp.makeConstraints { (make) -> Void in
-        make.leading.trailing.equalTo(scrollView).inset(10)
-        make.top.equalTo(cardsStack.snp_bottomMargin).inset(-10)
-      }
+      make.centerX.equalToSuperview()
+      make.top.equalTo(cardsStack.snp_bottomMargin).inset(-10)
+    }
 
     serviceStack.snp.makeConstraints { (make) -> Void in
-        make.leading.trailing.equalTo(scrollView).inset(10)
-        make.top.equalTo(addessStack.snp_bottomMargin).inset(-10)
-      }
+      make.centerX.equalToSuperview()
+      make.top.equalTo(addessStack.snp_bottomMargin).inset(-10)
+    }
 
     currencyStack.snp.makeConstraints { (make) -> Void in
-        make.leading.trailing.equalTo(scrollView).inset(10)
-        make.top.equalTo(serviceStack.snp_bottomMargin).inset(-10)
-      }
+      make.centerX.equalToSuperview()
+      make.top.equalTo(serviceStack.snp_bottomMargin).inset(-10)
+    }
 
     availabilityStack.snp.makeConstraints { (make) -> Void in
-        make.leading.trailing.equalTo(scrollView).inset(10)
-        make.top.equalTo(currencylable.snp_bottomMargin).inset(-10)
-      }
+      make.centerX.equalToSuperview()
+      make.top.equalTo(currencylable.snp_bottomMargin).inset(-10)
+    }
 
     accessibilityStack.snp.makeConstraints { (make) -> Void in
-        make.leading.trailing.equalTo(scrollView).inset(10)
-        make.top.equalTo(availabilityStack.snp_bottomMargin).inset(-10)
-      }
+      make.centerX.equalToSuperview()
+      make.top.equalTo(availabilityStack.snp_bottomMargin).inset(-10)
+    }
 
     contactDetailsStack.snp.makeConstraints { (make) -> Void in
-        make.leading.trailing.equalTo(scrollView).inset(10)
-        make.top.equalTo(accessibilityStack.snp_bottomMargin).inset(-10)
-      }
+      make.centerX.equalToSuperview()
+      make.top.equalTo(accessibilityStack.snp_bottomMargin).inset(-10)
+    }
 
     routButton.snp.makeConstraints { (make) -> Void in
       make.leading.trailing.equalToSuperview().inset(30)
@@ -213,17 +226,17 @@ private lazy var atmlable = UILabel()
     let stack = UIStackView(arrangedSubviews: [lableName, contentLable])
     stack.translatesAutoresizingMaskIntoConstraints = false
     stack.axis = .vertical
-    stack.alignment = .leading
+    stack.alignment = .center
     stack.addSubview(contentLable)
     stack.addSubview(lableName)
 
     lableName.snp.makeConstraints { (make) -> Void in
-      make.leading.equalToSuperview()
+      make.centerX.equalToSuperview()
       make.top.equalToSuperview()
     }
     contentLable.snp.makeConstraints { (make) -> Void in
-      make.leading.equalToSuperview()
-      make.top.equalTo(lableName.snp_topMargin)
+      make.centerX.equalToSuperview()
+      make.top.equalTo(lableName.snp_topMargin).inset(3)
     }
     return stack
   }

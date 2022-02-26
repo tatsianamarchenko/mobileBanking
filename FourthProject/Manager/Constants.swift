@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 
-let screenSize = UIScreen.main.bounds.width
-let cellWidth = (screenSize/3)-15
+let screenSize = UIScreen.main.bounds
+let screenSizeWidth = UIScreen.main.bounds.width
+let cellWidth = (screenSizeWidth/3)-15
 let cellHeight = 50

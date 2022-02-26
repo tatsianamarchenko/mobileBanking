@@ -53,13 +53,6 @@ class MainViewController: UIViewController {
       longitudinalMeters: 10000)
     map.register(MKMarkerAnnotationView.self,
                  forAnnotationViewWithReuseIdentifier: NSStringFromClass(MapPinAnnotation.self))
-    //    map.setCameraBoundary(
-    //         MKMapView.CameraBoundary(coordinateRegion: region),
-    //         animated: true)
-    //
-    //       let zoomRange = MKMapView.CameraZoomRange(maxCenterCoordinateDistance: 200000)
-    //    map.setCameraZoomRange(zoomRange, animated: true)
-
     return map
   }()
 
@@ -216,6 +209,7 @@ extension MainViewController: CLLocationManagerDelegate {
   func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
     guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else {
       return }
+    manager.stopUpdatingLocation()
     mapView.centerToLocation(CLLocation(latitude: locValue.latitude, longitude: locValue.longitude), regionRadius: 3000)
   }
 }
@@ -246,33 +240,43 @@ extension MainViewController: MKMapViewDelegate {
   func mapView(_ mapView: MKMapView,
                didSelect view: MKAnnotationView) {
     if let annotation = view.annotation as? MapPinAnnotation {
-
       var breake = " "
       if  annotation.atm.availability.standardAvailability.day[0].dayBreak.breakFromTime.rawValue != "00:00" {
         breake = annotation.atm.availability.standardAvailability.day[0].dayBreak.breakFromTime.rawValue + "-" +
         annotation.atm.availability.standardAvailability.day[0].dayBreak.breakToTime.rawValue}
-      
+
       let atm = annotation.atm
+      var abc = atm.services[0].serviceType.rawValue
+      for index in 0..<atm.services.count {
+        if atm.services[index].serviceType.rawValue == "CashIn" {
+          abc = "Cash In доступен"
+          break
+        } else {
+          abc = "нет Сash in"}
+      }
+
       let sheetViewController = ButtomPresentationViewController(adressOfATM: atm.address.streetName + " "
                                                                  + atm.address.buildingNumber,
                                                                  atm: atm,
-                                                                 timeOfWork: atm.availability.standardAvailability.day[0].openingTime.rawValue
+                                                                 timeOfWork:
+                                                                  atm.availability.standardAvailability.day[0]
+                                                                  .openingTime.rawValue
                                                                  + "-" +
-                                                                 atm.availability.standardAvailability.day[0].closingTime.rawValue
+                                                                 atm.availability.standardAvailability.day[0]
+                                                                  .closingTime.rawValue
                                                                  + " " + breake,
                                                                  currancy: atm.currency.rawValue,
-                                                                 cashIn: atm.services[0].serviceType.rawValue)
+                                                                 cashIn: abc)
       mapView.centerToLocation(CLLocation(latitude: annotation.coordinate.latitude,
                                           longitude: annotation.coordinate.longitude),
                                regionRadius: 3000)
-      if let sheet = sheetViewController.sheetPresentationController {
-        sheet.prefersGrabberVisible = true
-        sheet.preferredCornerRadius = 32
-        sheet.prefersScrollingExpandsWhenScrolledToEdge = true
-        sheet.prefersGrabberVisible = true
-        sheet.detents = [.medium(), .large()]
+
+      let nav = UINavigationController(rootViewController: sheetViewController)
+      nav.modalPresentationStyle = .automatic
+      if let sheet = nav.sheetPresentationController {
+          sheet.detents = [.medium(), .large()]
       }
-      present(sheetViewController, animated: true)
+      present(nav, animated: true, completion: nil)
     }
   }
 }
@@ -290,47 +294,52 @@ private extension MKMapView {
   }
 }
 
-// При нажатии на точку показать всплывающее окно на карте с информацией о:
+//При нажатии на точку показать всплывающее окно на карте с информацией о:
 //
-// место установки банкомата
-// режим работы
-// выдаваемая валюта
-// есть ли cash in
-// кнопка “Подробнее”
-// Окно закрывается по нажатию вне области окна / по тапу на крестик в верхнем правом углу модального окна.
+//место установки банкомата
+//режим работы
+//выдаваемая валюта
+//есть ли cash in
+//кнопка “Подробнее”
+//Окно закрывается по нажатию вне области окна / по тапу на крестик в верхнем правом углу модального окна.
 //
-// Кнопка “Подробнее”
+//Кнопка “Подробнее”
 //
-// При нажатию на это кнопку показать новый контроллер, на котором вывести всю доступную информацию о банкомате.
-// 2) Список банкоматов
+//При нажатию на это кнопку показать новый контроллер, на котором вывести всю доступную информацию о банкомате.
 //
-// При переходе на данный экран отображать банкоматы в виде списка-коллекции (UICollectionView) по 3 банкомата в ряд.
+//Если информация не помещается на экран, то она должна скроллиться.
 //
-// Каждый банкомат представлен прямоугольной карточкой, на которой есть информация о:
+//В самом низу экрана расположить кнопку “Построить маршрут”, которая перебрасывает пользователя в карты, установленные на его телефоне,
+// с построенным маршрутом от текущего местоположения пользователя до банкомата.
+// Кнопка “Построить маршрут” видна внизу экрана всегда. Контент, который не влазит, скроллится выше кнопки.
 //
-// место установки банкомата
-// режим работы
-// выдаваемая валюта
-// Нажатие на карточку банкомата возвращает пользователя на экран с картой,
-// на которой нужно показать всплывающее окно с информацией о выбранном банкомате (окно идентичное тому,
-// когда пользователь сам выбирает банкомат из точки на карте)
-// 3) Кнопка обновить
+//2) Список банкоматов
 //
-// При нажатии на кнопку приложение запрашивает данные о банкоматах. Кнопка неактивна, пока выполняется запрос
-// (по желанию можно поменять кнопку на крутящийся индикатор)
+//При переходе на данный экран отображать банкоматы в виде списка-коллекции (UICollectionView) по 3 банкомата в ряд.
 //
-// Логика работы приложения
+//Каждый банкомат представлен прямоугольной карточкой, на которой есть информация о:
 //
-// При первом запуске приложение запрашивает доступ к геолокации пользователя. Если пользователь не разрешил доступ,
-// то при последующих запусках уведомляем его об этом и предлагаем перейти в настройки,
+//место установки банкомата
+//режим работы
+//выдаваемая валюта
+//Нажатие на карточку банкомата возвращает пользователя на экран с картой,
+// на которой нужно показать всплывающее окно с информацией о выбранном банкомате (окно идентичное тому, когда пользователь сам выбирает банкомат из точки на карте)
+//
+//Банкоматы в коллекции сгруппированы по городу (в заголовке каждой секции вывести название города). Внутри секции банкоматы сортируются по atmId по возрастанию.
+//
+//3) Кнопка обновить
+//
+//При нажатии на кнопку приложение запрашивает данные о банкоматах. Кнопка неактивна, пока выполняется запрос (по желанию можно поменять кнопку на крутящийся индикатор)
+//
+//Логика работы приложения
+//
+//При первом запуске приложение запрашивает доступ к геолокации пользователя. Если пользователь не разрешил доступ, то при последующих запусках уведомляем его об этом и предлагаем перейти в настройки,
 // чтобы включить геолокацию (реализацию можно подсмотреть в Яндекс.Картах при выключенном доступе к геолокации)
 //
-// При каждом запуске приложения центрируем карту относительно текущего местоположения пользователя.
-// Если она недоступна, то делаем так, чтобы была видна вся Беларусь на карте.
-// До выполнения запроса проверить включен ли интернет.
-// Если интернет-соединение отсутствует,
-// то вывести алерт пользователю с информацией о том, что приложение не работает без доступа к интернету.
+//При каждом запуске приложения центрируем карту относительно текущего местоположения пользователя. Если она недоступна, то делаем так, чтобы была видна вся Беларусь на карте.
 //
-// При любой сетевой ошибке во время выполнения запроса показывать алерт с сообщением и кнопками “Повторить ещё раз”
-// (выполняет повторно запрос) и “Закрыть” (закрывает алерт).
+//Приложение запрашивает банкоматы у API и отображает их на карте в виде точек и в виде списка-коллекции.
 //
+//До выполнения запроса проверить включен ли интернет. Если интернет-соединение отсутствует, то вывести алерт пользователю с информацией о том, что приложение не работает без доступа к интернету.
+//
+//При любой сетевой ошибке во время выполнения запроса показывать алерт с сообщением и кнопками “Повторить ещё раз” (выполняет повторно запрос) и “Закрыть” (закрывает алерт).
