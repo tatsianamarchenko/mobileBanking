@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import MapKit
 
 class DetailedCollectionViewController: UIViewController, UICollectionViewDelegateFlowLayout {
 
@@ -83,12 +84,11 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
                       viewForSupplementaryElementOfKind kind: String,
                       at indexPath: IndexPath) -> UICollectionReusableView {
     guard let cell = self.collectionView.dequeueReusableSupplementaryView(ofKind: kind,
-                                                                          withReuseIdentifier: SectionHeaderView.reuseId,
+                                                                        withReuseIdentifier: SectionHeaderView.reuseId,
                                                                           for: indexPath) as? SectionHeaderView
     else {
       return UICollectionReusableView()
     }
-    cell.initializeUI()
 
     cell.setTitle(title: self.sections[indexPath.section].sectionName)
     return cell
@@ -102,38 +102,19 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
     return CGSize(width: screenWidth-80, height: 50)
   }
 
-//  func collectionView(_ collectionView: UICollectionView,
-//                      willDisplay cell: UICollectionViewCell,
-//                      forItemAt indexPath: IndexPath) {
-//    let lastElement = arrayOfATMs.count - 1
-//    if indexPath.row == lastElement {
-      // handle your logic here to get more items, add it to dataSource and reload tableview
-//
-//    }
-//  }
+  func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 
-// Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
-  func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
-    return false
-  }
-
-  func collectionView(_ collectionView: UICollectionView,
-                      canPerformAction action: Selector,
-                      forItemAt indexPath: IndexPath,
-                      withSender sender: Any?) -> Bool {
-    return true
-  }
-
-  func collectionView(_ collectionView: UICollectionView,
-                      performAction action: Selector,
-                      forItemAt indexPath: IndexPath, withSender sender: Any?) {
-
+    let item = sections[indexPath.section].rowData[indexPath.row]
+    let coor = CLLocation(latitude:
+                            Double(item.address.geolocation.geographicCoordinates.latitude)!,
+                          longitude: Double(item.address.geolocation.geographicCoordinates.longitude)!)
+    navigationController?.pushViewController(MainViewController(coor: coor), animated: true)
   }
 
   func collectionView(_ collectionView: UICollectionView,
                       layout collectionViewLayout: UICollectionViewLayout,
                       sizeForItemAt indexPath: IndexPath) -> CGSize {
-    return CGSize(width: 100, height: 100)
+    return CGSize(width: 100, height: 150)
   }
 
   func collectionView(_ collectionView: UICollectionView,

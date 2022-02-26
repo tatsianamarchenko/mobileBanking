@@ -15,7 +15,15 @@ class MainViewController: UIViewController {
   let monitor = NWPathMonitor()
   let locationManager = CLLocationManager()
   var array = [ATM]()
+  var coor: CLLocation?
+  init (coor: CLLocation?) {
+    super.init(nibName: nil, bundle: nil)
+    self.coor = coor
+  }
 
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
   private lazy var internetAccessAlert: UIAlertController = {
     let alert = UIAlertController(title: "No access to internet connection",
                                   message: "приложение не работает без доступа к интернету.",
@@ -38,7 +46,7 @@ class MainViewController: UIViewController {
   var mapView: MKMapView = {
     var map = MKMapView()
     let minskCenter = CLLocation(latitude: 53.716, longitude: 27.9776)
-    map.centerToLocation(minskCenter, regionRadius: 650000)
+    map.centerToLocation(minskCenter)
     let region = MKCoordinateRegion(
       center: minskCenter.coordinate,
       latitudinalMeters: 10000,
@@ -75,6 +83,9 @@ class MainViewController: UIViewController {
 
     mapView.delegate = self
 
+    if coor != nil {
+      mapView.centerToLocation(coor!, regionRadius: 3000)
+    }
     monitor.pathUpdateHandler = { [self] path in
       switch path.status {
       case .satisfied :
@@ -205,12 +216,7 @@ extension MainViewController: CLLocationManagerDelegate {
   func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
     guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else {
       return }
-    let span = MKCoordinateSpan(latitudeDelta: 0.15, longitudeDelta: 0.15)
-    let center = CLLocationCoordinate2D(latitude: locValue.latitude, longitude: locValue.longitude)
-    manager.stopUpdatingLocation()
-    DispatchQueue.main.async {
-      self.mapView.setRegion(MKCoordinateRegion(center: center, span: span), animated: true)
-    }
+    mapView.centerToLocation(CLLocation(latitude: locValue.latitude, longitude: locValue.longitude), regionRadius: 3000)
   }
 }
 
@@ -241,20 +247,21 @@ extension MainViewController: MKMapViewDelegate {
                didSelect view: MKAnnotationView) {
     if let annotation = view.annotation as? MapPinAnnotation {
 
-var breake = " "
+      var breake = " "
       if  annotation.atm.availability.standardAvailability.day[0].dayBreak.breakFromTime.rawValue != "00:00" {
         breake = annotation.atm.availability.standardAvailability.day[0].dayBreak.breakFromTime.rawValue + "-" +
         annotation.atm.availability.standardAvailability.day[0].dayBreak.breakToTime.rawValue}
-
-      let sheetViewController = ButtomPresentationViewController(adressOfATM: annotation.atm.address.streetName + "-"
-                                                                 + annotation.atm.address.buildingNumber,
-                                                                 atm: annotation.atm,
-                                                                 timeOfWork: annotation.atm.availability.standardAvailability.day[0].openingTime.rawValue
-                                                                 + " " +
-                                                                 annotation.atm.availability.standardAvailability.day[0].closingTime.rawValue
+      
+      let atm = annotation.atm
+      let sheetViewController = ButtomPresentationViewController(adressOfATM: atm.address.streetName + " "
+                                                                 + atm.address.buildingNumber,
+                                                                 atm: atm,
+                                                                 timeOfWork: atm.availability.standardAvailability.day[0].openingTime.rawValue
+                                                                 + "-" +
+                                                                 atm.availability.standardAvailability.day[0].closingTime.rawValue
                                                                  + " " + breake,
-                                                                 currancy: annotation.atm.currency.rawValue,
-                                                                 cashIn: annotation.atm.services[0].serviceType.rawValue)
+                                                                 currancy: atm.currency.rawValue,
+                                                                 cashIn: atm.services[0].serviceType.rawValue)
       mapView.centerToLocation(CLLocation(latitude: annotation.coordinate.latitude,
                                           longitude: annotation.coordinate.longitude),
                                regionRadius: 3000)

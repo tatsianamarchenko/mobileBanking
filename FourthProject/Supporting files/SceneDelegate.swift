@@ -6,7 +6,7 @@
 //
 
 import UIKit
-
+import MapKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
   var window: UIWindow?
@@ -17,7 +17,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     if let windowScene = scene as? UIWindowScene {
       let myWindow = UIWindow(windowScene: windowScene)
       let navVC = UINavigationController()
-      let viewController = MainViewController()
+      let viewController = MainViewController(coor: nil)
       let emailButton = UIBarButtonItem(image: UIImage(systemName: "arrow.counterclockwise")!,
                                         style: .plain,
                                         target: self,
@@ -31,7 +31,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
   }
   @objc func action() {
-  
+
   }
 
 }

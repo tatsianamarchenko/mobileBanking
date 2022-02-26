@@ -129,10 +129,8 @@ private lazy var atmlable = UILabel()
   override func viewDidLoad() {
     super.viewDidLoad()
     view.backgroundColor = .systemBackground
-
     view.addSubview(scrollView)
     view.addSubview(routButton)
-
     scrollView.addSubview(atmStack)
     scrollView.addSubview(typeStack)
     scrollView.addSubview(cardsStack)
@@ -142,7 +140,10 @@ private lazy var atmlable = UILabel()
     scrollView.addSubview(availabilityStack)
     scrollView.addSubview(accessibilityStack)
     scrollView.addSubview(contactDetailsStack)
+    addConstraints()
+  }
 
+ private func addConstraints () {
     scrollView.snp.makeConstraints { (make) -> Void in
       make.leading.trailing.equalToSuperview()
       make.top.equalToSuperview().inset(50)

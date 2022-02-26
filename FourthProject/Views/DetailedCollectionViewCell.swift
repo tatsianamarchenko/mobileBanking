@@ -13,6 +13,9 @@ class DetailedCollectionViewCell: UICollectionViewCell {
   var placeLabel: UILabel = {
     var lable = UILabel()
     lable.textColor = .label
+    lable.lineBreakMode = .byWordWrapping
+    lable.lineBreakStrategy = .standard
+    lable.numberOfLines = 0
     return lable
   }()
 
@@ -28,23 +31,13 @@ class DetailedCollectionViewCell: UICollectionViewCell {
     return lable
   }()
 
-//  var stackView: UIStackView = {
-//    let sv = UIStackView()
-//    sv.axis  = NSLayoutConstraint.Axis.vertical
-//    sv.alignment = UIStackView.Alignment.center
-//    sv.backgroundColor = .green
-//    sv.frame = CGRect(origin: .zero, size: CGSize(width: 30, height: 30))
-//    sv.distribution = UIStackView.Distribution.fillEqually
-//    return sv
-//  }()
-
   override init(frame: CGRect) {
     super.init(frame: frame)
     backgroundColor = .systemMint
 
     addSubview(placeLabel)
     addSubview(timeLabel)
-   addSubview(currancyLabel)
+    addSubview(currancyLabel)
   }
 
   override func layoutSubviews() {
@@ -61,7 +54,7 @@ class DetailedCollectionViewCell: UICollectionViewCell {
 
     currancyLabel.snp.makeConstraints { (make) -> Void in
       make.leading.equalTo(contentView.snp_leadingMargin).inset(10)
-      make.top.equalTo(placeLabel.snp_topMargin).inset(10)
+      make.width.equalTo(contentView)
     }
   }
 

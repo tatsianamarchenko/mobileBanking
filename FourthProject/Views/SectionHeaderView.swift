@@ -13,7 +13,7 @@ class SectionHeaderView: UICollectionViewCell {
 
     var title: UILabel = {
       var lable = UILabel()
-      lable.textColor = .systemPink
+      lable.textColor = .label
       lable.numberOfLines = 1
       return lable
     }()
@@ -26,16 +26,16 @@ class SectionHeaderView: UICollectionViewCell {
       fatalError("init(coder:) has not been implemented")
     }
 
-    func initializeUI() {
+  override func layoutSubviews() {
+    super.layoutSubviews()
+    self.addSubview(title)
+    backgroundColor = .systemMint
 
-      self.addSubview(title)
-      backgroundColor = .systemMint
-
-      title.snp.makeConstraints { (make) in
-        make.leading.equalTo(contentView.snp_leadingMargin).inset(30)
-        make.top.equalTo(contentView).offset(20)
-      }
+    title.snp.makeConstraints { (make) in
+      make.leading.equalTo(contentView.snp_leadingMargin).inset(30)
+      make.top.equalTo(contentView).offset(20)
     }
+  }
 
     func setTitle(title: String) {
       self.title.text = title
