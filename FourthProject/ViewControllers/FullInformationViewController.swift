@@ -9,7 +9,7 @@ import UIKit
 import MapKit
 
 class FullInformationViewController: UIViewController {
-
+  var atm: ATM
   private lazy var scrollView: UIScrollView = {
     let scrollView = UIScrollView()
     scrollView.alwaysBounceVertical = true
@@ -29,90 +29,55 @@ class FullInformationViewController: UIViewController {
     return button
   }()
 
-  private lazy var atmlable = UILabel()
-  private lazy var typelable = UILabel()
-  private lazy var currencylable = UILabel()
-  private lazy var cardslable = UILabel()
-  private lazy var currentStatuslable = UILabel()
-  private lazy var addesslable = UILabel()
-  private lazy var servicelable = UILabel()
-  private lazy var availabilitylable = UILabel()
-  private lazy var contactDetailslable = UILabel()
-  private lazy var accessibilitylable = UILabel()
-
   private lazy var atmStack: UIStackView = {
-    let stack = createStack(contentLable: atmlable, name: "ID")
+    let stack = createStack(contentLableText: atm.atmID, name: "ID")
     return stack
   }()
 
   private lazy var typeStack: UIStackView = {
-    let stack = createStack(contentLable: typelable, name: "Тип")
+    let stack = createStack(contentLableText: atm.type.rawValue, name: "Тип")
     return stack
   }()
 
   private lazy var currencyStack: UIStackView = {
-    let stack = createStack(contentLable: currencylable, name: "Валюта")
+    let stack = createStack(contentLableText: atm.currency.rawValue, name: "Валюта")
     return stack
   }()
 
   private lazy var cardsStack: UIStackView = {
-    let stack = createStack(contentLable: cardslable, name: "Карты")
+    let stack = createStack(contentLableText: atm.cards[0].rawValue, name: "Карты")
     return stack
   }()
 
   private lazy var addessStack: UIStackView = {
-    let stack = createStack(contentLable: addesslable, name: "Адрес")
+    let stack = createStack(contentLableText: atm.address.addressLine, name: "Адрес")
     return stack
   }()
 
   private lazy var serviceStack: UIStackView = {
-    let stack = createStack(contentLable: servicelable, name: "Сервисы")
+    let stack = createStack(contentLableText: atm.services[0].serviceType.rawValue, name: "Сервисы")
     return stack
   }()
 
   private lazy var availabilityStack: UIStackView = {
-    let stack = createStack(contentLable: availabilitylable, name: "На данный момент")
+  let stack = createStack(contentLableText: atm.availability.standardAvailability.day[0].openingTime.rawValue,
+                          name: "На данный момент")
     return stack
   }()
 
   private lazy var contactDetailsStack: UIStackView = {
-    let stack = createStack(contentLable: contactDetailslable, name: "Контактная информация")
+    let stack = createStack(contentLableText: atm.contactDetails.phoneNumber, name: "Контактная информация")
     return stack
   }()
 
   private lazy var accessibilityStack: UIStackView = {
-    let stack = createStack(contentLable: accessibilitylable, name: "Доступность")
+    let stack = createStack(contentLableText: atm.accessibilities.debugDescription, name: "Доступность")
     return stack
   }()
 
-  var lng: Double = 0
-  var lat: Double = 0
-
-  init(id: String,
-       type: String,
-       card: String,
-       adress: String,
-       accessebility: String,
-       availability: String,
-       contact: String,
-       service: String,
-       currency: String,
-       city: String,
-       lat: Double,
-       lng: Double) {
+  init(atm: ATM) {
+    self.atm = atm
     super.init(nibName: nil, bundle: nil)
-    self.atmlable.text = id
-    self.typelable.text = type
-    self.cardslable.text = card
-    self.addesslable.text = adress
-    self.accessibilitylable.text = accessebility
-    self.availabilitylable.text = availability
-    self.contactDetailslable.text = contact
-    self.servicelable.text = service
-    self.currencylable.text = currency
-    title = city
-    self.lat = lat
-    self.lng = lng
   }
 
   required init?(coder: NSCoder) {
@@ -143,8 +108,10 @@ class FullInformationViewController: UIViewController {
   }
 
   @objc func createRout() {
-    let source = MKMapItem(coordinate: .init(latitude: lat, longitude: lng), name: "Source")
-    let destination = MKMapItem(coordinate: .init(latitude: lat, longitude: lng), name: "Destination")
+    let lat = Double(atm.address.geolocation.geographicCoordinates.latitude)
+    let lng = Double(atm.address.geolocation.geographicCoordinates.longitude)
+    let source = MKMapItem(coordinate: .init(latitude: lat!, longitude: lng!), name: "Source")
+    let destination = MKMapItem(coordinate: .init(latitude: lat!, longitude: lng!), name: "Destination")
 
     MKMapItem.openMaps(
       with: [source, destination],
@@ -170,7 +137,7 @@ class FullInformationViewController: UIViewController {
 
     typeStack.snp.makeConstraints { (make) -> Void in
       make.centerX.equalToSuperview()
-      make.top.equalTo(atmlable.snp_bottomMargin).inset(-10)
+      make.top.equalTo(atmStack.snp_bottomMargin).inset(-10)
     }
 
     cardsStack.snp.makeConstraints { (make) -> Void in
@@ -195,7 +162,7 @@ class FullInformationViewController: UIViewController {
 
     availabilityStack.snp.makeConstraints { (make) -> Void in
       make.centerX.equalToSuperview()
-      make.top.equalTo(currencylable.snp_bottomMargin).inset(-10)
+      make.top.equalTo(currencyStack.snp_bottomMargin).inset(-10)
     }
 
     accessibilityStack.snp.makeConstraints { (make) -> Void in
@@ -214,12 +181,13 @@ class FullInformationViewController: UIViewController {
     }
   }
 
-  private func createStack(contentLable: UILabel, name: String) -> UIStackView {
+  private func createStack(contentLableText: String, name: String) -> UIStackView {
     let lableName = UILabel()
     lableName.text = name
     lableName.font = UIFont.systemFont(ofSize: 10)
     lableName.textColor = .label
-
+    let contentLable = UILabel()
+    contentLable.text = contentLableText
     contentLable.font = UIFont.systemFont(ofSize: 20)
     contentLable.numberOfLines = 0
 

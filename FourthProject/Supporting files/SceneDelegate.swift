@@ -17,7 +17,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     if let windowScene = scene as? UIWindowScene {
       let myWindow = UIWindow(windowScene: windowScene)
       let navVC = UINavigationController()
-      let viewController = MainViewController(coor: nil)
+      let viewController = MainViewController(coor: nil, atm: nil)
       let emailButton = UIBarButtonItem(image: UIImage(systemName: "arrow.counterclockwise")!,
                                         style: .plain,
                                         target: self,

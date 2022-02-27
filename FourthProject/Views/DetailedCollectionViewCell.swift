@@ -14,7 +14,7 @@ class DetailedCollectionViewCell: UICollectionViewCell {
     var lable = UILabel()
     lable.textColor = .label
     lable.lineBreakMode = .byWordWrapping
-    lable.lineBreakStrategy = .standard
+    lable.lineBreakStrategy = .pushOut
     lable.numberOfLines = 0
     return lable
   }()
@@ -33,8 +33,10 @@ class DetailedCollectionViewCell: UICollectionViewCell {
 
   override init(frame: CGRect) {
     super.init(frame: frame)
-    backgroundColor = .systemMint
+    contentView.backgroundColor = .systemGray6
 
+    contentView.clipsToBounds = true
+    contentView.layer.cornerRadius = 10
     addSubview(placeLabel)
     addSubview(timeLabel)
     addSubview(currancyLabel)
@@ -42,19 +44,21 @@ class DetailedCollectionViewCell: UICollectionViewCell {
 
   override func layoutSubviews() {
     super.layoutSubviews()
-    timeLabel.snp.makeConstraints { (make) -> Void in
-      make.leading.equalTo(contentView.snp_leadingMargin).inset(10)
-      make.top.equalTo(contentView.snp_topMargin).inset(20)
-    }
-
     placeLabel.snp.makeConstraints { (make) -> Void in
-      make.leading.equalTo(contentView.snp_leadingMargin).inset(10)
-      make.top.equalTo(timeLabel.snp_topMargin).inset(10)
+      make.centerX.equalTo(contentView)
+      make.width.equalToSuperview()
+      make.top.equalTo(contentView.snp_topMargin).inset(10)
     }
+    timeLabel.snp.makeConstraints { (make) -> Void in
+      make.centerX.equalTo(contentView)
+      make.width.equalToSuperview()
+      make.top.equalTo(placeLabel.snp_bottomMargin).inset(-10)
 
+    }
     currancyLabel.snp.makeConstraints { (make) -> Void in
-      make.leading.equalTo(contentView.snp_leadingMargin).inset(10)
-      make.width.equalTo(contentView)
+      make.centerX.equalTo(contentView)
+      make.width.equalToSuperview()
+      make.top.equalTo(timeLabel.snp_bottomMargin).inset(-10)
     }
   }
 

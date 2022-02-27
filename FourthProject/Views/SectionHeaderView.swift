@@ -14,7 +14,12 @@ class SectionHeaderView: UICollectionViewCell {
     var title: UILabel = {
       var lable = UILabel()
       lable.textColor = .label
-      lable.numberOfLines = 1
+      lable.font = .systemFont(ofSize: 30, weight: .bold)
+
+      lable.font.withSize(30)
+      lable.lineBreakMode = .byWordWrapping
+      lable.lineBreakStrategy = .pushOut
+      lable.numberOfLines = 0
       return lable
     }()
 
@@ -29,11 +34,12 @@ class SectionHeaderView: UICollectionViewCell {
   override func layoutSubviews() {
     super.layoutSubviews()
     self.addSubview(title)
-    backgroundColor = .systemMint
+    backgroundColor = .systemBackground
 
-    title.snp.makeConstraints { (make) in
-      make.leading.equalTo(contentView.snp_leadingMargin).inset(30)
-      make.top.equalTo(contentView).offset(20)
+    title.snp.makeConstraints { (make) -> Void in
+      make.centerX.equalTo(contentView).inset(30)
+      make.width.equalToSuperview()
+      make.top.equalTo(contentView.snp_topMargin).inset(10)
     }
   }
 

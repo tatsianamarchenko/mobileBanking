@@ -16,9 +16,11 @@ class MainViewController: UIViewController {
   let locationManager = CLLocationManager()
   var array = [ATM]()
   var coor: CLLocation?
-  init (coor: CLLocation?) {
+  var atm: ATM?
+  init (coor: CLLocation?, atm: ATM?) {
     super.init(nibName: nil, bundle: nil)
     self.coor = coor
+    self.atm = atm
   }
 
   required init?(coder: NSCoder) {
@@ -78,13 +80,51 @@ class MainViewController: UIViewController {
 
     if coor != nil {
       mapView.centerToLocation(coor!, regionRadius: 3000)
-    }
+      guard let atm = atm else {return}
+        var breake = " "
+        if  atm.availability.standardAvailability.day[0].dayBreak.breakFromTime.rawValue != "00:00" {
+          breake = atm.availability.standardAvailability.day[0].dayBreak.breakFromTime.rawValue + "-" +
+      atm.availability.standardAvailability.day[0].dayBreak.breakToTime.rawValue}
+
+        var abc = atm.services[0].serviceType.rawValue
+        for index in 0..<atm.services.count {
+          if atm.services[index].serviceType.rawValue == "CashIn" {
+            abc = "Cash In доступен"
+            break
+          } else {
+            abc = "нет Сash in"}
+        }
+
+        let sheetViewController = ButtomPresentationViewController(adressOfATM: atm.address.streetName + " "
+                                                                   + atm.address.buildingNumber,
+                                                                   atm: atm,
+                                                                   timeOfWork:
+                                                                    atm.availability.standardAvailability.day[0]
+                                                                    .openingTime.rawValue
+                                                                   + "-" +
+                                                                   atm.availability.standardAvailability.day[0]
+                                                                    .closingTime.rawValue
+                                                                   + " " + breake,
+                                                                   currancy: atm.currency.rawValue,
+                                                                   cashIn: abc)
+
+        let nav = UINavigationController(rootViewController: sheetViewController)
+        nav.modalPresentationStyle = .automatic
+        if let sheet = nav.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+        }
+        present(nav, animated: true, completion: nil)
+      }
+
     monitor.pathUpdateHandler = { [self] path in
       switch path.status {
       case .satisfied :
-        DispatchQueue.main.async {
-          checkAccessToLocation()
+        if coor == nil {
+          DispatchQueue.main.async {
+            checkAccessToLocation()
+          }
         }
+
       case .unsatisfied :
         DispatchQueue.main.async {
           present(internetAccessAlert, animated: true)
@@ -294,25 +334,6 @@ private extension MKMapView {
   }
 }
 
-//При нажатии на точку показать всплывающее окно на карте с информацией о:
-//
-//место установки банкомата
-//режим работы
-//выдаваемая валюта
-//есть ли cash in
-//кнопка “Подробнее”
-//Окно закрывается по нажатию вне области окна / по тапу на крестик в верхнем правом углу модального окна.
-//
-//Кнопка “Подробнее”
-//
-//При нажатию на это кнопку показать новый контроллер, на котором вывести всю доступную информацию о банкомате.
-//
-//Если информация не помещается на экран, то она должна скроллиться.
-//
-//В самом низу экрана расположить кнопку “Построить маршрут”, которая перебрасывает пользователя в карты, установленные на его телефоне,
-// с построенным маршрутом от текущего местоположения пользователя до банкомата.
-// Кнопка “Построить маршрут” видна внизу экрана всегда. Контент, который не влазит, скроллится выше кнопки.
-//
 //2) Список банкоматов
 //
 //При переходе на данный экран отображать банкоматы в виде списка-коллекции (UICollectionView) по 3 банкомата в ряд.

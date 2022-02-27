@@ -74,9 +74,13 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
             as? DetailedCollectionViewCell else {
               return UICollectionViewCell()
             }
-    cell.timeLabel.text = self.sections[indexPath.section].rowData[indexPath.row].atmID
-    cell.placeLabel.text =  self.sections[indexPath.section].rowData[indexPath.row].address.townName
-    cell.currancyLabel.text = self.sections[indexPath.section].rowData[indexPath.row].address.addressLine
+    cell.timeLabel.text = self.sections[indexPath.section].rowData[indexPath.row].availability.standardAvailability.day[0]
+      .openingTime.rawValue
+    + "-" +
+    self.sections[indexPath.section].rowData[indexPath.row].availability.standardAvailability.day[0]
+      .closingTime.rawValue
+    cell.placeLabel.text =  self.sections[indexPath.section].rowData[indexPath.row].address.streetName + ", " + self.sections[indexPath.section].rowData[indexPath.row].address.buildingNumber
+    cell.currancyLabel.text = self.sections[indexPath.section].rowData[indexPath.row].currency.rawValue
     return cell
   }
 
@@ -84,7 +88,7 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
                       viewForSupplementaryElementOfKind kind: String,
                       at indexPath: IndexPath) -> UICollectionReusableView {
     guard let cell = self.collectionView.dequeueReusableSupplementaryView(ofKind: kind,
-                                                                        withReuseIdentifier: SectionHeaderView.reuseId,
+                                                                          withReuseIdentifier: SectionHeaderView.reuseId,
                                                                           for: indexPath) as? SectionHeaderView
     else {
       return UICollectionReusableView()
@@ -99,22 +103,26 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
                       referenceSizeForHeaderInSection section: Int) -> CGSize {
     let screenSize = UIScreen.main.bounds
     let screenWidth = screenSize.width-40
-    return CGSize(width: screenWidth-80, height: 50)
+    return CGSize(width: screenWidth-80, height: 100)
   }
 
   func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-
+    dismiss(animated: true)
     let item = sections[indexPath.section].rowData[indexPath.row]
     let coor = CLLocation(latitude:
                             Double(item.address.geolocation.geographicCoordinates.latitude)!,
                           longitude: Double(item.address.geolocation.geographicCoordinates.longitude)!)
-    navigationController?.pushViewController(MainViewController(coor: coor), animated: true)
+    let atmVc = MainViewController(coor: coor, atm: item)
+  //  atmVc.modalPresentationStyle = .fullScreen
+   atmVc.title = "Банкоматы"
+  //  navigationController?.present(atmVc, animated: true)
+   navigationController?.pushViewController(atmVc, animated: true)
   }
 
   func collectionView(_ collectionView: UICollectionView,
                       layout collectionViewLayout: UICollectionViewLayout,
                       sizeForItemAt indexPath: IndexPath) -> CGSize {
-    return CGSize(width: 100, height: 150)
+    return CGSize(width: (screenSize.width/3)-15, height: 150)
   }
 
   func collectionView(_ collectionView: UICollectionView,
@@ -125,33 +133,12 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
   func collectionView(_ collectionView: UICollectionView,
                       layout collectionViewLayout: UICollectionViewLayout,
                       minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-    return 1
+    return 10
   }
 
   func collectionView(_ collectionView: UICollectionView,
                       layout collectionViewLayout: UICollectionViewLayout,
                       insetForSectionAt section: Int) -> UIEdgeInsets {
-    return UIEdgeInsets(top: 1, left: 1, bottom: 1, right: 1)
+    return UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
   }
-
 }
-    // MARK: UICollectionViewDelegate
-
-    /*
-    // Uncomment this method to specify if the specified item should be highlighted during tracking
-  override func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    */
-
-    /*
-    // Uncomment this method to specify if the specified item should be selected
-    override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    */
-
-//  self.arrayOfATMs = atms.data.atm
-
-//      let sectionsNameArray = (Array(NSOrderedSet(array: array)) as? [String])!
-//      print(sectionsNameArray.count)

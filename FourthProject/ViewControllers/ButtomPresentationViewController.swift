@@ -139,19 +139,7 @@ dismiss(animated: true)
   }
 
   @objc func openFullInfoVC() {
-    let detailNavController = FullInformationViewController(id: atm.atmID,
-                                                            type: atm.type.rawValue,
-                                                            card: atm.cards[0].rawValue,
-                                                            adress: atm.address.addressLine,
-                                                            accessebility: atm.accessibilities.debugDescription,
-                                                            availability: atm.availability.access24Hours.description,
-                                                            contact: atm.contactDetails.phoneNumber,
-                                                            service: atm.services[0].serviceType.rawValue,
-                                                            currency: atm.currency.rawValue, city: atm.address.townName,
-                                                            lat: Double(atm.address.geolocation.geographicCoordinates
-                                                                            .latitude)!,
-                                                            lng: Double(atm.address.geolocation.geographicCoordinates
-                                                                          .longitude)!)
+    let detailNavController = FullInformationViewController(atm: atm)
     let navController = UINavigationController(rootViewController: detailNavController)
     present(navController, animated: true, completion: nil)
   }
