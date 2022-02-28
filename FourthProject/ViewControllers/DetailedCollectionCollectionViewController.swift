@@ -44,14 +44,12 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 
     view.addSubview(collectionView)
     view.addSubview(spiner)
-    collectionView.snp.makeConstraints { (make) -> Void in
-      make.leading.trailing.equalToSuperview()
-      make.top.equalToSuperview()
-      make.bottom.equalToSuperview()
-    }
-    DispatchQueue.main.async { [self] in
+
+makeConstraints()
+
+    DispatchQueue.main.async {
       self.spiner.startAnimating()
-      spiner.snp.makeConstraints { (make) -> Void in
+			self.spiner.snp.makeConstraints { (make) -> Void in
         make.centerY.equalToSuperview()
         make.centerX.equalToSuperview()
       }
@@ -66,7 +64,7 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
           self?.sections.append(Section(sectionName: Array(sectionItems.keys)[index],
                                         rowData: Array(sectionItems.values)[index]))
         }
-        DispatchQueue.main.async { [self] in
+        DispatchQueue.main.async {
           self?.spiner.stopAnimating()
           self?.spiner.removeFromSuperview()
           self?.collectionView.reloadData()
@@ -76,6 +74,13 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
       }
     }
   }
+func	makeConstraints() {
+		collectionView.snp.makeConstraints { (make) -> Void in
+			make.leading.trailing.equalToSuperview()
+			make.top.equalToSuperview()
+			make.bottom.equalToSuperview()
+		}
+	}
 }
 
 extension DetailedCollectionViewController: UICollectionViewDelegate, UICollectionViewDataSource {
@@ -125,9 +130,8 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
   func collectionView(_ collectionView: UICollectionView,
                       layout collectionViewLayout: UICollectionViewLayout,
                       referenceSizeForHeaderInSection section: Int) -> CGSize {
-    let screenSize = UIScreen.main.bounds
-    let screenWidth = screenSize.width-40
-    return CGSize(width: screenWidth-80, height: 100)
+
+    return CGSize(width:cellHeaderWidth, height: cellHeaderHeight)
   }
   
   func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -140,9 +144,7 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
   func collectionView(_ collectionView: UICollectionView,
                       layout collectionViewLayout: UICollectionViewLayout,
                       sizeForItemAt indexPath: IndexPath) -> CGSize {
-    let diff: CGFloat = (screenSize.width/10)-3
-    let width: CGFloat = (screenSize.width/3)-diff
-    return CGSize(width: width, height: 250)
+    return CGSize(width: widthCell, height: heightCell)
   }
   
   func collectionView(_ collectionView: UICollectionView,
@@ -153,12 +155,12 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
   func collectionView(_ collectionView: UICollectionView,
                       layout collectionViewLayout: UICollectionViewLayout,
                       minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-    return 10
+    return cellOffset
   }
   
   func collectionView(_ collectionView: UICollectionView,
                       layout collectionViewLayout: UICollectionViewLayout,
                       insetForSectionAt section: Int) -> UIEdgeInsets {
-    return UIEdgeInsets(top: 10, left: sideOffset, bottom: 10, right: sideOffset)
+    return UIEdgeInsets(top: cellOffset, left: sideOffsetCell, bottom: cellOffset, right: sideOffsetCell)
   }
 }

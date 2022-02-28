@@ -18,14 +18,14 @@ class FullInformationViewController: UIViewController {
 
   private lazy var routButton: UIButton = {
     var button = UIButton(type: .roundedRect)
-    button.setTitle("create rout", for: .normal)
+    button.setTitle("create route", for: .normal)
     button.titleLabel?.font = .systemFont(ofSize: 30, weight: .bold)
     button.setTitle("", for: .highlighted )
     button.imageView?.contentMode = .scaleAspectFit
     button.backgroundColor = .systemGray6
     button.clipsToBounds = true
     button.layer.cornerRadius = 10
-    button.addTarget(self, action: #selector(createRout), for: .touchUpInside)
+    button.addTarget(self, action: #selector(createRoute), for: .touchUpInside)
     return button
   }()
 
@@ -45,7 +45,8 @@ class FullInformationViewController: UIViewController {
   }()
 
   private lazy var cardsStack: UIStackView = {
-    let stack = createStack(contentLableText: atm.cards[0].rawValue, name: "Карты")
+    let content = atm.cards.map { "\($0)" }
+    let stack = createStack(contentLableText: content.formatted(), name: "Карты")
     return stack
   }()
 
@@ -55,29 +56,44 @@ class FullInformationViewController: UIViewController {
   }()
 
   private lazy var serviceStack: UIStackView = {
-    let stack = createStack(contentLableText: atm.services[0].serviceType.rawValue, name: "Сервисы")
+    let content = atm.services.map { "\($0.serviceType.rawValue)" }
+    let stack = createStack(contentLableText: content.formatted(), name: "Сервисы")
     return stack
   }()
 
   private lazy var availabilityStack: UIStackView = {
-  let stack = createStack(contentLableText: atm.availability.standardAvailability.day[0].openingTime.rawValue,
-                          name: "На данный момент")
+    var time : String
+    if atm.availability.access24Hours {
+      time = "Круглосуточно"
+    } else {
+      time = atm.availability.standardAvailability.day[0].openingTime.rawValue
+      + "-" + atm.availability.standardAvailability.day[0].closingTime.rawValue
+    }
+    let stack = createStack(contentLableText: time,
+                            name: "На данный момент")
     return stack
   }()
 
   private lazy var contactDetailsStack: UIStackView = {
-    let stack = createStack(contentLableText: atm.contactDetails.phoneNumber, name: "Контактная информация")
+    let phone: String
+    if atm.contactDetails.phoneNumber == "" {
+      phone = "недоступно"
+    } else {
+      phone = atm.contactDetails.phoneNumber
+    }
+    let stack = createStack(contentLableText: phone, name: "Контактная информация")
     return stack
   }()
 
-  private lazy var accessibilityStack: UIStackView = {
-    let stack = createStack(contentLableText: atm.accessibilities.debugDescription, name: "Доступность")
+  private lazy var otherStack: UIStackView = {
+    let stack = createStack(contentLableText: atm.baseCurrency.rawValue, name: "Базовая валюта")
     return stack
   }()
-
+	
   init(atm: ATM) {
     self.atm = atm
     super.init(nibName: nil, bundle: nil)
+    title = atm.address.townName
   }
 
   required init?(coder: NSCoder) {
@@ -102,14 +118,18 @@ class FullInformationViewController: UIViewController {
     scrollView.addSubview(serviceStack)
     scrollView.addSubview(currencyStack)
     scrollView.addSubview(availabilityStack)
-    scrollView.addSubview(accessibilityStack)
+    scrollView.addSubview(otherStack)
     scrollView.addSubview(contactDetailsStack)
     addConstraints()
   }
 
-  @objc func createRout() {
-    guard let lat = Double(atm.address.geolocation.geographicCoordinates.latitude) else {return}
-    guard  let lng = Double(atm.address.geolocation.geographicCoordinates.longitude) else {return}
+  @objc func createRoute() {
+    guard let lat = Double(atm.address.geolocation.geographicCoordinates.latitude) else {
+      return
+    }
+    guard  let lng = Double(atm.address.geolocation.geographicCoordinates.longitude) else {
+      return
+    }
     let source = MKMapItem(coordinate: .init(latitude: lat, longitude: lng), name: "Source")
     let destination = MKMapItem(coordinate: .init(latitude: lat, longitude: lng), name: "Destination")
 
@@ -132,47 +152,47 @@ class FullInformationViewController: UIViewController {
 
     atmStack.snp.makeConstraints { (make) -> Void in
       make.centerX.equalToSuperview()
-      make.top.equalTo(scrollView).inset(10)
+      make.top.equalTo(scrollView).inset(sideOffset)
     }
 
     typeStack.snp.makeConstraints { (make) -> Void in
       make.centerX.equalToSuperview()
-      make.top.equalTo(atmStack.snp_bottomMargin).inset(-10)
+      make.top.equalTo(atmStack.snp_bottomMargin).inset(-sideOffset)
     }
 
     cardsStack.snp.makeConstraints { (make) -> Void in
       make.centerX.equalToSuperview()
-      make.top.equalTo(typeStack.snp_bottomMargin).inset(-10)
+      make.top.equalTo(typeStack.snp_bottomMargin).inset(-sideOffset)
     }
 
     addessStack.snp.makeConstraints { (make) -> Void in
       make.centerX.equalToSuperview()
-      make.top.equalTo(cardsStack.snp_bottomMargin).inset(-10)
+      make.top.equalTo(cardsStack.snp_bottomMargin).inset(-sideOffset)
     }
 
     serviceStack.snp.makeConstraints { (make) -> Void in
       make.centerX.equalToSuperview()
-      make.top.equalTo(addessStack.snp_bottomMargin).inset(-10)
+      make.top.equalTo(addessStack.snp_bottomMargin).inset(-sideOffset)
     }
 
     currencyStack.snp.makeConstraints { (make) -> Void in
       make.centerX.equalToSuperview()
-      make.top.equalTo(serviceStack.snp_bottomMargin).inset(-10)
+      make.top.equalTo(serviceStack.snp_bottomMargin).inset(-sideOffset)
     }
 
     availabilityStack.snp.makeConstraints { (make) -> Void in
       make.centerX.equalToSuperview()
-      make.top.equalTo(currencyStack.snp_bottomMargin).inset(-10)
+      make.top.equalTo(currencyStack.snp_bottomMargin).inset(-sideOffset)
     }
 
-    accessibilityStack.snp.makeConstraints { (make) -> Void in
+    otherStack.snp.makeConstraints { (make) -> Void in
       make.centerX.equalToSuperview()
-      make.top.equalTo(availabilityStack.snp_bottomMargin).inset(-10)
+      make.top.equalTo(availabilityStack.snp_bottomMargin).inset(-sideOffset)
     }
 
     contactDetailsStack.snp.makeConstraints { (make) -> Void in
       make.centerX.equalToSuperview()
-      make.top.equalTo(accessibilityStack.snp_bottomMargin).inset(-10)
+      make.top.equalTo(otherStack.snp_bottomMargin).inset(-sideOffset)
     }
 
     routButton.snp.makeConstraints { (make) -> Void in
@@ -189,6 +209,9 @@ class FullInformationViewController: UIViewController {
     let contentLable = UILabel()
     contentLable.text = contentLableText
     contentLable.font = UIFont.systemFont(ofSize: 20)
+    contentLable.lineBreakMode = .byWordWrapping
+    contentLable.lineBreakStrategy = .pushOut
+    contentLable.textAlignment = .center
     contentLable.numberOfLines = 0
 
     let stack = UIStackView(arrangedSubviews: [lableName, contentLable])
