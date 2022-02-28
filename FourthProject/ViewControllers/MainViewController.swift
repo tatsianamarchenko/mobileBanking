@@ -15,17 +15,8 @@ class MainViewController: UIViewController {
   let monitor = NWPathMonitor()
   let locationManager = CLLocationManager()
   var array = [ATM]()
-  var coor: CLLocation?
-  var atm: ATM?
-  init (coor: CLLocation?, atm: ATM?) {
-    super.init(nibName: nil, bundle: nil)
-    self.coor = coor
-    self.atm = atm
-  }
+  var atmRecived: ATM?
 
-  required init?(coder: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
   private lazy var internetAccessAlert: UIAlertController = {
     let alert = UIAlertController(title: "No access to internet connection",
                                   message: "приложение не работает без доступа к интернету.",
@@ -60,8 +51,8 @@ class MainViewController: UIViewController {
 
  private lazy var mapOrListsegmentedControl: UISegmentedControl = {
     let segmentTextContent = [
-        NSLocalizedString("Map", comment: ""),
-        NSLocalizedString("List", comment: "")
+      NSLocalizedString("Map", comment: ""),
+      NSLocalizedString("List", comment: "")
     ]
     let segmentedControl = UISegmentedControl(items: segmentTextContent)
     segmentedControl.selectedSegmentIndex = 0
@@ -76,50 +67,29 @@ class MainViewController: UIViewController {
     view.addSubview(mapOrListsegmentedControl)
     view.addSubview(mapView)
 
+    let saveImage = UIImage(systemName: "arrow.counterclockwise")
+    guard let saveImage = saveImage else {
+      return
+    }
+
+    let imageButton = UIBarButtonItem(image: saveImage,
+                                      style: .plain,
+                                      target: self,
+                                      action: #selector(actionButton))
+    navigationItem.rightBarButtonItem = imageButton
+
     mapView.delegate = self
 
-    if coor != nil {
-      mapView.centerToLocation(coor!, regionRadius: 3000)
-      guard let atm = atm else {return}
-        var breake = " "
-        if  atm.availability.standardAvailability.day[0].dayBreak.breakFromTime.rawValue != "00:00" {
-          breake = atm.availability.standardAvailability.day[0].dayBreak.breakFromTime.rawValue + "-" +
-      atm.availability.standardAvailability.day[0].dayBreak.breakToTime.rawValue}
-
-        var abc = atm.services[0].serviceType.rawValue
-        for index in 0..<atm.services.count {
-          if atm.services[index].serviceType.rawValue == "CashIn" {
-            abc = "Cash In доступен"
-            break
-          } else {
-            abc = "нет Сash in"}
-        }
-
-        let sheetViewController = ButtomPresentationViewController(adressOfATM: atm.address.streetName + " "
-                                                                   + atm.address.buildingNumber,
-                                                                   atm: atm,
-                                                                   timeOfWork:
-                                                                    atm.availability.standardAvailability.day[0]
-                                                                    .openingTime.rawValue
-                                                                   + "-" +
-                                                                   atm.availability.standardAvailability.day[0]
-                                                                    .closingTime.rawValue
-                                                                   + " " + breake,
-                                                                   currancy: atm.currency.rawValue,
-                                                                   cashIn: abc)
-
-        let nav = UINavigationController(rootViewController: sheetViewController)
-        nav.modalPresentationStyle = .automatic
-        if let sheet = nav.sheetPresentationController {
-            sheet.detents = [.medium(), .large()]
-        }
-        present(nav, animated: true, completion: nil)
+    if atmRecived == nil {
+      DispatchQueue.main.async { [self] in
+        checkAccessToLocation()
       }
+    }
 
     monitor.pathUpdateHandler = { [self] path in
       switch path.status {
       case .satisfied :
-        if coor == nil {
+        if atmRecived == nil {
           DispatchQueue.main.async {
             checkAccessToLocation()
           }
@@ -131,7 +101,7 @@ class MainViewController: UIViewController {
         }
       case .requiresConnection :
         DispatchQueue.main.async {
-          present(internetErrorAlert, animated: true)
+          present(internetAccessAlert, animated: true)
         }
       default : break
       }
@@ -139,35 +109,105 @@ class MainViewController: UIViewController {
 
     let queue = DispatchQueue(label: "Monitor")
     monitor.start(queue: queue)
-      self.createPins()
+    self.createPins()
     monitor.cancel()
 
-      mapOrListsegmentedControl.snp.makeConstraints { (make) -> Void in
-        make.leading.trailing.equalToSuperview().inset(30)
-        make.top.equalTo(view.safeAreaLayoutGuide)
-      }
-      mapView.snp.makeConstraints { (make) -> Void in
-        make.leading.trailing.equalToSuperview()
-        make.top.equalTo(mapOrListsegmentedControl).inset(50)
-        make.bottom.equalToSuperview()
+    mapOrListsegmentedControl.snp.makeConstraints { (make) -> Void in
+      make.leading.trailing.equalToSuperview().inset(30)
+      make.top.equalTo(view.safeAreaLayoutGuide)
+    }
+    mapView.snp.makeConstraints { (make) -> Void in
+      make.leading.trailing.equalToSuperview()
+      make.top.equalTo(mapOrListsegmentedControl).inset(50)
+      make.bottom.equalToSuperview()
+    }
+  }
+
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+    guard let atmRecived = atmRecived else {
+      return
+    }
+    guard let lat = Double(atmRecived.address.geolocation.geographicCoordinates.latitude) else {return}
+    guard let lng = Double(atmRecived.address.geolocation.geographicCoordinates.longitude) else {return}
+
+    mapView.centerToLocation(CLLocation(latitude: lat, longitude: lng), regionRadius: 3000)
+    print(lat)
+
+    var breake = " "
+    if  atmRecived.availability.standardAvailability.day[0].dayBreak.breakFromTime.rawValue != "00:00" {
+      breake = atmRecived.availability.standardAvailability.day[0].dayBreak.breakFromTime.rawValue + "-" +
+      atmRecived.availability.standardAvailability.day[0].dayBreak.breakToTime.rawValue}
+
+    var abc = atmRecived.services[0].serviceType.rawValue
+    for index in 0..<atmRecived.services.count {
+      if atmRecived.services[index].serviceType.rawValue == "CashIn" {
+        abc = "Cash In доступен"
+        break
+      } else {
+        abc = "нет Сash in"}
     }
 
+    let sheetViewController = ButtomPresentationViewController(adressOfATM: atmRecived.address.streetName + " "
+                                                               + atmRecived.address.buildingNumber,
+                                                               atm: atmRecived,
+                                                               timeOfWork:
+                                                                atmRecived.availability.standardAvailability.day[0]
+                                                                .openingTime.rawValue
+                                                               + "-" +
+                                                               atmRecived.availability.standardAvailability.day[0]
+                                                                .closingTime.rawValue
+                                                               + " " + breake,
+                                                               currancy: atmRecived.currency.rawValue,
+                                                               cashIn: abc)
+
+    let nav = UINavigationController(rootViewController: sheetViewController)
+    nav.modalPresentationStyle = .automatic
+    if let sheet = nav.sheetPresentationController {
+      sheet.detents = [.medium(), .large()]
+    }
+    present(nav, animated: true, completion: nil)
+  }
+
+  @objc func actionButton(_ sender: UIBarButtonItem) {
+
+    DispatchQueue.main.async { [self] in
+      if sender.isEnabled == true  {
+        sender.isEnabled.toggle()
+        let annotations = mapView.annotations
+        mapView.removeAnnotations(annotations)
+        createPins()
+        locationManager.startUpdatingLocation()
+        guard let locValue: CLLocationCoordinate2D = locationManager.location?.coordinate else {
+          return }
+        locationManager.stopUpdatingLocation()
+        mapView.centerToLocation(CLLocation(latitude: locValue.latitude,
+                                            longitude: locValue.longitude),
+                                 regionRadius: 3000)
+        sender.isEnabled.toggle()
+      }}
+    // sender.isEnabled.toggle()
   }
 
   @objc func action (_ sender: UISegmentedControl) {
     let detailed = DetailedCollectionViewController()
+    detailed.complition = { atm in
+      DispatchQueue.main.async { [self] in
+        self.atmRecived = atm
+      }
+    }
     if sender.selectedSegmentIndex == 0 {
     } else {
       sender.selectedSegmentIndex = 0
-      navigationController?.pushViewController(detailed, animated: true)
-      }
+      self.navigationController?.pushViewController(detailed, animated: true)
     }
+  }
 
   func checkAccessToLocation () {
-      if CLLocationManager.locationServicesEnabled() {
-          locationManager.delegate = self
-          locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-          locationManager.startUpdatingLocation()
+    if CLLocationManager.locationServicesEnabled() {
+      locationManager.delegate = self
+      locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+      locationManager.startUpdatingLocation()
       checkAuthorizationStatus()
     } else {
       let alert = UIAlertController(title: "локация телефона отключена", message: "", preferredStyle: .alert)
@@ -182,31 +222,42 @@ class MainViewController: UIViewController {
   }
 
   func createPins () {
-    let apiService = APIService(urlString: "https://belarusbank.by/open-banking/v1.0/atms")
-    apiService.getJSON { [self] (atms: ATMResponse) in
-      let atms = atms
+    let apiService = APIService(urlString: urlString)
+    apiService.getJSON { [self] result in
+      switch result {
+      case .success(let atms) :
+        let atms = atms
+        for atm in 0..<atms.data.atm.count {
+          let item =  atms.data.atm[atm]
+          guard let latitude = Double(item.address.geolocation.geographicCoordinates.latitude) else {
+            return
+          }
+          guard let longitude = Double(item.address.geolocation.geographicCoordinates.longitude) else {
+            return
+          }
 
-      for atm in 0..<atms.data.atm.count {
-        let item =  atms.data.atm[atm]
-        guard let latitude = Double(item.address.geolocation.geographicCoordinates.latitude) else {
-          return
+          var openingTime = [String]()
+          var closingTime = [String]()
+          for index in 0..<item.availability.standardAvailability.day.count {
+            openingTime.append(item.availability.standardAvailability.day[index].openingTime.rawValue)
+            closingTime.append(item.availability.standardAvailability.day[index].closingTime.rawValue)
+          }
+
+          let loc = CLLocationCoordinate2D(latitude: latitude,
+                                           longitude: longitude)
+          self.setPinUsingMKAnnotation(title: item.address.streetName + " " + item.address.buildingNumber, atm: item,
+                                       location: loc)
+
         }
-        guard let longitude = Double(item.address.geolocation.geographicCoordinates.longitude) else {
-          return
+      case .failure(let error):
+        DispatchQueue.main.async {
+          if error == .errorGeneral {
+            present(self.internetErrorAlert, animated: true)
+          } else {
+            print("что то было")
+            present(self.internetErrorAlert, animated: true)
+          }
         }
-
-        var openingTime = [String]()
-        var closingTime = [String]()
-        for index in 0..<item.availability.standardAvailability.day.count {
-          openingTime.append(item.availability.standardAvailability.day[index].openingTime.rawValue)
-          closingTime.append(item.availability.standardAvailability.day[index].closingTime.rawValue)
-        }
-
-        let loc = CLLocationCoordinate2D(latitude: latitude,
-                                         longitude: longitude)
-        setPinUsingMKAnnotation(title: item.address.streetName + " " + item.address.buildingNumber, atm: item,
-                                location: loc)
-
       }
     }
   }
@@ -215,34 +266,34 @@ class MainViewController: UIViewController {
                                atm: ATM,
                                location: CLLocationCoordinate2D) {
     DispatchQueue.main.async { [self] in
-      let pinAnnotation = MapPinAnnotation(title: title,
-                                           atm: atm,
-                                 coordinate: location)
-       mapView.addAnnotations([pinAnnotation])
+      let pinAnnotation = (MapPinAnnotation(title: title,
+                                            atm: atm,
+                                            coordinate: location))
+      mapView.addAnnotations([pinAnnotation])
     }
   }
 
-func checkAuthorizationStatus() {
-  switch locationManager.authorizationStatus {
-  case .notDetermined :   locationManager.requestAlwaysAuthorization()
-    fallthrough
-  case .authorizedWhenInUse, .authorizedAlways :
-    locationManager.startUpdatingLocation()
-    mapView.showsUserLocation = true
-  case .restricted, .denied :
-    let alert = UIAlertController(title: "у приложения нет доступа к локации", message: "", preferredStyle: .alert)
-    alert.addAction(UIAlertAction(title: "cancel", style: .cancel, handler: nil))
-    alert.addAction(UIAlertAction(title: "on", style: .default, handler: { _ in
-      if let url = URL(string: "App-Prefs:root=LOCATION_SERVICES") {
-        UIApplication.shared.open(url, options: [:], completionHandler: nil)
-      }
-    }))
-    present(alert, animated: true)
-  @unknown default:
-    break
+  func checkAuthorizationStatus() {
+    switch locationManager.authorizationStatus {
+    case .notDetermined :   locationManager.requestAlwaysAuthorization()
+      fallthrough
+    case .authorizedWhenInUse, .authorizedAlways :
+      locationManager.startUpdatingLocation()
+      mapView.showsUserLocation = true
+    case .restricted, .denied :
+      let alert = UIAlertController(title: "у приложения нет доступа к локации", message: "", preferredStyle: .alert)
+      alert.addAction(UIAlertAction(title: "cancel", style: .cancel, handler: nil))
+      alert.addAction(UIAlertAction(title: NSLocalizedString("access", comment: ""), style: .default, handler: { _ in
+        if let appSettings = URL(string: UIApplication.openSettingsURLString),
+           UIApplication.shared.canOpenURL(appSettings) {
+          UIApplication.shared.open(appSettings)
+        }
+      }))
+      present(alert, animated: true)
+    @unknown default:
+      break
+    }
   }
-}
-
 }
 
 extension MainViewController: CLLocationManagerDelegate {
@@ -314,14 +365,14 @@ extension MainViewController: MKMapViewDelegate {
       let nav = UINavigationController(rootViewController: sheetViewController)
       nav.modalPresentationStyle = .automatic
       if let sheet = nav.sheetPresentationController {
-          sheet.detents = [.medium(), .large()]
+        sheet.detents = [.medium(), .large()]
       }
       present(nav, animated: true, completion: nil)
     }
   }
 }
 
-private extension MKMapView {
+extension MKMapView {
   func centerToLocation(
     _ location: CLLocation,
     regionRadius: CLLocationDistance = 650000
@@ -334,33 +385,10 @@ private extension MKMapView {
   }
 }
 
-//2) Список банкоматов
-//
-//При переходе на данный экран отображать банкоматы в виде списка-коллекции (UICollectionView) по 3 банкомата в ряд.
-//
-//Каждый банкомат представлен прямоугольной карточкой, на которой есть информация о:
-//
-//место установки банкомата
-//режим работы
-//выдаваемая валюта
-//Нажатие на карточку банкомата возвращает пользователя на экран с картой,
-// на которой нужно показать всплывающее окно с информацией о выбранном банкомате (окно идентичное тому, когда пользователь сам выбирает банкомат из точки на карте)
-//
-//Банкоматы в коллекции сгруппированы по городу (в заголовке каждой секции вывести название города). Внутри секции банкоматы сортируются по atmId по возрастанию.
-//
-//3) Кнопка обновить
-//
-//При нажатии на кнопку приложение запрашивает данные о банкоматах. Кнопка неактивна, пока выполняется запрос (по желанию можно поменять кнопку на крутящийся индикатор)
-//
-//Логика работы приложения
-//
-//При первом запуске приложение запрашивает доступ к геолокации пользователя. Если пользователь не разрешил доступ, то при последующих запусках уведомляем его об этом и предлагаем перейти в настройки,
-// чтобы включить геолокацию (реализацию можно подсмотреть в Яндекс.Картах при выключенном доступе к геолокации)
-//
-//При каждом запуске приложения центрируем карту относительно текущего местоположения пользователя. Если она недоступна, то делаем так, чтобы была видна вся Беларусь на карте.
-//
-//Приложение запрашивает банкоматы у API и отображает их на карте в виде точек и в виде списка-коллекции.
-//
-//До выполнения запроса проверить включен ли интернет. Если интернет-соединение отсутствует, то вывести алерт пользователю с информацией о том, что приложение не работает без доступа к интернету.
-//
-//При любой сетевой ошибке во время выполнения запроса показывать алерт с сообщением и кнопками “Повторить ещё раз” (выполняет повторно запрос) и “Закрыть” (закрывает алерт).
+// все данные
+
+// Кнопка неактивна, пока выполняется запрос (по желанию можно поменять кнопку на крутящийся индикатор)
+
+// До выполнения запроса проверить включен ли интернет. Если интернет-соединение отсутствует, то вывести алерт пользователю с информацией о том, что приложение не работает без доступа к интернету.
+
+// При любой сетевой ошибке во время выполнения запроса показывать алерт с сообщением и кнопками “Повторить ещё раз” (выполняет повторно запрос) и “Закрыть” (закрывает алерт).

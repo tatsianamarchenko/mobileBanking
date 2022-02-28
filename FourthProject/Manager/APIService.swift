@@ -5,26 +5,35 @@ public class APIService {
     public init(urlString: String) {
         self.urlString = urlString
     }
-    public func getJSON<T: Decodable>(completion: @escaping (T) -> Void) {
+     func getJSON(completion: @escaping (Result<ATMResponse, CustomError>) -> Void) {
         guard let url = URL(string: urlString) else {
-            fatalError("Error: Invalid URL.")
+            print("Error: Invalid URL.")
+          return
         }
-        let request = URLRequest(url: url)
+
+       let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 13)
         URLSession.shared.dataTask(with: request) { (data, _, error) in
             if let error = error {
               print(error)
+              completion(.failure(CustomError.errorGeneral))
+              return
             }
             guard let data = data else {
                 print("Error: Data is corrupt.")
+              completion(.failure(CustomError.corruptedData))
               return
             }
             let decoder = JSONDecoder()
             do {
-                let decodedData = try decoder.decode(T.self, from: data)
-                completion(decodedData)
+                let decodedData = try decoder.decode(ATMResponse.self, from: data)
+              completion(.success(decodedData))
             } catch {
                 print("Error: \(error.localizedDescription)")
             }
         }.resume()
     }
+}
+enum CustomError: Error {
+  case corruptedData
+  case errorGeneral
 }

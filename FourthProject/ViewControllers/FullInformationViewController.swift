@@ -108,10 +108,10 @@ class FullInformationViewController: UIViewController {
   }
 
   @objc func createRout() {
-    let lat = Double(atm.address.geolocation.geographicCoordinates.latitude)
-    let lng = Double(atm.address.geolocation.geographicCoordinates.longitude)
-    let source = MKMapItem(coordinate: .init(latitude: lat!, longitude: lng!), name: "Source")
-    let destination = MKMapItem(coordinate: .init(latitude: lat!, longitude: lng!), name: "Destination")
+    guard let lat = Double(atm.address.geolocation.geographicCoordinates.latitude) else {return}
+    guard  let lng = Double(atm.address.geolocation.geographicCoordinates.longitude) else {return}
+    let source = MKMapItem(coordinate: .init(latitude: lat, longitude: lng), name: "Source")
+    let destination = MKMapItem(coordinate: .init(latitude: lat, longitude: lng), name: "Destination")
 
     MKMapItem.openMaps(
       with: [source, destination],

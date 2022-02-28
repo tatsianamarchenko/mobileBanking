@@ -7,6 +7,7 @@
 
 import UIKit
 import MapKit
+import CoreLocation
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
   var window: UIWindow?
@@ -17,21 +18,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     if let windowScene = scene as? UIWindowScene {
       let myWindow = UIWindow(windowScene: windowScene)
       let navVC = UINavigationController()
-      let viewController = MainViewController(coor: nil, atm: nil)
-      let emailButton = UIBarButtonItem(image: UIImage(systemName: "arrow.counterclockwise")!,
-                                        style: .plain,
-                                        target: self,
-                                        action: #selector(action))
-      viewController.navigationItem.rightBarButtonItem = emailButton
-      viewController.title = "Банкоматы"
+      let viewController = MainViewController()
+      viewController.title = navTitle
       navVC.viewControllers = [viewController]
       myWindow.rootViewController = navVC
       self.window = myWindow
       myWindow.makeKeyAndVisible()
     }
   }
-  @objc func action() {
-
-  }
-
 }

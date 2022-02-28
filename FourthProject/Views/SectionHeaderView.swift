@@ -19,6 +19,7 @@ class SectionHeaderView: UICollectionViewCell {
       lable.font.withSize(30)
       lable.lineBreakMode = .byWordWrapping
       lable.lineBreakStrategy = .pushOut
+      lable.textAlignment = .center
       lable.numberOfLines = 0
       return lable
     }()
@@ -34,7 +35,7 @@ class SectionHeaderView: UICollectionViewCell {
   override func layoutSubviews() {
     super.layoutSubviews()
     self.addSubview(title)
-    backgroundColor = .systemBackground
+    backgroundColor = .systemGray5
 
     title.snp.makeConstraints { (make) -> Void in
       make.centerX.equalTo(contentView).inset(30)
