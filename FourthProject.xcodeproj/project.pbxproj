@@ -8,12 +8,14 @@
 
 /* Begin PBXBuildFile section */
 		BF10001D27C50B1F006C4E07 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10001C27C50B1F006C4E07 /* APIService.swift */; };
-		BF10001F27C50F19006C4E07 /* BankomatsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10001E27C50F19006C4E07 /* BankomatsModel.swift */; };
+		BF10001F27C50F19006C4E07 /* ATMsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10001E27C50F19006C4E07 /* ATMsModel.swift */; };
 		BF10002127C53646006C4E07 /* DetailedCollectionCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002027C53646006C4E07 /* DetailedCollectionCollectionViewController.swift */; };
 		BF10002327C536A8006C4E07 /* DetailedCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002227C536A8006C4E07 /* DetailedCollectionViewCell.swift */; };
 		BF10002527C54EA3006C4E07 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002427C54EA3006C4E07 /* Constants.swift */; };
 		BF10002D27C58057006C4E07 /* MapPinAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002C27C58057006C4E07 /* MapPinAnnotation.swift */; };
 		BF10002F27C5AE97006C4E07 /* FullInformationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002E27C5AE96006C4E07 /* FullInformationViewController.swift */; };
+		BF4DB9B727CEE4BD00322F92 /* BranchesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF4DB9B427CEE4BD00322F92 /* BranchesModel.swift */; };
+		BF4DB9B927CEE4BD00322F92 /* InfoboxModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF4DB9B627CEE4BD00322F92 /* InfoboxModel.swift */; };
 		BFAC088C27C651E9003B1F21 /* ButtomPresentationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFAC088B27C651E9003B1F21 /* ButtomPresentationViewController.swift */; };
 		BFB7319F27C969DC006CF18A /* SectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFB7319E27C969DC006CF18A /* SectionHeaderView.swift */; };
 		BFC89D8527C44FD8004DBEC9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFC89D8427C44FD8004DBEC9 /* AppDelegate.swift */; };
@@ -29,12 +31,14 @@
 		201B40A932CD948C881225CD /* Pods_FourthProject.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FourthProject.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5DCE030AC27323584470EAFB /* Pods-FourthProject.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FourthProject.debug.xcconfig"; path = "Target Support Files/Pods-FourthProject/Pods-FourthProject.debug.xcconfig"; sourceTree = "<group>"; };
 		BF10001C27C50B1F006C4E07 /* APIService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
-		BF10001E27C50F19006C4E07 /* BankomatsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BankomatsModel.swift; sourceTree = "<group>"; };
+		BF10001E27C50F19006C4E07 /* ATMsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ATMsModel.swift; sourceTree = "<group>"; };
 		BF10002027C53646006C4E07 /* DetailedCollectionCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedCollectionCollectionViewController.swift; sourceTree = "<group>"; };
 		BF10002227C536A8006C4E07 /* DetailedCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedCollectionViewCell.swift; sourceTree = "<group>"; };
 		BF10002427C54EA3006C4E07 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		BF10002C27C58057006C4E07 /* MapPinAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapPinAnnotation.swift; sourceTree = "<group>"; };
 		BF10002E27C5AE96006C4E07 /* FullInformationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullInformationViewController.swift; sourceTree = "<group>"; };
+		BF4DB9B427CEE4BD00322F92 /* BranchesModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BranchesModel.swift; sourceTree = "<group>"; };
+		BF4DB9B627CEE4BD00322F92 /* InfoboxModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoboxModel.swift; sourceTree = "<group>"; };
 		BFAC088B27C651E9003B1F21 /* ButtomPresentationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtomPresentationViewController.swift; sourceTree = "<group>"; };
 		BFB7319E27C969DC006CF18A /* SectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeaderView.swift; sourceTree = "<group>"; };
 		BFC89D8127C44FD8004DBEC9 /* FourthProject.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FourthProject.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -92,7 +96,9 @@
 		BF10002927C57D94006C4E07 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				BF10001E27C50F19006C4E07 /* BankomatsModel.swift */,
+				BF10001E27C50F19006C4E07 /* ATMsModel.swift */,
+				BF4DB9B427CEE4BD00322F92 /* BranchesModel.swift */,
+				BF4DB9B627CEE4BD00322F92 /* InfoboxModel.swift */,
 				BF10002C27C58057006C4E07 /* MapPinAnnotation.swift */,
 			);
 			path = Models;
@@ -291,14 +297,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BF4DB9B927CEE4BD00322F92 /* InfoboxModel.swift in Sources */,
 				BF10002327C536A8006C4E07 /* DetailedCollectionViewCell.swift in Sources */,
 				BFAC088C27C651E9003B1F21 /* ButtomPresentationViewController.swift in Sources */,
 				BF10002127C53646006C4E07 /* DetailedCollectionCollectionViewController.swift in Sources */,
 				BFC89D8927C44FD8004DBEC9 /* MainViewController.swift in Sources */,
 				BF10001D27C50B1F006C4E07 /* APIService.swift in Sources */,
 				BF10002F27C5AE97006C4E07 /* FullInformationViewController.swift in Sources */,
-				BF10001F27C50F19006C4E07 /* BankomatsModel.swift in Sources */,
+				BF10001F27C50F19006C4E07 /* ATMsModel.swift in Sources */,
 				BFB7319F27C969DC006CF18A /* SectionHeaderView.swift in Sources */,
+				BF4DB9B727CEE4BD00322F92 /* BranchesModel.swift in Sources */,
 				BFC89D8527C44FD8004DBEC9 /* AppDelegate.swift in Sources */,
 				BFC89D8727C44FD8004DBEC9 /* SceneDelegate.swift in Sources */,
 				BF10002527C54EA3006C4E07 /* Constants.swift in Sources */,
