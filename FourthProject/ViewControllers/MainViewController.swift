@@ -36,6 +36,11 @@ class MainViewController: UIViewController {
 	return alert
   }()
 
+  private lazy var spiner: UIActivityIndicatorView = {
+	var spiner = UIActivityIndicatorView(style: .large)
+	return spiner
+  }()
+
   private lazy var mapView: MKMapView = {
 	var map = MKMapView()
 	let minskCenter = CLLocation(latitude: 53.716, longitude: 27.9776)
@@ -60,6 +65,7 @@ class MainViewController: UIViewController {
 	view.backgroundColor = .systemBackground
 	view.addSubview(mapOrListsegmentedControl)
 	view.addSubview(mapView)
+	mapView.delegate = self
 
 	registerMapAnnotationViews()
 
@@ -67,14 +73,11 @@ class MainViewController: UIViewController {
 	guard let saveImage = saveImage else {
 	  return
 	}
-
 	let imageButton = UIBarButtonItem(image: saveImage,
 									  style: .plain,
 									  target: self,
 									  action: #selector(actionButton))
 	navigationItem.rightBarButtonItem = imageButton
-
-	mapView.delegate = self
 
 	if atmRecived == nil {
 	  DispatchQueue.main.async {
@@ -169,12 +172,12 @@ class MainViewController: UIViewController {
   }
 
   private func registerMapAnnotationViews() {
-  mapView.register(MKMarkerAnnotationView.self,
-				   forAnnotationViewWithReuseIdentifier: NSStringFromClass(ATMsPinAnnotation.self))
-  mapView.register(MKMarkerAnnotationView.self,
-				   forAnnotationViewWithReuseIdentifier: NSStringFromClass(InfoboxsPinAnnotation.self))
-  mapView.register(MKMarkerAnnotationView.self,
-				   forAnnotationViewWithReuseIdentifier: NSStringFromClass(BranchesPinAnnotation.self))
+	mapView.register(MKMarkerAnnotationView.self,
+					 forAnnotationViewWithReuseIdentifier: NSStringFromClass(ATMsPinAnnotation.self))
+	mapView.register(MKMarkerAnnotationView.self,
+					 forAnnotationViewWithReuseIdentifier: NSStringFromClass(InfoboxsPinAnnotation.self))
+	mapView.register(MKMarkerAnnotationView.self,
+					 forAnnotationViewWithReuseIdentifier: NSStringFromClass(BranchesPinAnnotation.self))
   }
 
   @objc func actionButton(_ sender: UIBarButtonItem) {
@@ -238,14 +241,71 @@ class MainViewController: UIViewController {
 	}
   }
 
-  private	func createPins () {
+  private	func createPins() {
 	let apiService = APIService()
+	var branchItems = [BranchElement]()
+	var atmItems = [ATM]()
+	var infoboxItems = [InfoBox]()
 	let group = DispatchGroup()
+	view.isUserInteractionEnabled = false
+	view.addSubview(spiner)
+	DispatchQueue.main.async {
+	  self.spiner.startAnimating()
+	  self.spiner.snp.makeConstraints { (make) -> Void in
+		make.centerY.equalToSuperview()
+		make.centerX.equalToSuperview()
+	  }
+	}
+	spiner.startAnimating()
+
 	group.enter()
 	apiService.getJSON(urlString: urlATMsString, runQueue: .global(), complitionQueue: .main) { (atms: ATMResponse) in
-	  let atms = atms
-	  for atm in 0..<atms.data.atm.count {
-		let item =  atms.data.atm[atm]
+	  atmItems = atms.data.atm
+	  group.leave()
+	}
+
+	group.enter()
+	apiService.getJSON(urlString: urlInfoboxString, runQueue: .global(), complitionQueue: .main) { (infobox: [InfoBox]) in
+	  infoboxItems = infobox
+	  group.leave()
+	}
+
+	group.enter()
+	apiService.getJSON(urlString: urlbBranchesString, runQueue: .global(), complitionQueue: .main) { (branch: Branch) in
+	  branchItems = branch.data.branch
+	  group.leave()
+	}
+
+	group.notify(queue: .main) {
+	  for bra in 0..<branchItems.count {
+		let item =  branchItems[bra]
+		guard let latitude = Double(item.address.geoLocation.geographicCoordinates.latitude) else {
+		  return
+		}
+		guard let longitude = Double(item.address.geoLocation.geographicCoordinates.longitude) else {
+		  return
+		}
+		let loc = CLLocationCoordinate2D(latitude: latitude,
+										 longitude: longitude)
+		self.setBranchPinUsingMKAnnotation(title: item.name, branch: item, location: loc)
+	  }
+
+	  for singleBox in 0..<infoboxItems.count {
+		let item = infoboxItems[singleBox]
+
+		guard let latitude = Double(item.gpsX!) else {
+		  return
+		}
+		guard let longitude = Double(item.gpsY!) else {
+		  return
+		}
+		let loc = CLLocationCoordinate2D(latitude: latitude,
+										 longitude: longitude)
+		self.setInfoBoxPinUsingMKAnnotation(title: item.city!, infobox: item, location: loc)
+	  }
+
+	  for atm in 0..<atmItems.count {
+		let item =  atmItems[atm]
 		guard let latitude = Double(item.address.geolocation.geographicCoordinates.latitude) else {
 		  return
 		}
@@ -258,48 +318,10 @@ class MainViewController: UIViewController {
 										 atm: item,
 										 location: loc)
 	  }
+	  self.view.isUserInteractionEnabled = true
+	  self.spiner.stopAnimating()
+	  self.spiner.removeFromSuperview()
 	}
-	group.leave()
-
-	group.enter()
-	apiService.getJSON(urlString: urlInfoboxString, runQueue: .global(), complitionQueue: .main) { (infobox: [InfoBox]) in
-
-	  let infobox = infobox
-	  for singleBox in 0..<infobox.count {
-		let item = infobox[singleBox]
-
-		guard let latitude = Double(item.gpsX!) else {
-		  return
-		}
-		guard let longitude = Double(item.gpsY!) else {
-		  return
-		}
-		let loc = CLLocationCoordinate2D(latitude: latitude,
-										 longitude: longitude)
-		self.setInfoBoxPinUsingMKAnnotation(title: item.city!, infobox: item, location: loc)
-	  }
-	}
-	group.leave()
-
-	group.enter()
-	apiService.getJSON(urlString: urlbBranchesString, runQueue: .global(), complitionQueue: .main) { (branch: Branch) in
-
-	  let branch = branch
-	  for bra in 0..<branch.data.branch.count {
-		let item =  branch.data.branch[bra]
-		guard let latitude = Double(item.address.geoLocation.geographicCoordinates.latitude) else {
-		  return
-		}
-		guard let longitude = Double(item.address.geoLocation.geographicCoordinates.longitude) else {
-		  return
-		}
-		let loc = CLLocationCoordinate2D(latitude: latitude,
-										 longitude: longitude)
-		self.setBranchPinUsingMKAnnotation(title: item.name, branch: item, location: loc)
-	  }
-
-	}
-	group.leave()
   }
 
   private	func setATMsPinUsingMKAnnotation(title: String, atm: ATM, location: CLLocationCoordinate2D) {
@@ -353,14 +375,14 @@ class MainViewController: UIViewController {
 }
 
 extension MainViewController: CLLocationManagerDelegate {
-	func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-		guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else {
-			return }
-		manager.stopUpdatingLocation()
-		mapView.centerToLocation(CLLocation(latitude: locValue.latitude,
-											longitude: locValue.longitude),
-								 regionRadius: regionRadius)
-	}
+  func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+	guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else {
+	  return }
+	manager.stopUpdatingLocation()
+	mapView.centerToLocation(CLLocation(latitude: locValue.latitude,
+										longitude: locValue.longitude),
+							 regionRadius: regionRadius)
+  }
 }
 
 extension MainViewController: MKMapViewDelegate {
@@ -476,44 +498,22 @@ extension MKMapView {
 }
 
 // 1. Загрузка данных
-//
 // Необходимо получать одновременно 3 запроса:
-//
 // список банкоматов (уже реализовано в прошлом задании),
 // инфокиоски
 // подразделения банка
 // Все запросы отправляются одновременно. Использовать DispatchQueue, DispatchGroup.
-//
 // Во время выполнения запросов посередине экрана отображается крутящийся лоадер. Интерфейс заблокирован.
-//
 // После получения ответа необходимо отсортировать точки по удалённости от текущего местоположения или, если местоположение недоступно, от точки по умолчанию (52.425163, 31.015039)
-//
 // Если не удалось загрузить какой-то тип данных, то после получения всех 3 запросов расширить сообщение на алерте текстом, объясняющим, какие именно типы не удалось загрузить.
-//
 // 2. Отображение точек
-//
-// Карта отображает все типа загруженных данных.
-// Для каждого типа (банкомат / инфокиоск / подразделение банка) сделать свой собственный дизайн пина на карте (можно добавить разные буквы на пин, либо разные картинки).
-//
 // На экране списка загруженные данные отсортированы в рамках каждого города по удалённости от текущего местоположения пользователя или, если недоступно, от точки по умолчанию.
-//
 // 3. Обновление данных
-//
 // При нажатии на кнопку “Обновить” в нав. баре приложение отправляет запрос на получение списка банкоматов, а также отправляет 2 асинхронных запроса: инфокиоски и подразделения банка.
-//
 // Интерфейс заблокирован пока не будет получен список банкоматов (отображается лоадер).
-//
 // Ответы на запрос инфокиоска и подразделений банка обрабатывать в фоне (обновлять карту и список). Интерфейс во время выполнения данных запросов не заблокирован.
-//
 // Если не удалось загрузить какой-то тип данных, то приложение никак на это не реагирует, отображая на карте и в списке старые точки.
-//
 // 4. Фильтрация точек
-//
 // Добавить ещё одну кнопку в нав. бар, которая отвечает за фильтрацию точек.
-//
 // При нажатии на кнопку появляется модальное окно, на котором пользователь чекбоксами выбирает, какие типы точек хочет видеть в списке и на карте. По умолчанию выбраны все.
-//
 // Фильтрация применяется как к карте, так и к списку точек.
-//
-// Разработку вести в ветке development. В ветке master должен быть ваш проект из 4 задания. По окончанию разработки сделать merge request из development в master.
-//

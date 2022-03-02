@@ -20,7 +20,6 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 
   private lazy var spiner: UIActivityIndicatorView = {
     var spiner = UIActivityIndicatorView(style: .large)
-    spiner.translatesAutoresizingMaskIntoConstraints = false
     return spiner
   }()
 
