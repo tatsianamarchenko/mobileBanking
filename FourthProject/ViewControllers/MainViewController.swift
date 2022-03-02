@@ -40,23 +40,8 @@ class MainViewController: UIViewController {
 	var map = MKMapView()
 	let minskCenter = CLLocation(latitude: 53.716, longitude: 27.9776)
 	map.centerToLocation(minskCenter)
-	let region = MKCoordinateRegion(
-	  center: minskCenter.coordinate,
-	  latitudinalMeters: 10000,
-	  longitudinalMeters: 10000)
-	// map.register(MKMarkerAnnotationView.self,
-		//		 forAnnotationViewWithReuseIdentifier: NSStringFromClass(ATMsPinAnnotation.self))
 	return map
   }()
-
-  private func registerMapAnnotationViews() {
-  mapView.register(MKMarkerAnnotationView.self,
-				   forAnnotationViewWithReuseIdentifier: NSStringFromClass(ATMsPinAnnotation.self))
-  mapView.register(MKAnnotationView.self,
-				   forAnnotationViewWithReuseIdentifier: NSStringFromClass(InfoboxsPinAnnotation.self))
-  mapView.register(MKAnnotationView.self,
-				   forAnnotationViewWithReuseIdentifier: NSStringFromClass(BranchesPinAnnotation.self))
-  }
 
   private lazy var mapOrListsegmentedControl: UISegmentedControl = {
 	let segmentTextContent = [
@@ -72,12 +57,11 @@ class MainViewController: UIViewController {
 
   override func viewDidLoad() {
 	super.viewDidLoad()
-
-	registerMapAnnotationViews()
-
 	view.backgroundColor = .systemBackground
 	view.addSubview(mapOrListsegmentedControl)
 	view.addSubview(mapView)
+
+	registerMapAnnotationViews()
 
 	let saveImage = UIImage(systemName: "arrow.counterclockwise")
 	guard let saveImage = saveImage else {
@@ -127,18 +111,6 @@ class MainViewController: UIViewController {
 	makeConstraints()
   }
 
-  private func makeConstraints() {
-	mapOrListsegmentedControl.snp.makeConstraints { (make) -> Void in
-	  make.leading.trailing.equalToSuperview().inset(30)
-	  make.top.equalTo(view.safeAreaLayoutGuide)
-	}
-	mapView.snp.makeConstraints { (make) -> Void in
-	  make.leading.trailing.equalToSuperview()
-	  make.top.equalTo(mapOrListsegmentedControl).inset(50)
-	  make.bottom.equalToSuperview()
-	}
-  }
-
   override func viewWillAppear(_ animated: Bool) {
 	super.viewWillAppear(animated)
 	guard let atmRecived = atmRecived else {
@@ -182,6 +154,27 @@ class MainViewController: UIViewController {
 	  sheet.detents = [.medium(), .large()]
 	}
 	present(nav, animated: true, completion: nil)
+  }
+
+  private func makeConstraints() {
+	mapOrListsegmentedControl.snp.makeConstraints { (make) -> Void in
+	  make.leading.trailing.equalToSuperview().inset(30)
+	  make.top.equalTo(view.safeAreaLayoutGuide)
+	}
+	mapView.snp.makeConstraints { (make) -> Void in
+	  make.leading.trailing.equalToSuperview()
+	  make.top.equalTo(mapOrListsegmentedControl).inset(50)
+	  make.bottom.equalToSuperview()
+	}
+  }
+
+  private func registerMapAnnotationViews() {
+  mapView.register(MKMarkerAnnotationView.self,
+				   forAnnotationViewWithReuseIdentifier: NSStringFromClass(ATMsPinAnnotation.self))
+  mapView.register(MKMarkerAnnotationView.self,
+				   forAnnotationViewWithReuseIdentifier: NSStringFromClass(InfoboxsPinAnnotation.self))
+  mapView.register(MKMarkerAnnotationView.self,
+				   forAnnotationViewWithReuseIdentifier: NSStringFromClass(BranchesPinAnnotation.self))
   }
 
   @objc func actionButton(_ sender: UIBarButtonItem) {
@@ -250,7 +243,6 @@ class MainViewController: UIViewController {
 	let group = DispatchGroup()
 	group.enter()
 	apiService.getJSON(urlString: urlATMsString, runQueue: .global(), complitionQueue: .main) { (atms: ATMResponse) in
-
 	  let atms = atms
 	  for atm in 0..<atms.data.atm.count {
 		let item =  atms.data.atm[atm]
@@ -268,7 +260,6 @@ class MainViewController: UIViewController {
 	  }
 	}
 	group.leave()
-
 
 	group.enter()
 	apiService.getJSON(urlString: urlInfoboxString, runQueue: .global(), complitionQueue: .main) { (infobox: [InfoBox]) in
@@ -289,7 +280,6 @@ class MainViewController: UIViewController {
 	  }
 	}
 	group.leave()
-
 
 	group.enter()
 	apiService.getJSON(urlString: urlbBranchesString, runQueue: .global(), complitionQueue: .main) { (branch: Branch) in
@@ -390,12 +380,14 @@ extension MainViewController: MKMapViewDelegate {
   private func setupATMsAnnotationView(for annotation: ATMsPinAnnotation, on mapView: MKMapView) -> MKAnnotationView {
 	let identifier = NSStringFromClass(ATMsPinAnnotation.self)
 	let view = mapView.dequeueReusableAnnotationView(withIdentifier: identifier, for: annotation)
-	view.canShowCallout = false
+	view.canShowCallout = true
+	let image = UIImage(named: "atm")
+	view.clusteringIdentifier = "PinCluster"
 	if let markerAnnotationView = view as? MKMarkerAnnotationView {
 	  markerAnnotationView.animatesWhenAdded = true
-	  markerAnnotationView.clusteringIdentifier = "PinCluster"
-	  markerAnnotationView.markerTintColor = .systemMint
-	  markerAnnotationView.titleVisibility = .visible
+	  markerAnnotationView.canShowCallout = true
+	  markerAnnotationView.markerTintColor = .orange
+	  markerAnnotationView.glyphImage = image
 	}
 	return view
   }
@@ -405,11 +397,14 @@ extension MainViewController: MKMapViewDelegate {
 	let identifier = NSStringFromClass(InfoboxsPinAnnotation.self)
 	let view = mapView.dequeueReusableAnnotationView(withIdentifier: identifier, for: annotation)
 	view.canShowCallout = true
+	let image = UIImage(named: "info")
 	view.clusteringIdentifier = "PinCluster"
-	let image = UIImage(systemName: "drop")
-	view.image = image
-	let offset = CGPoint(x: image!.size.width / 2, y: -(image!.size.height / 2) )
-	view.centerOffset = offset
+	if let markerAnnotationView = view as? MKMarkerAnnotationView {
+	  markerAnnotationView.animatesWhenAdded = true
+	  markerAnnotationView.canShowCallout = true
+	  markerAnnotationView.markerTintColor = .systemPink
+	  markerAnnotationView.glyphImage = image
+	}
 	return view
   }
 
@@ -418,12 +413,16 @@ extension MainViewController: MKMapViewDelegate {
 	let identifier = NSStringFromClass(BranchesPinAnnotation.self)
 	let view = mapView.dequeueReusableAnnotationView(withIdentifier: identifier, for: annotation)
 	view.canShowCallout = false
-	let image = UIImage(systemName: "lock")
+	let image = UIImage(named: "bank")
 	view.clusteringIdentifier = "PinCluster"
-	view.image = image
-	let offset = CGPoint(x: image!.size.width / 2, y: -(image!.size.height / 2) )
-	view.centerOffset = offset
+	if let markerAnnotationView = view as? MKMarkerAnnotationView {
+	  markerAnnotationView.animatesWhenAdded = true
+	  markerAnnotationView.canShowCallout = true
+	  markerAnnotationView.markerTintColor = .systemMint
+	  markerAnnotationView.glyphImage = image
+	}
 	return view
+
   }
 
   func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
@@ -475,3 +474,46 @@ extension MKMapView {
 	setRegion(coordinateRegion, animated: true)
   }
 }
+
+// 1. Загрузка данных
+//
+// Необходимо получать одновременно 3 запроса:
+//
+// список банкоматов (уже реализовано в прошлом задании),
+// инфокиоски
+// подразделения банка
+// Все запросы отправляются одновременно. Использовать DispatchQueue, DispatchGroup.
+//
+// Во время выполнения запросов посередине экрана отображается крутящийся лоадер. Интерфейс заблокирован.
+//
+// После получения ответа необходимо отсортировать точки по удалённости от текущего местоположения или, если местоположение недоступно, от точки по умолчанию (52.425163, 31.015039)
+//
+// Если не удалось загрузить какой-то тип данных, то после получения всех 3 запросов расширить сообщение на алерте текстом, объясняющим, какие именно типы не удалось загрузить.
+//
+// 2. Отображение точек
+//
+// Карта отображает все типа загруженных данных.
+// Для каждого типа (банкомат / инфокиоск / подразделение банка) сделать свой собственный дизайн пина на карте (можно добавить разные буквы на пин, либо разные картинки).
+//
+// На экране списка загруженные данные отсортированы в рамках каждого города по удалённости от текущего местоположения пользователя или, если недоступно, от точки по умолчанию.
+//
+// 3. Обновление данных
+//
+// При нажатии на кнопку “Обновить” в нав. баре приложение отправляет запрос на получение списка банкоматов, а также отправляет 2 асинхронных запроса: инфокиоски и подразделения банка.
+//
+// Интерфейс заблокирован пока не будет получен список банкоматов (отображается лоадер).
+//
+// Ответы на запрос инфокиоска и подразделений банка обрабатывать в фоне (обновлять карту и список). Интерфейс во время выполнения данных запросов не заблокирован.
+//
+// Если не удалось загрузить какой-то тип данных, то приложение никак на это не реагирует, отображая на карте и в списке старые точки.
+//
+// 4. Фильтрация точек
+//
+// Добавить ещё одну кнопку в нав. бар, которая отвечает за фильтрацию точек.
+//
+// При нажатии на кнопку появляется модальное окно, на котором пользователь чекбоксами выбирает, какие типы точек хочет видеть в списке и на карте. По умолчанию выбраны все.
+//
+// Фильтрация применяется как к карте, так и к списку точек.
+//
+// Разработку вести в ветке development. В ветке master должен быть ваш проект из 4 задания. По окончанию разработки сделать merge request из development в master.
+//
