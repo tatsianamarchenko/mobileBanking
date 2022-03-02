@@ -56,36 +56,35 @@ class ButtomPresentationViewController: UIViewController {
 		self.timeOfWorkLable.text = timeOfWork
 		self.currancyLable.text = currancy
 		self.cashInLable.text = cashIn
-		
 	}
-	
+
 	required init?(coder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
 	}
-	
+
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		
+
 		navigationItem.rightBarButtonItem = UIBarButtonItem(
 			barButtonSystemItem: .close,
 			target: self,
 			action: #selector(cancel))
-		
+
 		view.backgroundColor = .systemBackground
-		
+
 		view.addSubview(placeStack)
 		view.addSubview(timeStack)
 		view.addSubview(currenceStack)
 		view.addSubview(cashInStack)
 		view.addSubview(infoButton)
-		
+
 		createConstraints()
 	}
-	
+
 	@objc func cancel() {
 		dismiss(animated: true)
 	}
-	
+
 	private func createConstraints() {
 		placeStack.snp.makeConstraints { (make) -> Void in
 			make.centerX.equalToSuperview()
@@ -108,25 +107,25 @@ class ButtomPresentationViewController: UIViewController {
 			make.bottom.equalToSuperview().inset(80)
 		}
 	}
-	
+
 	@objc func done () {
 		dismiss(animated: true)
 	}
-	
+
 	private func createStack(contentLable: UILabel, name: String) -> UIStackView {
 		let lableName = UILabel()
 		lableName.text = name
 		lableName.font = UIFont.systemFont(ofSize: 10)
 		lableName.textColor = .label
-		
+
 		contentLable.numberOfLines = 0
-		
+
 		let stack = UIStackView(arrangedSubviews: [lableName, contentLable])
 		stack.axis = .vertical
 		stack.alignment = .center
 		stack.addSubview(contentLable)
 		stack.addSubview(lableName)
-		
+
 		lableName.snp.makeConstraints { (make) -> Void in
 			make.centerX.equalToSuperview()
 			make.top.equalToSuperview()
@@ -137,7 +136,7 @@ class ButtomPresentationViewController: UIViewController {
 		}
 		return stack
 	}
-	
+
 	@objc func openFullInfoVC() {
 		let detailNavController = FullInformationViewController(atm: atm)
 		let navController = UINavigationController(rootViewController: detailNavController)

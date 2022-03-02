@@ -38,41 +38,38 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
   }()
 
   override func viewDidLoad() {
-    super.viewDidLoad()
-    collectionView.delegate = self
-    collectionView.dataSource = self
+	super.viewDidLoad()
+	collectionView.delegate = self
+	collectionView.dataSource = self
 
-    view.addSubview(collectionView)
-    view.addSubview(spiner)
+	view.addSubview(collectionView)
+	view.addSubview(spiner)
 
-makeConstraints()
+	makeConstraints()
 
-    DispatchQueue.main.async {
-      self.spiner.startAnimating()
-			self.spiner.snp.makeConstraints { (make) -> Void in
-        make.centerY.equalToSuperview()
-        make.centerX.equalToSuperview()
-      }
-    }
-    let apiService = APIService(urlString: urlString)
-    apiService.getJSON { [weak self] result in
-      switch result {
-      case .success(let atms) :
-        let sectionItems = Dictionary(grouping: atms.data.atm.sorted {$0.atmID < $1.atmID},
-                                      by: { String($0.address.townName) })
-        for index in 0..<sectionItems.count {
-          self?.sections.append(Section(sectionName: Array(sectionItems.keys)[index],
-                                        rowData: Array(sectionItems.values)[index]))
-        }
-        DispatchQueue.main.async {
-          self?.spiner.stopAnimating()
-          self?.spiner.removeFromSuperview()
-          self?.collectionView.reloadData()
-        }
-      case .failure(let error) :
-        print(error)
-      }
-    }
+	DispatchQueue.main.async {
+	  self.spiner.startAnimating()
+	  self.spiner.snp.makeConstraints { (make) -> Void in
+		make.centerY.equalToSuperview()
+		make.centerX.equalToSuperview()
+	  }
+	}
+	let apiService = APIService()
+	apiService.getJSON(urlString: urlATMsString,
+					   runQueue: .global(),
+					   complitionQueue: .main) { [weak self]  (atms: ATMResponse) in
+	  let sectionItems = Dictionary(grouping: atms.data.atm.sorted {$0.atmID < $1.atmID},
+									by: { String($0.address.townName) })
+	  for index in 0..<sectionItems.count {
+		self?.sections.append(Section(sectionName: Array(sectionItems.keys)[index],
+									  rowData: Array(sectionItems.values)[index]))
+	  }
+	  DispatchQueue.main.async {
+		self?.spiner.stopAnimating()
+		self?.spiner.removeFromSuperview()
+		self?.collectionView.reloadData()
+	  }
+	}
   }
 func	makeConstraints() {
 		collectionView.snp.makeConstraints { (make) -> Void in
@@ -84,15 +81,15 @@ func	makeConstraints() {
 }
 
 extension DetailedCollectionViewController: UICollectionViewDelegate, UICollectionViewDataSource {
-  
+
   func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
     return self.sections[section].rowData.count
   }
-  
+
   func numberOfSections(in collectionView: UICollectionView) -> Int {
     return self.sections.count
   }
-  
+
   func collectionView(_ collectionView: UICollectionView,
                       cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
     guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier:
@@ -112,41 +109,41 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
     cell.currancyLabel.text = self.sections[indexPath.section].rowData[indexPath.row].currency.rawValue
     return cell
   }
-  
+
   func collectionView(_ collectionView: UICollectionView,
                       viewForSupplementaryElementOfKind kind: String,
                       at indexPath: IndexPath) -> UICollectionReusableView {
     guard let cell = self.collectionView.dequeueReusableSupplementaryView(ofKind: kind,
-                                                                          withReuseIdentifier: SectionHeaderView.reuseId,
+																	  withReuseIdentifier: SectionHeaderView.reuseId,
                                                                           for: indexPath) as? SectionHeaderView
     else {
       return UICollectionReusableView()
     }
-    
+
     cell.setTitle(title: self.sections[indexPath.section].sectionName)
     return cell
   }
-  
+
   func collectionView(_ collectionView: UICollectionView,
                       layout collectionViewLayout: UICollectionViewLayout,
                       referenceSizeForHeaderInSection section: Int) -> CGSize {
 
-    return CGSize(width:cellHeaderWidth, height: cellHeaderHeight)
+    return CGSize(width: cellHeaderWidth, height: cellHeaderHeight)
   }
-  
+
   func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
     navigationController?.popToRootViewController(animated: true)
     let item = sections[indexPath.section].rowData[indexPath.row]
     complition?(item)
-    
+
   }
-  
+
   func collectionView(_ collectionView: UICollectionView,
                       layout collectionViewLayout: UICollectionViewLayout,
                       sizeForItemAt indexPath: IndexPath) -> CGSize {
     return CGSize(width: widthCell, height: heightCell)
   }
-  
+
   func collectionView(_ collectionView: UICollectionView,
                       layout collectionViewLayout: UICollectionViewLayout,
                       minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
@@ -157,7 +154,7 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
                       minimumLineSpacingForSectionAt section: Int) -> CGFloat {
     return cellOffset
   }
-  
+
   func collectionView(_ collectionView: UICollectionView,
                       layout collectionViewLayout: UICollectionViewLayout,
                       insetForSectionAt section: Int) -> UIEdgeInsets {

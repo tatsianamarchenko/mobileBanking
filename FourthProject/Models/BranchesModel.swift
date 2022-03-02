@@ -7,6 +7,7 @@
 
 import Foundation
 
+// MARK: - Branch
 struct Branch: Codable {
 	let data: DataClass
 
@@ -15,6 +16,7 @@ struct Branch: Codable {
 	}
 }
 
+// MARK: - DataClass
 struct DataClass: Codable {
 	let branch: [BranchElement]
 
@@ -23,11 +25,13 @@ struct DataClass: Codable {
 	}
 }
 
+// MARK: - BranchElement
 struct BranchElement: Codable {
-	let branchID, name, cbu, accountNumber: String
+	let branchID, name: String
+	let cbu, accountNumber: String?
 	let equeue, wifi: Int
-	let accessibilities: AccessibilitiesElement
-	let address: AddressElement
+	let accessibilities: AccessibilitiesInfo
+	let address: AddressInfo
 	let information: Information
 	let services: Services
 
@@ -43,7 +47,8 @@ struct BranchElement: Codable {
 	}
 }
 
-struct AccessibilitiesElement: Codable {
+// MARK: - AccessibilitiesInfo
+struct AccessibilitiesInfo: Codable {
 	let accessibility: Accessibility
 
 	enum CodingKeys: String, CodingKey {
@@ -51,8 +56,10 @@ struct AccessibilitiesElement: Codable {
 	}
 }
 
+// MARK: - Accessibility
 struct Accessibility: Codable {
-	let type, accessibilityDescription: String
+	let type: TypeUnion
+	let accessibilityDescription: String
 
 	enum CodingKeys: String, CodingKey {
 		case type
@@ -60,7 +67,38 @@ struct Accessibility: Codable {
 	}
 }
 
-struct AddressElement: Codable {
+enum TypeUnion: Codable {
+	case integer(Int)
+	case string(String)
+
+	init(from decoder: Decoder) throws {
+		let container = try decoder.singleValueContainer()
+		if let x = try? container.decode(Int.self) {
+			self = .integer(x)
+			return
+		}
+		if let x = try? container.decode(String.self) {
+			self = .string(x)
+			return
+		}
+		throw DecodingError.typeMismatch(TypeUnion.self,
+										 DecodingError.Context(codingPath: decoder.codingPath,
+															   debugDescription: "Wrong type for TypeUnion"))
+	}
+
+	func encode(to encoder: Encoder) throws {
+		var container = encoder.singleValueContainer()
+		switch self {
+		case .integer(let x):
+			try container.encode(x)
+		case .string(let x):
+			try container.encode(x)
+		}
+	}
+}
+
+// MARK: - AddressInfo
+struct AddressInfo: Codable {
 	let streetName, buildingNumber, department, postCode: String
 	let townName, countrySubDivision, country, addressLine: String
 	let addressDescription: String
@@ -73,6 +111,7 @@ struct AddressElement: Codable {
 	}
 }
 
+// MARK: - GeoLocationInfo
 struct GeoLocationInfo: Codable {
 	let geographicCoordinates: GeographicCoordinatesInfo
 
@@ -81,14 +120,16 @@ struct GeoLocationInfo: Codable {
 	}
 }
 
+// MARK: - GeographicCoordinates
 struct GeographicCoordinatesInfo: Codable {
 	let latitude, longitude: String
 }
 
+// MARK: - Information
 struct Information: Codable {
-	let segment: Segment
+	let segment: String
 	let availability: AvailabilityInfo
-	let contactDetails: Contacts
+	let contactDetails: ContactDetailsInfo
 
 	enum CodingKeys: String, CodingKey {
 		case segment
@@ -97,6 +138,7 @@ struct Information: Codable {
 	}
 }
 
+// MARK: - AvailabilityInfo
 struct AvailabilityInfo: Codable {
 	let access24Hours, isRestricted, sameAsOrganization: Int
 	let availabilityDescription: String
@@ -111,8 +153,11 @@ struct AvailabilityInfo: Codable {
 	}
 }
 
+// MARK: - NonStandardAvailability
 struct NonStandardAvailability: Codable {
-	let name, fromDate, toDate, nonStandardAvailabilityDescription: String
+	let name: String
+	let fromDate, toDate: String
+	let nonStandardAvailabilityDescription: String
 	let day: NonStandardAvailabilityDay
 
 	enum CodingKeys: String, CodingKey {
@@ -122,9 +167,10 @@ struct NonStandardAvailability: Codable {
 	}
 }
 
+// MARK: - NonStandardAvailabilityDay
 struct NonStandardAvailabilityDay: Codable {
 	let dayCode, openingTime, closingTime: String
-	let dayBreak: BreakTime
+	let dayBreak: BreakInfo
 
 	enum CodingKeys: String, CodingKey {
 		case dayCode, openingTime, closingTime
@@ -132,10 +178,12 @@ struct NonStandardAvailabilityDay: Codable {
 	}
 }
 
-struct BreakTime: Codable {
+// MARK: - BreakInfo
+struct BreakInfo: Codable {
 	let breakFromTime, breakToTime: String
 }
 
+// MARK: - StandardAvailability
 struct StandardAvailabilityInfo: Codable {
 	let day: [DayElement]
 
@@ -144,10 +192,11 @@ struct StandardAvailabilityInfo: Codable {
 	}
 }
 
+// MARK: - DayElement
 struct DayElement: Codable {
 	let dayCode: Int
 	let openingTime, closingTime: String
-	let dayBreak: Break
+	let dayBreak: BreakInfo
 
 	enum CodingKeys: String, CodingKey {
 		case dayCode, openingTime, closingTime
@@ -155,7 +204,8 @@ struct DayElement: Codable {
 	}
 }
 
-struct Contacts: Codable {
+// MARK: - ContactDetailsInfo
+struct ContactDetailsInfo: Codable {
 	let name, phoneNumber, mobileNumber, faxNumber: String
 	let emailAddress, other: String
 	let socialNetworks: [SocialNetwork]
@@ -166,6 +216,7 @@ struct Contacts: Codable {
 	}
 }
 
+// MARK: - SocialNetwork
 struct SocialNetwork: Codable {
 	let networkName: String
 	let url: String
@@ -177,11 +228,7 @@ struct SocialNetwork: Codable {
 	}
 }
 
-enum Segment: String, Codable {
-	case business = "Business"
-	case individual = "Individual"
-}
-
+// MARK: - Services
 struct Services: Codable {
 	let service: ServiceInfo
 
@@ -190,173 +237,166 @@ struct Services: Codable {
 	}
 }
 
+// MARK: - Service
 struct ServiceInfo: Codable {
-	let the0, the1, the2, the3: The0
-	let the4, the5, the6, the7: The0
-	let the8, the9, the10, the11: The0
-	let the12, the13, the14, the15: The0
-	let the16, the17, the18, the19: The0
-	let the20, the21, the22, the23: The0
-	let the24, the25, the26, the27: The0
-	let the28, the29, the30, the31: The0
-	let the32, the33, the34, the35: The0
-	let the36, the37, the38, the39: The0
-	let the40, the41, the42, the43: The0
-	let the44, the45, the46, the47: The0
-	let the48, the49, the50, the51: The0
-	let the52, the53, the54, the55: The0
-	let the56, the57, the58, the59: The0
-	let the60, the61, the62, the63: The0
-	let the64, the65, the66, the67: The0
-	let the68, the69, the70, the71: The0
-	let the72, the73, the74, the75: The0
-	let the76, the77, the78, the79: The0
-	let the80, the81, the82, the83: The0
-	let the84, the85, the86, the87: The0
-	let the88, the89, the90, the91: The0
-	let the92, the93, the94, the95: The0
-	let the96, the97, the98, the99: The0
-	let the100, the101, the102, the103: The0
+//	let the0, the1, the2, the3: The0
+//	let the4, the5, the6, the7: The0
+//	let the8, the9, the10, the11: The0
+//	let the12, the13, the14, the15: The0
+//	let the16, the17, the18, the19: The0
+//	let the20, the21, the22, the23: The0
+//	let the24, the25, the26, the27: The0
+//	let the28, the29, the30, the31: The0
+//	let the32, the33, the34, the35: The0
+//	let the36, the37, the38, the39: The0
+//	let the40, the41, the42, the43: The0
+//	let the44, the45, the46, the47: The0
+//	let the48, the49, the50, the51: The0
+//	let the52, the53, the54, the55: The0
+//	let the56, the57, the58, the59: The0
+//	let the60, the61, the62, the63: The0
+//	let the64, the65, the66, the67: The0
+//	let the68, the69, the70, the71: The0
+//	let the72, the73, the74, the75: The0
+//	let the76, the77, the78, the79: The0
+//	let the80, the81, the82, the83: The0
+//	let the84, the85, the86, the87: The0
+//	let the88, the89, the90, the91: The0
+//	let the92, the93, the94, the95: The0
+//	let the96, the97, the98, the99: The0
+//	let the100, the101, the102, the103: The0
 	let currencyExchange: [CurrencyExchange]
 
 	enum CodingKeys: String, CodingKey {
-		case the0 = "0"
-		case the1 = "1"
-		case the2 = "2"
-		case the3 = "3"
-		case the4 = "4"
-		case the5 = "5"
-		case the6 = "6"
-		case the7 = "7"
-		case the8 = "8"
-		case the9 = "9"
-		case the10 = "10"
-		case the11 = "11"
-		case the12 = "12"
-		case the13 = "13"
-		case the14 = "14"
-		case the15 = "15"
-		case the16 = "16"
-		case the17 = "17"
-		case the18 = "18"
-		case the19 = "19"
-		case the20 = "20"
-		case the21 = "21"
-		case the22 = "22"
-		case the23 = "23"
-		case the24 = "24"
-		case the25 = "25"
-		case the26 = "26"
-		case the27 = "27"
-		case the28 = "28"
-		case the29 = "29"
-		case the30 = "30"
-		case the31 = "31"
-		case the32 = "32"
-		case the33 = "33"
-		case the34 = "34"
-		case the35 = "35"
-		case the36 = "36"
-		case the37 = "37"
-		case the38 = "38"
-		case the39 = "39"
-		case the40 = "40"
-		case the41 = "41"
-		case the42 = "42"
-		case the43 = "43"
-		case the44 = "44"
-		case the45 = "45"
-		case the46 = "46"
-		case the47 = "47"
-		case the48 = "48"
-		case the49 = "49"
-		case the50 = "50"
-		case the51 = "51"
-		case the52 = "52"
-		case the53 = "53"
-		case the54 = "54"
-		case the55 = "55"
-		case the56 = "56"
-		case the57 = "57"
-		case the58 = "58"
-		case the59 = "59"
-		case the60 = "60"
-		case the61 = "61"
-		case the62 = "62"
-		case the63 = "63"
-		case the64 = "64"
-		case the65 = "65"
-		case the66 = "66"
-		case the67 = "67"
-		case the68 = "68"
-		case the69 = "69"
-		case the70 = "70"
-		case the71 = "71"
-		case the72 = "72"
-		case the73 = "73"
-		case the74 = "74"
-		case the75 = "75"
-		case the76 = "76"
-		case the77 = "77"
-		case the78 = "78"
-		case the79 = "79"
-		case the80 = "80"
-		case the81 = "81"
-		case the82 = "82"
-		case the83 = "83"
-		case the84 = "84"
-		case the85 = "85"
-		case the86 = "86"
-		case the87 = "87"
-		case the88 = "88"
-		case the89 = "89"
-		case the90 = "90"
-		case the91 = "91"
-		case the92 = "92"
-		case the93 = "93"
-		case the94 = "94"
-		case the95 = "95"
-		case the96 = "96"
-		case the97 = "97"
-		case the98 = "98"
-		case the99 = "99"
-		case the100 = "100"
-		case the101 = "101"
-		case the102 = "102"
-		case the103 = "103"
+//		case the0 = "0"
+//		case the1 = "1"
+//		case the2 = "2"
+//		case the3 = "3"
+//		case the4 = "4"
+//		case the5 = "5"
+//		case the6 = "6"
+//		case the7 = "7"
+//		case the8 = "8"
+//		case the9 = "9"
+//		case the10 = "10"
+//		case the11 = "11"
+//		case the12 = "12"
+//		case the13 = "13"
+//		case the14 = "14"
+//		case the15 = "15"
+//		case the16 = "16"
+//		case the17 = "17"
+//		case the18 = "18"
+//		case the19 = "19"
+//		case the20 = "20"
+//		case the21 = "21"
+//		case the22 = "22"
+//		case the23 = "23"
+//		case the24 = "24"
+//		case the25 = "25"
+//		case the26 = "26"
+//		case the27 = "27"
+//		case the28 = "28"
+//		case the29 = "29"
+//		case the30 = "30"
+//		case the31 = "31"
+//		case the32 = "32"
+//		case the33 = "33"
+//		case the34 = "34"
+//		case the35 = "35"
+//		case the36 = "36"
+//		case the37 = "37"
+//		case the38 = "38"
+//		case the39 = "39"
+//		case the40 = "40"
+//		case the41 = "41"
+//		case the42 = "42"
+//		case the43 = "43"
+//		case the44 = "44"
+//		case the45 = "45"
+//		case the46 = "46"
+//		case the47 = "47"
+//		case the48 = "48"
+//		case the49 = "49"
+//		case the50 = "50"
+//		case the51 = "51"
+//		case the52 = "52"
+//		case the53 = "53"
+//		case the54 = "54"
+//		case the55 = "55"
+//		case the56 = "56"
+//		case the57 = "57"
+//		case the58 = "58"
+//		case the59 = "59"
+//		case the60 = "60"
+//		case the61 = "61"
+//		case the62 = "62"
+//		case the63 = "63"
+//		case the64 = "64"
+//		case the65 = "65"
+//		case the66 = "66"
+//		case the67 = "67"
+//		case the68 = "68"
+//		case the69 = "69"
+//		case the70 = "70"
+//		case the71 = "71"
+//		case the72 = "72"
+//		case the73 = "73"
+//		case the74 = "74"
+//		case the75 = "75"
+//		case the76 = "76"
+//		case the77 = "77"
+//		case the78 = "78"
+//		case the79 = "79"
+//		case the80 = "80"
+//		case the81 = "81"
+//		case the82 = "82"
+//		case the83 = "83"
+//		case the84 = "84"
+//		case the85 = "85"
+//		case the86 = "86"
+//		case the87 = "87"
+//		case the88 = "88"
+//		case the89 = "89"
+//		case the90 = "90"
+//		case the91 = "91"
+//		case the92 = "92"
+//		case the93 = "93"
+//		case the94 = "94"
+//		case the95 = "95"
+//		case the96 = "96"
+//		case the97 = "97"
+//		case the98 = "98"
+//		case the99 = "99"
+//		case the100 = "100"
+//		case the101 = "101"
+//		case the102 = "102"
+//		case the103 = "103"
 		case currencyExchange = "CurrencyExchange"
 	}
 }
 
+// MARK: - CurrencyExchange
 struct CurrencyExchange: Codable {
-	let exchangeTypeStaticType: ExchangeTypeStaticType
+	let exchangeTypeStaticType: String
 	let sourceCurrency, targetCurrency, exchangeRate: String
-	let direction: Direction
+	let direction: String
 	let scaleCurrency: String
-	let dateTime: Date
+	let dateTime: String
 
 	enum CodingKeys: String, CodingKey {
 		case exchangeTypeStaticType = "ExchangeTypeStaticType"
 		case sourceCurrency, targetCurrency, exchangeRate, direction, scaleCurrency, dateTime
 	}
 }
-
-enum Direction: String, Codable {
-	case buy = "buy"
-	case sell = "sell"
-}
-
-enum ExchangeTypeStaticType: String, Codable {
-	case cashless = "Cashless"
-}
-
+// MARK: - The0
 struct The0: Codable {
 	let serviceID: String
-	let type: TypeInfo?
+	let type: String?
 	let name: String
-	let segment: Segment
+	let segment: String
 	let url: String
-	let currentStatus: CurrentStatusInfo
+	let currentStatus: String
 	let dateTime: Date
 	let the0Description: String
 
@@ -365,19 +405,4 @@ struct The0: Codable {
 		case type, name, segment, url, currentStatus, dateTime
 		case the0Description = "description"
 	}
-}
-
-enum CurrentStatusInfo: String, Codable {
-	case active = "Active"
-	case inactive = "Inactive"
-}
-
-enum TypeInfo: String, Codable {
-	case card = "Card"
-	case currencyExchange = "CurrencyExchange"
-	case deposit = "Deposit"
-	case jewel = "Jewel"
-	case loan = "Loan"
-	case other = "Other"
-	case transfer = "Transfer"
 }

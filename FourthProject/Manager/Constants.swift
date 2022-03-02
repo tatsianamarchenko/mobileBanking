@@ -13,7 +13,9 @@ let screenSize = UIScreen.main.bounds
 let screenSizeWidth = UIScreen.main.bounds.width
 
 let navTitle = "Банкоматы"
-let urlString = "https://belarusbank.by/open-banking/v1.0/atms"
+let urlATMsString = "https://belarusbank.by/open-banking/v1.0/atms"
+let urlInfoboxString = "https://belarusbank.by/api/infobox"
+let urlbBranchesString = "https://belarusbank.by/open-banking/v1.0/branches"
 
 let sideOffsetCell: CGFloat = (screenSize.width - ((screenSize.width/3)-40)*3)/3
 let cellOffset: CGFloat = 10

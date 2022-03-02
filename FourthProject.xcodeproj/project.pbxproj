@@ -12,7 +12,7 @@
 		BF10002127C53646006C4E07 /* DetailedCollectionCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002027C53646006C4E07 /* DetailedCollectionCollectionViewController.swift */; };
 		BF10002327C536A8006C4E07 /* DetailedCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002227C536A8006C4E07 /* DetailedCollectionViewCell.swift */; };
 		BF10002527C54EA3006C4E07 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002427C54EA3006C4E07 /* Constants.swift */; };
-		BF10002D27C58057006C4E07 /* MapPinAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002C27C58057006C4E07 /* MapPinAnnotation.swift */; };
+		BF10002D27C58057006C4E07 /* ATMsPinAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002C27C58057006C4E07 /* ATMsPinAnnotation.swift */; };
 		BF10002F27C5AE97006C4E07 /* FullInformationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002E27C5AE96006C4E07 /* FullInformationViewController.swift */; };
 		BF4DB9B727CEE4BD00322F92 /* BranchesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF4DB9B427CEE4BD00322F92 /* BranchesModel.swift */; };
 		BF4DB9B927CEE4BD00322F92 /* InfoboxModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF4DB9B627CEE4BD00322F92 /* InfoboxModel.swift */; };
@@ -24,6 +24,8 @@
 		BFC89D8E27C44FDA004DBEC9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BFC89D8D27C44FDA004DBEC9 /* Assets.xcassets */; };
 		BFC89D9127C44FDA004DBEC9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BFC89D8F27C44FDA004DBEC9 /* LaunchScreen.storyboard */; };
 		BFC89D9C27C45866004DBEC9 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = BFC89D9B27C45866004DBEC9 /* .swiftlint.yml */; };
+		BFCB4EB927CF821400D7A056 /* InfoboxAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB4EB827CF821400D7A056 /* InfoboxAnnotation.swift */; };
+		BFCB4EBB27CF828D00D7A056 /* BranchesAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB4EBA27CF828D00D7A056 /* BranchesAnnotation.swift */; };
 		F99005DCF5F91BBEFDAA8590 /* Pods_FourthProject.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 201B40A932CD948C881225CD /* Pods_FourthProject.framework */; };
 /* End PBXBuildFile section */
 
@@ -35,7 +37,7 @@
 		BF10002027C53646006C4E07 /* DetailedCollectionCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedCollectionCollectionViewController.swift; sourceTree = "<group>"; };
 		BF10002227C536A8006C4E07 /* DetailedCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedCollectionViewCell.swift; sourceTree = "<group>"; };
 		BF10002427C54EA3006C4E07 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
-		BF10002C27C58057006C4E07 /* MapPinAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapPinAnnotation.swift; sourceTree = "<group>"; };
+		BF10002C27C58057006C4E07 /* ATMsPinAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ATMsPinAnnotation.swift; sourceTree = "<group>"; };
 		BF10002E27C5AE96006C4E07 /* FullInformationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullInformationViewController.swift; sourceTree = "<group>"; };
 		BF4DB9B427CEE4BD00322F92 /* BranchesModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BranchesModel.swift; sourceTree = "<group>"; };
 		BF4DB9B627CEE4BD00322F92 /* InfoboxModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoboxModel.swift; sourceTree = "<group>"; };
@@ -49,6 +51,8 @@
 		BFC89D9027C44FDA004DBEC9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		BFC89D9227C44FDA004DBEC9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BFC89D9B27C45866004DBEC9 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
+		BFCB4EB827CF821400D7A056 /* InfoboxAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoboxAnnotation.swift; sourceTree = "<group>"; };
+		BFCB4EBA27CF828D00D7A056 /* BranchesAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BranchesAnnotation.swift; sourceTree = "<group>"; };
 		E42D9151B3717D6DF143233C /* Pods-FourthProject.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FourthProject.release.xcconfig"; path = "Target Support Files/Pods-FourthProject/Pods-FourthProject.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -96,10 +100,10 @@
 		BF10002927C57D94006C4E07 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				BFCB4EB727CF81F100D7A056 /* Annotations */,
 				BF10001E27C50F19006C4E07 /* ATMsModel.swift */,
 				BF4DB9B427CEE4BD00322F92 /* BranchesModel.swift */,
 				BF4DB9B627CEE4BD00322F92 /* InfoboxModel.swift */,
-				BF10002C27C58057006C4E07 /* MapPinAnnotation.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -154,6 +158,16 @@
 				BF008DB827C5030B00CB04F7 /* Supporting files */,
 			);
 			path = FourthProject;
+			sourceTree = "<group>";
+		};
+		BFCB4EB727CF81F100D7A056 /* Annotations */ = {
+			isa = PBXGroup;
+			children = (
+				BF10002C27C58057006C4E07 /* ATMsPinAnnotation.swift */,
+				BFCB4EB827CF821400D7A056 /* InfoboxAnnotation.swift */,
+				BFCB4EBA27CF828D00D7A056 /* BranchesAnnotation.swift */,
+			);
+			path = Annotations;
 			sourceTree = "<group>";
 		};
 		FE05A19A00B58CD620EDC73F /* Frameworks */ = {
@@ -301,6 +315,7 @@
 				BF10002327C536A8006C4E07 /* DetailedCollectionViewCell.swift in Sources */,
 				BFAC088C27C651E9003B1F21 /* ButtomPresentationViewController.swift in Sources */,
 				BF10002127C53646006C4E07 /* DetailedCollectionCollectionViewController.swift in Sources */,
+				BFCB4EBB27CF828D00D7A056 /* BranchesAnnotation.swift in Sources */,
 				BFC89D8927C44FD8004DBEC9 /* MainViewController.swift in Sources */,
 				BF10001D27C50B1F006C4E07 /* APIService.swift in Sources */,
 				BF10002F27C5AE97006C4E07 /* FullInformationViewController.swift in Sources */,
@@ -308,9 +323,10 @@
 				BFB7319F27C969DC006CF18A /* SectionHeaderView.swift in Sources */,
 				BF4DB9B727CEE4BD00322F92 /* BranchesModel.swift in Sources */,
 				BFC89D8527C44FD8004DBEC9 /* AppDelegate.swift in Sources */,
+				BFCB4EB927CF821400D7A056 /* InfoboxAnnotation.swift in Sources */,
 				BFC89D8727C44FD8004DBEC9 /* SceneDelegate.swift in Sources */,
 				BF10002527C54EA3006C4E07 /* Constants.swift in Sources */,
-				BF10002D27C58057006C4E07 /* MapPinAnnotation.swift in Sources */,
+				BF10002D27C58057006C4E07 /* ATMsPinAnnotation.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

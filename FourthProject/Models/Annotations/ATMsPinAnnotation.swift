@@ -6,13 +6,11 @@
 //
 
 import MapKit
-import SwiftUI
 
-class MapPinAnnotation: NSObject, MKAnnotation {
+class ATMsPinAnnotation: NSObject, MKAnnotation {
   @objc dynamic var coordinate: CLLocationCoordinate2D
   let title: String?
   let atm: ATM
-  
   init(title: String,
        atm: ATM,
        coordinate: CLLocationCoordinate2D) {
