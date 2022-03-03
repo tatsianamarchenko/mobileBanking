@@ -181,15 +181,17 @@ class MainViewController: UIViewController {
   }
 
   @objc func actionButton(_ sender: UIBarButtonItem) {
-
-	let serialQueue = DispatchQueue(label: "swiftlee.serial.queue")
-
-	serialQueue.async {
+	//	let serialQueue = DispatchQueue(label: "serial.queue")
+	let group = DispatchGroup()
+	//	serialQueue.async {
+	group.enter()
+	sender.isEnabled.toggle()
+	//	  serialQueue.async(flags: .barrier) {
+	self.reloadData()
+	group.leave()
+	group.notify(queue: .main) {
 	  sender.isEnabled.toggle()
-	  serialQueue.async(flags: .barrier) {
-		self.reloadData()
-		sender.isEnabled.toggle()
-	  }
+	  //  }
 	}
   }
 
@@ -498,12 +500,6 @@ extension MKMapView {
 }
 
 // 1. Загрузка данных
-// Необходимо получать одновременно 3 запроса:
-// список банкоматов (уже реализовано в прошлом задании),
-// инфокиоски
-// подразделения банка
-// Все запросы отправляются одновременно. Использовать DispatchQueue, DispatchGroup.
-// Во время выполнения запросов посередине экрана отображается крутящийся лоадер. Интерфейс заблокирован.
 // После получения ответа необходимо отсортировать точки по удалённости от текущего местоположения или, если местоположение недоступно, от точки по умолчанию (52.425163, 31.015039)
 // Если не удалось загрузить какой-то тип данных, то после получения всех 3 запросов расширить сообщение на алерте текстом, объясняющим, какие именно типы не удалось загрузить.
 // 2. Отображение точек
