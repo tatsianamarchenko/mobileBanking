@@ -26,7 +26,7 @@ struct DataClass: Codable {
 }
 
 // MARK: - BranchElement
-struct BranchElement: Codable {
+struct BranchElement: Codable, General {
 	let branchID, name: String
 	let cbu, accountNumber: String?
 	let equeue, wifi: Int

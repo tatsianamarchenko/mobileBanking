@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: - WelcomeElement
-struct InfoBox: Codable {
+struct InfoBox: Codable, General {
 	let infoID: Int?
 	let area: Area?
 	let cityType: CityType?

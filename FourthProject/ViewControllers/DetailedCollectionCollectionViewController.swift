@@ -8,14 +8,19 @@
 import UIKit
 import MapKit
 
+protocol General {
+}
+
+
 class DetailedCollectionViewController: UIViewController, UICollectionViewDelegateFlowLayout {
 
   public var complition: ((ATM?) -> Void)?
 
-  struct Section {
+  struct Section: General {
     var sectionName: String
-	var rowData: [Any]
+	var rowData: [General]
   }
+
   var sections = [Section]()
 
   private lazy var spiner: UIActivityIndicatorView = {
@@ -56,33 +61,33 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 	  make.centerY.equalToSuperview()
 	  make.centerX.equalToSuperview()
 	}
-	
+
 	group.enter()
 	apiService.getJSON(urlString: urlATMsString,
 					   runQueue: .global(),
 					   complitionQueue: .main) {(atms: ATMResponse) in
-	 let sectionItems = Dictionary(grouping: atms.data.atm.sorted {$0.atmID < $1.atmID},
+	  let sectionItems = Dictionary(grouping: atms.data.atm.sorted {$0.atmID < $1.atmID},
 									by: { String($0.address.townName) })
 	  for index in 0..<sectionItems.count {
-		self.sections.append(Section(sectionName: Array(sectionItems.keys)[index],
-									  rowData: Array(sectionItems.values)[index]))
+		self.section.append(Section(sectionName: Array(sectionItems.keys)[index],
+									rowData: Array(sectionItems.values)[index]))
 	  }
+
 	  group.leave()
 	}
-
 	group.enter()
 	apiService.getJSON(urlString: urlInfoboxString,
 					   runQueue: .global(),
 					   complitionQueue: .main) { (infobox: [InfoBox]) in
 	  let sectionItems = Dictionary(grouping: infobox.sorted {$0.infoID! < $1.infoID!},
-								 by: {$0.city!})
+									by: {$0.city!})
 	  for index in 0..<sectionItems.count {
-		self.sections.append(Section(sectionName: Array(sectionItems.keys)[index],
-									  rowData: Array(sectionItems.values)[index]))
+		self.section.append(Section(sectionName: Array(sectionItems.keys)[index],
+									rowData: Array(sectionItems.values)[index]))
 	  }
+
 	  group.leave()
 	}
-
 	group.enter()
 	apiService.getJSON(urlString: urlbBranchesString,
 					   runQueue: .global(),
@@ -90,36 +95,27 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 	  let sectionItems = Dictionary(grouping: branch.data.branch.sorted {$0.branchID < $1.branchID},
 									by: { String($0.address.townName) })
 	  for index in 0..<sectionItems.count {
-		self.sections.append(Section(sectionName: Array(sectionItems.keys)[index],
-									  rowData: Array(sectionItems.values)[index]))
+		self.section.append(Section(sectionName: Array(sectionItems.keys)[index],
+									rowData: Array(sectionItems.values)[index]))
 	  }
+
 	  group.leave()
 	}
 
 	group.notify(queue: .main) {
-//	  for i in 0..<3 {
-//	//	print(sectionArray[i])
-//		if var a = self.sections[0].rowData as? [ATM] {
-//
-//		}
-//		if var b = sectionArray[i].values as? InfoBox {
-//		}
-//		if var c = sectionArray[i].values as? [BranchElement] {
-//		  let sectionItems = Dictionary(grouping: c.sorted {$0.branchID < $1.branchID},
-//										by: { $0.address.townName })
-//		  for index in 0..<sectionItems.count {
-//			self.sections.append(Section(sectionName: Array(sectionItems.keys)[index],
-//										  rowData: Array(sectionItems.values)[index]))
-//		  }
-//		}
-//	  }
-
 	  self.view.isUserInteractionEnabled = true
+	  let a = Dictionary(grouping: self.section,
+						 by: {String($0.sectionName) })
+	  for i in 0..<a.keys.count {
+		self.sections.append(Section(sectionName: Array(a.keys)[i], rowData: Array(a.values)[i]))
+	  }
 	  self.spiner.stopAnimating()
 	  self.spiner.removeFromSuperview()
 	  self.collectionView.reloadData()
 	}
   }
+
+  var section = [Section]()
 
 func	makeConstraints() {
 		collectionView.snp.makeConstraints { (make) -> Void in
@@ -137,7 +133,7 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
   }
 
   func numberOfSections(in collectionView: UICollectionView) -> Int {
-    return self.sections.count
+	return self.sections.count
   }
 
   func collectionView(_ collectionView: UICollectionView,
@@ -147,26 +143,41 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
 			as? DetailedCollectionViewCell else {
 			  return UICollectionViewCell()
 			}
-	if let atm = sections[indexPath.section].rowData as? [ATM]  {
-	  cell.timeLabel.text = "atm" + atm[indexPath.row].availability.standardAvailability.day[0].openingTime.rawValue
-	  + "-" +
-	  atm[indexPath.row].availability.standardAvailability.day[0].closingTime.rawValue
-	  cell.placeLabel.text =  atm[indexPath.row].address.streetName
-	  + " " + atm[indexPath.row].address.buildingNumber
-	  + " " + atm[indexPath.row].address.addressLine
-	  cell.currancyLabel.text = atm[indexPath.row].currency.rawValue
-	} else if let branch = sections[indexPath.section].rowData as? [BranchElement] {
-	  cell.timeLabel.text = "branch" + branch[indexPath.row].information.availability.standardAvailability.day[0].openingTime
-	  + "-" +
-	  branch[indexPath.row].information.availability.standardAvailability.day[0].closingTime
-	  cell.placeLabel.text =  branch[indexPath.row].address.streetName
-	  + " " + branch[indexPath.row].address.buildingNumber
-	  + " " + branch[indexPath.row].address.addressLine
-	  cell.currancyLabel.text = branch[indexPath.row].services.service.currencyExchange[0].sourceCurrency
-	} else if let infobox = sections[indexPath.section].rowData as? [InfoBox] {
-	  cell.timeLabel.text = "infobox" + infobox[indexPath.row].workTime!
-	  cell.placeLabel.text =  infobox[indexPath.row].city
-	  cell.currancyLabel.text = infobox[indexPath.row].currency?.rawValue
+
+	if let item = self.sections[indexPath.section].rowData[indexPath.row] as? Section {
+	  let q = item.rowData as [General]
+
+	  if let infobox = q as? [InfoBox] {
+		for i in 0..<infobox.count {
+		  let infobox = infobox[i]
+		  cell.timeLabel.text = "infobox" + infobox.workTime!
+		  cell.placeLabel.text =  infobox.city
+		  cell.currancyLabel.text = infobox.currency?.rawValue
+		}
+	  }
+	  if	let atm = q as? [ATM] {
+		for i in 0..<atm.count {
+		  var atm = atm[i]
+		  cell.timeLabel.text = "atm"
+		  cell.placeLabel.text =  atm.address.addressLine
+		  + " " + atm.address.buildingNumber
+		  + " " + atm.address.addressLine
+		  cell.currancyLabel.text = atm.currency.rawValue
+		}
+	  }
+
+	  if let branch = q as? [BranchElement] {
+		for i in 0..<branch.count {
+		  let branch = branch[i]
+		  cell.timeLabel.text = "branch" + branch.information.availability.standardAvailability.day[0].openingTime
+		  + "-" +
+		  branch.information.availability.standardAvailability.day[0].closingTime
+		  cell.placeLabel.text =  branch.address.streetName
+		  + " " + branch.address.buildingNumber
+		  + " " + branch.address.addressLine
+		  cell.currancyLabel.text = String( branch.services.service.currencyExchange.count)
+		}
+	  }
 	}
 	return cell
   }
@@ -194,8 +205,17 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
 
   func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
     navigationController?.popToRootViewController(animated: true)
-    let item = sections[indexPath.section].rowData[indexPath.row]
-	complition?(item as? ATM)
+   // let item = sections[indexPath.section].rowData[indexPath.row]
+
+
+	if let item = self.sections[indexPath.section].rowData[indexPath.row] as? Section {
+	  let q = item.rowData as [General]
+
+	  if let atm = q as? [ATM] {
+		complition?(atm[indexPath.row] as? ATM)
+		}
+	  }
+//	complition?(item as? ATM)
 
   }
 

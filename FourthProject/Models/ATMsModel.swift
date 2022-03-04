@@ -24,7 +24,7 @@ struct Data: Codable {
 }
 
 // MARK: - ATM
-struct ATM: Codable {
+struct ATM: Codable, General {
     let atmID: String
     let type: TypeEnum
     let baseCurrency, currency: Currency

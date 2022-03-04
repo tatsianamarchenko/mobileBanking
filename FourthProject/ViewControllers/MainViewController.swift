@@ -77,7 +77,33 @@ class MainViewController: UIViewController {
 									  style: .plain,
 									  target: self,
 									  action: #selector(actionButton))
-	navigationItem.rightBarButtonItem = imageButton
+
+	var someVariable = true
+
+	var atmAction = UIAction(title: NSLocalizedString("ATMs", comment: ""),
+							 image: UIImage(named: "atm"),
+							 identifier: nil,
+							 state: .on,
+							 handler: menuHandler)
+	var branchAction =	UIAction(title: NSLocalizedString("BRANCHEs", comment: ""),
+								 image: UIImage(named: "bank"),
+								 identifier: nil, state: .on,
+								 handler: menuHandler)
+	var infoboxAction = UIAction(title: NSLocalizedString("ININFOBOXes", comment: ""),
+								 image: UIImage(named: "info"),
+								 identifier: nil,
+								 state: .on,
+								 handler: { action in
+
+	  action.state = .off
+	})
+
+	let barButtonMenu = UIMenu(title: "", children: [atmAction, branchAction, infoboxAction])
+	let menu = UIBarButtonItem.init(image: UIImage(systemName: "square.3.stack.3d"),
+									primaryAction: nil ,
+									menu: barButtonMenu)
+
+	navigationItem.rightBarButtonItems = [imageButton, menu]
 
 	if atmRecived == nil {
 	  DispatchQueue.main.async {
@@ -112,6 +138,10 @@ class MainViewController: UIViewController {
 	monitor.cancel()
 
 	makeConstraints()
+  }
+
+  func menuHandler(action: UIAction) {
+
   }
 
   override func viewWillAppear(_ animated: Bool) {
@@ -501,15 +531,27 @@ extension MKMapView {
 
 // 1. Загрузка данных
 // После получения ответа необходимо отсортировать точки по удалённости от текущего местоположения или, если местоположение недоступно, от точки по умолчанию (52.425163, 31.015039)
+//
 // Если не удалось загрузить какой-то тип данных, то после получения всех 3 запросов расширить сообщение на алерте текстом, объясняющим, какие именно типы не удалось загрузить.
+//
 // 2. Отображение точек
+//
 // На экране списка загруженные данные отсортированы в рамках каждого города по удалённости от текущего местоположения пользователя или, если недоступно, от точки по умолчанию.
+//
 // 3. Обновление данных
+//
 // При нажатии на кнопку “Обновить” в нав. баре приложение отправляет запрос на получение списка банкоматов, а также отправляет 2 асинхронных запроса: инфокиоски и подразделения банка.
+//
 // Интерфейс заблокирован пока не будет получен список банкоматов (отображается лоадер).
+//
 // Ответы на запрос инфокиоска и подразделений банка обрабатывать в фоне (обновлять карту и список). Интерфейс во время выполнения данных запросов не заблокирован.
+//
 // Если не удалось загрузить какой-то тип данных, то приложение никак на это не реагирует, отображая на карте и в списке старые точки.
+//
 // 4. Фильтрация точек
+//
 // Добавить ещё одну кнопку в нав. бар, которая отвечает за фильтрацию точек.
+//
 // При нажатии на кнопку появляется модальное окно, на котором пользователь чекбоксами выбирает, какие типы точек хочет видеть в списке и на карте. По умолчанию выбраны все.
+//
 // Фильтрация применяется как к карте, так и к списку точек.
