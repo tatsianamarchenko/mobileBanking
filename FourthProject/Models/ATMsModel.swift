@@ -8,7 +8,7 @@
 import Foundation
 
 struct ATMResponse: Codable {
-    let data: Data
+    var data: Data
 
     enum CodingKeys: String, CodingKey {
         case data = "Data"
@@ -16,7 +16,7 @@ struct ATMResponse: Codable {
 }
 // MARK: - DataClass
 struct Data: Codable {
-    let atm: [ATM]
+  var atm: [ATM]
 
     enum CodingKeys: String, CodingKey {
         case atm = "ATM"
@@ -135,7 +135,11 @@ struct Geolocation: Codable {
 }
 
 // MARK: - GeographicCoordinates
-struct GeographicCoordinates: Codable {
+struct GeographicCoordinates: Codable, Comparable {
+  static func < (lhs: GeographicCoordinates, rhs: GeographicCoordinates) -> Bool {
+	lhs.latitude > rhs.latitude && lhs.longitude > rhs.longitude
+  }
+
     let latitude, longitude: String
 }
 

@@ -15,54 +15,14 @@ class MainViewController: UIViewController {
   let monitor = NWPathMonitor()
   let locationManager = CLLocationManager()
   var atmRecived: ATM?
-
-  var allAnnotations: [[MKAnnotation]]?
-
-  func filter(index: Int) {
-	print(self.mapView.annotations.count)
-	if 	filteredArray[index].checked == true {
-	  if index == 0 {
-		displayedAnnotations = atmAnnotatiom
-		if atmAnnotatiom.isEmpty {}
-		return
-	  } else if index == 1 {
-		displayedAnnotations = infoboxAnnotatiom
-		if infoboxAnnotatiom.isEmpty {}
-		return
-	  } else if index == 2 {
-		displayedAnnotations = branchAnnotatiom
-		if branchAnnotatiom.isEmpty {}
-		return
-	  }
-	} else if filteredArray[index].checked == false {
-	  if index == 0 {
-		self.mapView.removeAnnotations(atmAnnotatiom)
-	  } else if index == 1 {
-		self.mapView.removeAnnotations(infoboxAnnotatiom)
-	  } else if index == 2 {
-		self.mapView.removeAnnotations(branchAnnotatiom)
-	  }
-	}
-	print(self.mapView.annotations.count)
-  }
+  var atmAnnotatiom = [ATMsPinAnnotation]()
+  var branchAnnotatiom = [BranchesPinAnnotation]()
+  var infoboxAnnotatiom = [InfoboxsPinAnnotation]()
 
   var displayedAnnotations: [MKAnnotation]? {
-	willSet {
-	  if let currentAnnotations = displayedAnnotations {
-		mapView.removeAnnotations(currentAnnotations)
-	  }
-	}
 	didSet {
 	  if let newAnnotations = displayedAnnotations {
 		mapView.addAnnotations(newAnnotations)
-	  }
-	}
-  }
-
-  var deliteAnnotations: [MKAnnotation]? {
-	didSet {
-	  if let currentAnnotations = displayedAnnotations {
-		mapView.removeAnnotations(currentAnnotations)
 	  }
 	}
   }
@@ -110,18 +70,6 @@ class MainViewController: UIViewController {
 	return segmentedControl
   }()
 
-  private func displayOne(_ annotationType: AnyClass) {
-	let annotation = allAnnotations?[0].first { (annotation) -> Bool in
-	  return annotation.isKind(of: annotationType)
-	}
-
-	if let oneAnnotation = annotation {
-	  displayedAnnotations = [oneAnnotation]
-	} else {
-	  displayedAnnotations = []
-	}
-  }
-
   override func viewDidLoad() {
 	super.viewDidLoad()
 	view.backgroundColor = .systemBackground
@@ -129,13 +77,6 @@ class MainViewController: UIViewController {
 	view.addSubview(mapView)
 	mapView.delegate = self
 	registerMapAnnotationViews()
-
-	// Create the array of annotations and the specific annotations for the points of interest.
-	allAnnotations?.append(atmAnnotatiom)
-	allAnnotations?.append(infoboxAnnotatiom)
-	allAnnotations?.append(branchAnnotatiom)
-	// Dispaly all annotations on the map.
-	//showAllAnnotations(self)
 
 	let saveImage = UIImage(systemName: "arrow.counterclockwise")
 	let filterImage = UIImage(systemName: "square.3.stack.3d")
@@ -193,31 +134,6 @@ class MainViewController: UIViewController {
 	makeConstraints()
   }
 
-  @objc func presentFilterList(_ sender: UIBarButtonItem) {
-	let filterVC = FilterViewController()
-	filterVC.modalPresentationStyle = .popover
-	let popOverVc = filterVC.popoverPresentationController
-	popOverVc?.delegate = self
-	popOverVc?.sourceView = self.mapView
-	popOverVc?.sourceRect = CGRect(x: view.frame.midX,
-								   y: sender.accessibilityFrame.minY,
-								   width: 0,
-								   height: 0)
-	filterVC.preferredContentSize = CGSize(width: 200, height: 150)
-	self.present(filterVC, animated: true)
-
-	filterVC.complition = { annotation in
-	  print(annotation)
-	  if annotation != nil {
-		self.filter(index: annotation!)
-	  }
-	}
-	// 4. Фильтрация точек
-	// При нажатии на кнопку появляется модальное окно, на котором пользователь чекбоксами выбирает, какие типы точек хочет видеть в списке и на карте. По умолчанию выбраны все.
-	//
-	// Фильтрация применяется как к карте, так и к списку точек.
-  }
-
   override func viewWillAppear(_ animated: Bool) {
 	super.viewWillAppear(animated)
 	guard let atmRecived = atmRecived else {
@@ -263,6 +179,49 @@ class MainViewController: UIViewController {
 	present(nav, animated: true, completion: nil)
   }
 
+  @objc func presentFilterList(_ sender: UIBarButtonItem) {
+	let filterVC = FilterViewController()
+	filterVC.modalPresentationStyle = .popover
+	let popOverVc = filterVC.popoverPresentationController
+	popOverVc?.delegate = self
+	popOverVc?.sourceView = self.mapView
+	popOverVc?.sourceRect = CGRect(x: view.frame.midX,
+								   y: sender.accessibilityFrame.minY,
+								   width: 0,
+								   height: 0)
+	filterVC.preferredContentSize = CGSize(width: 200, height: 150)
+	self.present(filterVC, animated: true)
+	filterVC.complition = { annotation in
+	  if let annotation = annotation {
+		self.filter(index: annotation)
+	  }
+	}
+  }
+
+  func filter(index: Int) {
+	print(self.mapView.annotations.count)
+	if 	filteredArray[index].isChecked == true {
+	  if index == 0 {
+		displayedAnnotations = atmAnnotatiom
+		return
+	  } else if index == 1 {
+		displayedAnnotations = infoboxAnnotatiom
+		return
+	  } else if index == 2 {
+		displayedAnnotations = branchAnnotatiom
+		return
+	  }
+	} else if filteredArray[index].isChecked == false {
+	  if index == 0 {
+		self.mapView.removeAnnotations(atmAnnotatiom)
+	  } else if index == 1 {
+		self.mapView.removeAnnotations(infoboxAnnotatiom)
+	  } else if index == 2 {
+		self.mapView.removeAnnotations(branchAnnotatiom)
+	  }
+	}
+  }
+
   private func makeConstraints() {
 	mapOrListsegmentedControl.snp.makeConstraints { (make) -> Void in
 	  make.leading.trailing.equalToSuperview().inset(30)
@@ -275,15 +234,6 @@ class MainViewController: UIViewController {
 	}
   }
 
-  private func registerMapAnnotationViews() {
-	mapView.register(MKMarkerAnnotationView.self,
-					 forAnnotationViewWithReuseIdentifier: NSStringFromClass(ATMsPinAnnotation.self))
-	mapView.register(MKMarkerAnnotationView.self,
-					 forAnnotationViewWithReuseIdentifier: NSStringFromClass(InfoboxsPinAnnotation.self))
-	mapView.register(MKMarkerAnnotationView.self,
-					 forAnnotationViewWithReuseIdentifier: NSStringFromClass(BranchesPinAnnotation.self))
-  }
-
   @objc func reloadDataAction(_ sender: UIBarButtonItem) {
 	sender.isEnabled = false
 	//	let serialQueue = DispatchQueue(label: "serial.queue")
@@ -294,31 +244,115 @@ class MainViewController: UIViewController {
 	  DispatchQueue.global().async {
 		self.reloadData()
 	  }
-
 	  group.leave()
 	}
 	group.notify(queue: .global()) {
 	  sender.isEnabled = true
-
-	  // При нажатии на кнопку “Обновить” в нав. баре приложение отправляет запрос на получение списка банкоматов, а также отправляет 2 асинхронных запроса: инфокиоски и подразделения банка.
-	  //
-	  // Интерфейс заблокирован пока не будет получен список банкоматов (отображается лоадер).
-	  //
-	  // Ответы на запрос инфокиоска и подразделений банка обрабатывать в фоне (обновлять карту и список). Интерфейс во время выполнения данных запросов не заблокирован.
-	  //
-	  // Если не удалось загрузить какой-то тип данных, то приложение никак на это не реагирует, отображая на карте и в списке старые точки.
-
 	}
-
   }
 
-  private	func reloadData () {
+  private	func reloadData() {
 	DispatchQueue.main.async {
 	  let annotations = self.mapView.annotations
 	  self.mapView.removeAnnotations(annotations)
-	  self.createPins()
-	  self.locationManager.startUpdatingLocation()
+	  let apiService = APIService()
+	  var atmItems = [ATM]()
+	  let group = DispatchGroup()
+	  self.view.isUserInteractionEnabled = false
+	  self.view.addSubview(self.spiner)
+	  DispatchQueue.main.async {
+		self.spiner.startAnimating()
+		self.spiner.snp.makeConstraints { (make) -> Void in
+		  make.centerY.equalToSuperview()
+		  make.centerX.equalToSuperview()
+		}
+	  }
+	  self.spiner.startAnimating()
+	  group.enter()
+	  apiService.getJSON(urlString: urlATMsString,
+						 runQueue: .global(),
+						 complitionQueue: .main) { (result: Result<ATMResponse, Error>) in
+		switch result {
+		case .success(let atms) :
+		  atmItems = atms.data.atm
+		  self.atmAnnotatiom.removeAll()
+		  group.leave()
+		case .failure(let error) : print(error)
+		  self.mapView.addAnnotations(self.atmAnnotatiom)
+		}
+	  }
+	  group.notify(queue: .main) {
+		for atm in 0..<atmItems.count {
+		  let item =  atmItems[atm]
+		  guard let latitude = Double(item.address.geolocation.geographicCoordinates.latitude) else {
+			return
+		  }
+		  guard let longitude = Double(item.address.geolocation.geographicCoordinates.longitude) else {
+			return
+		  }
+		  let loc = CLLocationCoordinate2D(latitude: latitude,
+										   longitude: longitude)
+		  self.setATMsPinUsingMKAnnotation(title: item.address.streetName + " " + item.address.buildingNumber,
+										   atm: item,
+										   location: loc)
+		}
+		self.view.isUserInteractionEnabled = true
+		self.spiner.stopAnimating()
+		self.spiner.removeFromSuperview()
+	  }
 
+	  DispatchQueue.global(qos: .userInteractive).async {
+
+		apiService.getJSON(urlString: urlInfoboxString,
+						   runQueue: .global(),
+						   complitionQueue: .main) { (result: Result<[InfoBox], Error>) in
+		  switch result {
+		  case .success(let infobox) :
+			self.infoboxAnnotatiom.removeAll()
+			let infoboxItems = infobox
+			for singleBox in 0..<infoboxItems.count {
+			  let item = infoboxItems[singleBox]
+			  guard let latitude = Double(item.gpsX!) else {
+				return
+			  }
+			  guard let longitude = Double(item.gpsY!) else {
+				return
+			  }
+			  let loc = CLLocationCoordinate2D(latitude: latitude,
+											   longitude: longitude)
+			  self.setInfoBoxPinUsingMKAnnotation(title: item.city!, infobox: item, location: loc)
+			}
+		  case .failure(let error) :
+			self.mapView.addAnnotations(self.infoboxAnnotatiom)
+		  }
+		}
+
+		apiService.getJSON(urlString: urlbBranchesString,
+						   runQueue: .global(),
+						   complitionQueue: .main) {  (result: Result<Branch, Error>) in
+		  switch result {
+		  case .success(let branch) :
+			let branchItems = branch.data.branch
+			self.branchAnnotatiom.removeAll()
+			for bra in 0..<branchItems.count {
+			  let item =  branchItems[bra]
+			  guard let latitude = Double(item.address.geoLocation.geographicCoordinates.latitude) else {
+				return
+			  }
+			  guard let longitude = Double(item.address.geoLocation.geographicCoordinates.longitude) else {
+				return
+			  }
+			  let loc = CLLocationCoordinate2D(latitude: latitude,
+											   longitude: longitude)
+			  self.setBranchPinUsingMKAnnotation(title: item.name, branch: item, location: loc)
+			}
+		  case .failure(let error):
+			self.mapView.addAnnotations(self.branchAnnotatiom)
+		  }
+		}
+	  }
+
+	  self.locationManager.startUpdatingLocation()
 	  guard let locValue: CLLocationCoordinate2D = self.locationManager.location?.coordinate else {
 		return
 	  }
@@ -336,28 +370,9 @@ class MainViewController: UIViewController {
 		self.atmRecived = atm
 	  }
 	}
-	if sender.selectedSegmentIndex == 0 {
-	} else {
+	if sender.selectedSegmentIndex != 0 {
 	  sender.selectedSegmentIndex = 0
 	  self.navigationController?.pushViewController(detailed, animated: true)
-	}
-  }
-
-  private	func checkAccessToLocation () {
-	if CLLocationManager.locationServicesEnabled() {
-	  locationManager.delegate = self
-	  locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-	  locationManager.startUpdatingLocation()
-	  checkAuthorizationStatus()
-	} else {
-	  let alert = UIAlertController(title: "локация телефона отключена", message: "", preferredStyle: .alert)
-	  alert.addAction(UIAlertAction(title: "cancel", style: .cancel, handler: nil))
-	  alert.addAction(UIAlertAction(title: "on", style: .default, handler: { _ in
-		if let url = URL(string: "App-Prefs:root=LOCATION_SERVICES") {
-		  UIApplication.shared.open(url, options: [:], completionHandler: nil)
-		}
-	  }))
-	  present(alert, animated: true)
 	}
   }
 
@@ -379,21 +394,33 @@ class MainViewController: UIViewController {
 	spiner.startAnimating()
 
 	group.enter()
-	apiService.getJSON(urlString: urlATMsString, runQueue: .global(), complitionQueue: .main) { (atms: ATMResponse) in
-	  atmItems = atms.data.atm
-	  group.leave()
+	apiService.getJSON(urlString: urlATMsString, runQueue: .global(), complitionQueue: .main) { (result: Result<ATMResponse, Error>) in
+	  switch result {
+	  case .success(let atms) :
+		atmItems = atms.data.atm
+		group.leave()
+	  case .failure(let error) : print(error)
+	  }
 	}
 
 	group.enter()
-	apiService.getJSON(urlString: urlInfoboxString, runQueue: .global(), complitionQueue: .main) { (infobox: [InfoBox]) in
-	  infoboxItems = infobox
-	  group.leave()
+	apiService.getJSON(urlString: urlInfoboxString, runQueue: .global(), complitionQueue: .main) { (result: Result<[InfoBox], Error>) in
+	  switch result {
+	  case .success(let infobox) :
+		infoboxItems = infobox
+		group.leave()
+	  case .failure(let error) : print(error)
+	  }
 	}
 
 	group.enter()
-	apiService.getJSON(urlString: urlbBranchesString, runQueue: .global(), complitionQueue: .main) { (branch: Branch) in
-	  branchItems = branch.data.branch
-	  group.leave()
+	apiService.getJSON(urlString: urlbBranchesString, runQueue: .global(), complitionQueue: .main) { (result: Result<Branch, Error>) in
+	  switch result {
+	  case .success(let branch) :
+		branchItems = branch.data.branch
+		group.leave()
+	  case .failure(let error) : print(error)
+	  }
 	}
 
 	group.notify(queue: .main) {
@@ -443,9 +470,60 @@ class MainViewController: UIViewController {
 	  self.spiner.removeFromSuperview()
 	}
   }
-  var atmAnnotatiom = [ATMsPinAnnotation]()
-  var branchAnnotatiom = [BranchesPinAnnotation]()
-  var infoboxAnnotatiom = [InfoboxsPinAnnotation]()
+}
+extension MainViewController {
+  private	func checkAccessToLocation () {
+	if CLLocationManager.locationServicesEnabled() {
+	  locationManager.delegate = self
+	  locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+	  locationManager.startUpdatingLocation()
+	  checkAuthorizationStatus()
+	} else {
+	  let alert = UIAlertController(title: "локация телефона отключена", message: "", preferredStyle: .alert)
+	  alert.addAction(UIAlertAction(title: "cancel", style: .cancel, handler: nil))
+	  alert.addAction(UIAlertAction(title: "on", style: .default, handler: { _ in
+		if let url = URL(string: "App-Prefs:root=LOCATION_SERVICES") {
+		  UIApplication.shared.open(url, options: [:], completionHandler: nil)
+		}
+	  }))
+	  present(alert, animated: true)
+	}
+  }
+
+  private	func checkAuthorizationStatus() {
+	switch locationManager.authorizationStatus {
+	case .notDetermined :   locationManager.requestAlwaysAuthorization()
+	  fallthrough
+	case .authorizedWhenInUse, .authorizedAlways :
+	  locationManager.startUpdatingLocation()
+	  mapView.showsUserLocation = true
+	case .restricted, .denied :
+	  let alert = UIAlertController(title: "у приложения нет доступа к локации", message: "", preferredStyle: .alert)
+	  alert.addAction(UIAlertAction(title: "cancel", style: .cancel, handler: nil))
+	  alert.addAction(UIAlertAction(title: NSLocalizedString("access", comment: ""), style: .default, handler: { _ in
+		if let appSettings = URL(string: UIApplication.openSettingsURLString),
+		   UIApplication.shared.canOpenURL(appSettings) {
+		  UIApplication.shared.open(appSettings)
+		}
+	  }))
+	  present(alert, animated: true)
+	@unknown default:
+	  break
+	}
+  }
+}
+
+extension MainViewController {
+
+  private func registerMapAnnotationViews() {
+	mapView.register(MKMarkerAnnotationView.self,
+					 forAnnotationViewWithReuseIdentifier: NSStringFromClass(ATMsPinAnnotation.self))
+	mapView.register(MKMarkerAnnotationView.self,
+					 forAnnotationViewWithReuseIdentifier: NSStringFromClass(InfoboxsPinAnnotation.self))
+	mapView.register(MKMarkerAnnotationView.self,
+					 forAnnotationViewWithReuseIdentifier: NSStringFromClass(BranchesPinAnnotation.self))
+  }
+
   private	func setATMsPinUsingMKAnnotation(title: String, atm: ATM, location: CLLocationCoordinate2D) {
 	DispatchQueue.main.async {
 	  let pinAnnotation = (ATMsPinAnnotation(title: title,
@@ -475,28 +553,6 @@ class MainViewController: UIViewController {
 	  self.mapView.addAnnotations(self.branchAnnotatiom)
 	}
   }
-
-  private	func checkAuthorizationStatus() {
-	switch locationManager.authorizationStatus {
-	case .notDetermined :   locationManager.requestAlwaysAuthorization()
-	  fallthrough
-	case .authorizedWhenInUse, .authorizedAlways :
-	  locationManager.startUpdatingLocation()
-	  mapView.showsUserLocation = true
-	case .restricted, .denied :
-	  let alert = UIAlertController(title: "у приложения нет доступа к локации", message: "", preferredStyle: .alert)
-	  alert.addAction(UIAlertAction(title: "cancel", style: .cancel, handler: nil))
-	  alert.addAction(UIAlertAction(title: NSLocalizedString("access", comment: ""), style: .default, handler: { _ in
-		if let appSettings = URL(string: UIApplication.openSettingsURLString),
-		   UIApplication.shared.canOpenURL(appSettings) {
-		  UIApplication.shared.open(appSettings)
-		}
-	  }))
-	  present(alert, animated: true)
-	@unknown default:
-	  break
-	}
-  }
 }
 
 extension MainViewController: UIPopoverPresentationControllerDelegate {
@@ -517,7 +573,6 @@ extension MainViewController: CLLocationManagerDelegate {
 }
 
 extension MainViewController: MKMapViewDelegate {
-
   func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
 	var annotationView: MKAnnotationView?
 	if let annotation = annotation as? ATMsPinAnnotation {
@@ -639,18 +694,7 @@ extension MKMapView {
 //
 // 3. Обновление данных
 //
-// При нажатии на кнопку “Обновить” в нав. баре приложение отправляет запрос на получение списка банкоматов, а также отправляет 2 асинхронных запроса: инфокиоски и подразделения банка.
-//
-// Интерфейс заблокирован пока не будет получен список банкоматов (отображается лоадер).
-//
-// Ответы на запрос инфокиоска и подразделений банка обрабатывать в фоне (обновлять карту и список). Интерфейс во время выполнения данных запросов не заблокирован.
-//
 // Если не удалось загрузить какой-то тип данных, то приложение никак на это не реагирует, отображая на карте и в списке старые точки.
 //
 // 4. Фильтрация точек
-//
-// Добавить ещё одну кнопку в нав. бар, которая отвечает за фильтрацию точек.
-//
-// При нажатии на кнопку появляется модальное окно, на котором пользователь чекбоксами выбирает, какие типы точек хочет видеть в списке и на карте. По умолчанию выбраны все.
-//
 // Фильтрация применяется как к карте, так и к списку точек.

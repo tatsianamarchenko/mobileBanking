@@ -5,7 +5,7 @@ public class APIService {
   func getJSON<T: Decodable> (urlString: String,
 							  runQueue: DispatchQueue,
 							  complitionQueue: DispatchQueue,
-							  completion: @escaping (T) -> Void) {
+							  completion: @escaping((Result<T, Error>) -> Void)) {
 	runQueue.async {
 	  guard let url = URL(string: urlString) else {
 		print("Error: Invalid URL.")
@@ -26,7 +26,8 @@ public class APIService {
 		do {
 		  let decodedData = try decoder.decode(T.self, from: data)
 		  complitionQueue.async {
-			completion(decodedData)}
+			completion(.success(decodedData))
+		  }
 		} catch {
 		  print("Error: \(error.localizedDescription)")
 		}

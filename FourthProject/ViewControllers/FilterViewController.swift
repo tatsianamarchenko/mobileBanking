@@ -9,13 +9,13 @@ import UIKit
 import MapKit
 
 struct FilterModel {
-  var checked: Bool
+  var isChecked: Bool
   var name: String
 }
 
-var filteredArray = [FilterModel(checked: true, name: "atm"),
-					 FilterModel(checked: true, name: "infobox"),
-					 FilterModel(checked: true, name: "bramch")]
+var filteredArray = [FilterModel(isChecked: true, name: "ATMs"),
+					 FilterModel(isChecked: true, name: "INFOBOXes"),
+					 FilterModel(isChecked: true, name: "BRANCHes")]
 
 class FilterViewController: UIViewController {
   var identifier = "FilteredCell"
@@ -56,18 +56,18 @@ extension  FilterViewController: UITableViewDelegate, UITableViewDataSource {
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 	let cell = table.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as UITableViewCell
 	cell.textLabel?.text = filteredArray[indexPath.row].name
-	cell.accessoryType = filteredArray[indexPath.row].checked ? .checkmark : .none
+	cell.accessoryType = filteredArray[indexPath.row].isChecked ? .checkmark : .none
 	return cell
   }
 
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 	tableView.deselectRow(at: indexPath, animated: true)
 	if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
-	  filteredArray[indexPath.row].checked = false
+	  filteredArray[indexPath.row].isChecked = false
 	  tableView.cellForRow(at: indexPath)?.accessoryType = .none
 	  complition?(indexPath.row)
 	} else {
-	  filteredArray[indexPath.row].checked = true
+	  filteredArray[indexPath.row].isChecked = true
 	  tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
 	  complition?(indexPath.row)
 	}

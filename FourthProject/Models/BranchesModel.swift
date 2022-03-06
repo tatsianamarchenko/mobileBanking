@@ -27,24 +27,24 @@ struct DataClass: Codable {
 
 // MARK: - BranchElement
 struct BranchElement: Codable, General {
-	let branchID, name: String
-	let cbu, accountNumber: String?
-	let equeue, wifi: Int
-	let accessibilities: AccessibilitiesInfo
-	let address: AddressInfo
-	let information: Information
-	let services: Services
+  let branchID, name: String
+  let cbu, accountNumber: String?
+  let equeue, wifi: Int
+  let accessibilities: AccessibilitiesInfo
+  let address: AddressInfo
+  let information: Information
+  let services: Services
 
-	enum CodingKeys: String, CodingKey {
-		case branchID = "branchId"
-		case name
-		case cbu = "CBU"
-		case accountNumber, equeue, wifi
-		case accessibilities = "Accessibilities"
-		case address = "Address"
-		case information = "Information"
-		case services = "Services"
-	}
+  enum CodingKeys: String, CodingKey {
+	case branchID = "branchId"
+	case name
+	case cbu = "CBU"
+	case accountNumber, equeue, wifi
+	case accessibilities = "Accessibilities"
+	case address = "Address"
+	case information = "Information"
+	case services = "Services"
+  }
 }
 
 // MARK: - AccessibilitiesInfo
