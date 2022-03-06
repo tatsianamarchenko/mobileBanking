@@ -14,8 +14,58 @@ import Network
 class MainViewController: UIViewController {
   let monitor = NWPathMonitor()
   let locationManager = CLLocationManager()
-  var array = [ATM]()
   var atmRecived: ATM?
+
+  var allAnnotations: [[MKAnnotation]]?
+
+  func filter(index: Int) {
+	print(self.mapView.annotations.count)
+	if 	filteredArray[index].checked == true {
+	  if index == 0 {
+		displayedAnnotations = atmAnnotatiom
+		if atmAnnotatiom.isEmpty {}
+		return
+	  } else if index == 1 {
+		displayedAnnotations = infoboxAnnotatiom
+		if infoboxAnnotatiom.isEmpty {}
+		return
+	  } else if index == 2 {
+		displayedAnnotations = branchAnnotatiom
+		if branchAnnotatiom.isEmpty {}
+		return
+	  }
+	} else if filteredArray[index].checked == false {
+	  if index == 0 {
+		self.mapView.removeAnnotations(atmAnnotatiom)
+	  } else if index == 1 {
+		self.mapView.removeAnnotations(infoboxAnnotatiom)
+	  } else if index == 2 {
+		self.mapView.removeAnnotations(branchAnnotatiom)
+	  }
+	}
+	print(self.mapView.annotations.count)
+  }
+
+  var displayedAnnotations: [MKAnnotation]? {
+	willSet {
+	  if let currentAnnotations = displayedAnnotations {
+		mapView.removeAnnotations(currentAnnotations)
+	  }
+	}
+	didSet {
+	  if let newAnnotations = displayedAnnotations {
+		mapView.addAnnotations(newAnnotations)
+	  }
+	}
+  }
+
+  var deliteAnnotations: [MKAnnotation]? {
+	didSet {
+	  if let currentAnnotations = displayedAnnotations {
+		mapView.removeAnnotations(currentAnnotations)
+	  }
+	}
+  }
 
   private lazy var internetAccessAlert: UIAlertController = {
 	let alert = UIAlertController(title: "No access to internet connection",
@@ -41,7 +91,7 @@ class MainViewController: UIViewController {
 	return spiner
   }()
 
-  private lazy var mapView: MKMapView = {
+  var mapView: MKMapView = {
 	var map = MKMapView()
 	let minskCenter = CLLocation(latitude: 53.716, longitude: 27.9776)
 	map.centerToLocation(minskCenter)
@@ -60,50 +110,53 @@ class MainViewController: UIViewController {
 	return segmentedControl
   }()
 
+  private func displayOne(_ annotationType: AnyClass) {
+	let annotation = allAnnotations?[0].first { (annotation) -> Bool in
+	  return annotation.isKind(of: annotationType)
+	}
+
+	if let oneAnnotation = annotation {
+	  displayedAnnotations = [oneAnnotation]
+	} else {
+	  displayedAnnotations = []
+	}
+  }
+
   override func viewDidLoad() {
 	super.viewDidLoad()
 	view.backgroundColor = .systemBackground
 	view.addSubview(mapOrListsegmentedControl)
 	view.addSubview(mapView)
 	mapView.delegate = self
-
 	registerMapAnnotationViews()
 
+	// Create the array of annotations and the specific annotations for the points of interest.
+	allAnnotations?.append(atmAnnotatiom)
+	allAnnotations?.append(infoboxAnnotatiom)
+	allAnnotations?.append(branchAnnotatiom)
+	// Dispaly all annotations on the map.
+	//showAllAnnotations(self)
+
 	let saveImage = UIImage(systemName: "arrow.counterclockwise")
+	let filterImage = UIImage(systemName: "square.3.stack.3d")
 	guard let saveImage = saveImage else {
 	  return
 	}
+	guard let filterImage = filterImage else {
+	  return
+	}
+
 	let imageButton = UIBarButtonItem(image: saveImage,
 									  style: .plain,
 									  target: self,
-									  action: #selector(actionButton))
+									  action: #selector(reloadDataAction))
 
-	var someVariable = true
+	let filterButton = UIBarButtonItem(image: filterImage,
+									   style: .plain,
+									   target: self,
+									   action: #selector(presentFilterList))
 
-	var atmAction = UIAction(title: NSLocalizedString("ATMs", comment: ""),
-							 image: UIImage(named: "atm"),
-							 identifier: nil,
-							 state: .on,
-							 handler: menuHandler)
-	var branchAction =	UIAction(title: NSLocalizedString("BRANCHEs", comment: ""),
-								 image: UIImage(named: "bank"),
-								 identifier: nil, state: .on,
-								 handler: menuHandler)
-	var infoboxAction = UIAction(title: NSLocalizedString("ININFOBOXes", comment: ""),
-								 image: UIImage(named: "info"),
-								 identifier: nil,
-								 state: .on,
-								 handler: { action in
-
-	  action.state = .off
-	})
-
-	let barButtonMenu = UIMenu(title: "", children: [atmAction, branchAction, infoboxAction])
-	let menu = UIBarButtonItem.init(image: UIImage(systemName: "square.3.stack.3d"),
-									primaryAction: nil ,
-									menu: barButtonMenu)
-
-	navigationItem.rightBarButtonItems = [imageButton, menu]
+	navigationItem.rightBarButtonItems = [imageButton, filterButton]
 
 	if atmRecived == nil {
 	  DispatchQueue.main.async {
@@ -140,8 +193,29 @@ class MainViewController: UIViewController {
 	makeConstraints()
   }
 
-  func menuHandler(action: UIAction) {
+  @objc func presentFilterList(_ sender: UIBarButtonItem) {
+	let filterVC = FilterViewController()
+	filterVC.modalPresentationStyle = .popover
+	let popOverVc = filterVC.popoverPresentationController
+	popOverVc?.delegate = self
+	popOverVc?.sourceView = self.mapView
+	popOverVc?.sourceRect = CGRect(x: view.frame.midX,
+								   y: sender.accessibilityFrame.minY,
+								   width: 0,
+								   height: 0)
+	filterVC.preferredContentSize = CGSize(width: 200, height: 150)
+	self.present(filterVC, animated: true)
 
+	filterVC.complition = { annotation in
+	  print(annotation)
+	  if annotation != nil {
+		self.filter(index: annotation!)
+	  }
+	}
+	// 4. Фильтрация точек
+	// При нажатии на кнопку появляется модальное окно, на котором пользователь чекбоксами выбирает, какие типы точек хочет видеть в списке и на карте. По умолчанию выбраны все.
+	//
+	// Фильтрация применяется как к карте, так и к списку точек.
   }
 
   override func viewWillAppear(_ animated: Bool) {
@@ -210,19 +284,32 @@ class MainViewController: UIViewController {
 					 forAnnotationViewWithReuseIdentifier: NSStringFromClass(BranchesPinAnnotation.self))
   }
 
-  @objc func actionButton(_ sender: UIBarButtonItem) {
+  @objc func reloadDataAction(_ sender: UIBarButtonItem) {
+	sender.isEnabled = false
 	//	let serialQueue = DispatchQueue(label: "serial.queue")
 	let group = DispatchGroup()
-	//	serialQueue.async {
 	group.enter()
-	sender.isEnabled.toggle()
-	//	  serialQueue.async(flags: .barrier) {
-	self.reloadData()
-	group.leave()
-	group.notify(queue: .main) {
-	  sender.isEnabled.toggle()
-	  //  }
+	sender.isEnabled = false
+	if sender.isEnabled == false {
+	  DispatchQueue.global().async {
+		self.reloadData()
+	  }
+
+	  group.leave()
 	}
+	group.notify(queue: .global()) {
+	  sender.isEnabled = true
+
+	  // При нажатии на кнопку “Обновить” в нав. баре приложение отправляет запрос на получение списка банкоматов, а также отправляет 2 асинхронных запроса: инфокиоски и подразделения банка.
+	  //
+	  // Интерфейс заблокирован пока не будет получен список банкоматов (отображается лоадер).
+	  //
+	  // Ответы на запрос инфокиоска и подразделений банка обрабатывать в фоне (обновлять карту и список). Интерфейс во время выполнения данных запросов не заблокирован.
+	  //
+	  // Если не удалось загрузить какой-то тип данных, то приложение никак на это не реагирует, отображая на карте и в списке старые точки.
+
+	}
+
   }
 
   private	func reloadData () {
@@ -231,6 +318,7 @@ class MainViewController: UIViewController {
 	  self.mapView.removeAnnotations(annotations)
 	  self.createPins()
 	  self.locationManager.startUpdatingLocation()
+
 	  guard let locValue: CLLocationCoordinate2D = self.locationManager.location?.coordinate else {
 		return
 	  }
@@ -355,13 +443,16 @@ class MainViewController: UIViewController {
 	  self.spiner.removeFromSuperview()
 	}
   }
-
+  var atmAnnotatiom = [ATMsPinAnnotation]()
+  var branchAnnotatiom = [BranchesPinAnnotation]()
+  var infoboxAnnotatiom = [InfoboxsPinAnnotation]()
   private	func setATMsPinUsingMKAnnotation(title: String, atm: ATM, location: CLLocationCoordinate2D) {
 	DispatchQueue.main.async {
 	  let pinAnnotation = (ATMsPinAnnotation(title: title,
 											 atm: atm,
 											 coordinate: location))
-	  self.mapView.addAnnotations([pinAnnotation])
+	  self.atmAnnotatiom.append(pinAnnotation)
+	  self.mapView.addAnnotations(self.atmAnnotatiom)
 	}
   }
 
@@ -370,7 +461,8 @@ class MainViewController: UIViewController {
 	  let pinAnnotation = (InfoboxsPinAnnotation(title: title,
 												 infoBox: infobox,
 												 coordinate: location))
-	  self.mapView.addAnnotations([pinAnnotation])
+	  self.infoboxAnnotatiom.append(pinAnnotation)
+	  self.mapView.addAnnotations(self.infoboxAnnotatiom)
 	}
   }
 
@@ -379,7 +471,8 @@ class MainViewController: UIViewController {
 	  let pinAnnotation = (BranchesPinAnnotation(title: title,
 												 branch: branch,
 												 coordinate: location))
-	  self.mapView.addAnnotations([pinAnnotation])
+	  self.branchAnnotatiom.append(pinAnnotation)
+	  self.mapView.addAnnotations(self.branchAnnotatiom)
 	}
   }
 
@@ -403,6 +496,12 @@ class MainViewController: UIViewController {
 	@unknown default:
 	  break
 	}
+  }
+}
+
+extension MainViewController: UIPopoverPresentationControllerDelegate {
+  func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+	.none
   }
 }
 

@@ -11,7 +11,6 @@ import MapKit
 protocol General {
 }
 
-
 class DetailedCollectionViewController: UIViewController, UICollectionViewDelegateFlowLayout {
 
   public var complition: ((ATM?) -> Void)?
@@ -92,8 +91,9 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 	apiService.getJSON(urlString: urlbBranchesString,
 					   runQueue: .global(),
 					   complitionQueue: .main) { (branch: Branch) in
-	  let sectionItems = Dictionary(grouping: branch.data.branch.sorted {$0.branchID < $1.branchID},
+	  let sectionItems = Dictionary(grouping: branch.data.branch.sorted {$0.branchID < $1.branchID },
 									by: { String($0.address.townName) })
+
 	  for index in 0..<sectionItems.count {
 		self.section.append(Section(sectionName: Array(sectionItems.keys)[index],
 									rowData: Array(sectionItems.values)[index]))
@@ -157,7 +157,7 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
 	  }
 	  if	let atm = q as? [ATM] {
 		for i in 0..<atm.count {
-		  var atm = atm[i]
+		  let atm = atm[i]
 		  cell.timeLabel.text = "atm"
 		  cell.placeLabel.text =  atm.address.addressLine
 		  + " " + atm.address.buildingNumber
@@ -204,19 +204,15 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
   }
 
   func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-    navigationController?.popToRootViewController(animated: true)
-   // let item = sections[indexPath.section].rowData[indexPath.row]
-
+	navigationController?.popToRootViewController(animated: true)
+	// let item = sections[indexPath.section].rowData[indexPath.row]
 
 	if let item = self.sections[indexPath.section].rowData[indexPath.row] as? Section {
 	  let q = item.rowData as [General]
-
 	  if let atm = q as? [ATM] {
-		complition?(atm[indexPath.row] as? ATM)
-		}
+		complition?(atm[indexPath.row])
 	  }
-//	complition?(item as? ATM)
-
+	}
   }
 
   func collectionView(_ collectionView: UICollectionView,

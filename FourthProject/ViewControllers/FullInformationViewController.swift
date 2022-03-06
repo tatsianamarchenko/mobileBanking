@@ -62,7 +62,7 @@ class FullInformationViewController: UIViewController {
   }()
 
   private lazy var availabilityStack: UIStackView = {
-    var time : String
+    var time: String
     if atm.availability.access24Hours {
       time = "Круглосуточно"
     } else {
@@ -89,7 +89,7 @@ class FullInformationViewController: UIViewController {
     let stack = createStack(contentLableText: atm.baseCurrency.rawValue, name: "Базовая валюта")
     return stack
   }()
-	
+
   init(atm: ATM) {
     self.atm = atm
     super.init(nibName: nil, bundle: nil)
