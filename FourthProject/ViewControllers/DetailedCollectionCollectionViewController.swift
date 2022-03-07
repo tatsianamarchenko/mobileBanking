@@ -5,25 +5,35 @@
 //  Created by Tatsiana Marchanka on 22.02.22.
 //
 
-
 import UIKit
 import MapKit
 
 protocol General {
 }
 
-class DetailedCollectionViewController: UIViewController,
-										UICollectionViewDelegateFlowLayout,
-										UIPopoverPresentationControllerDelegate {
-
+class DetailedCollectionViewController: UIViewController, UICollectionViewDelegateFlowLayout {
   public var complition: ((ATM?) -> Void)?
+  var section = [Section]()
+  var sectionATM = [Section]()
+  var sectionBranch = [Section]()
+  var sectionInfobox = [Section]()
+  var sections = [Section]()
 
   struct Section: General {
 	var sectionName: String
 	var rowData: [General]
   }
 
-  var sections = [Section]()
+  private lazy var internetErrorAlert: UIAlertController = {
+	let alert = UIAlertController(title: "No access to internet connection",
+								  message: "приложение не работает без доступа к интернету.",
+								  preferredStyle: .alert)
+	alert.addAction(UIAlertAction(title: "Закрыть", style: .cancel, handler: nil))
+	alert.addAction(UIAlertAction(title: "Повторить ещё раз", style: .default, handler: { _ in
+	  self.reloadData()
+	}))
+	return alert
+  }()
 
   private lazy var spiner: UIActivityIndicatorView = {
 	var spiner = UIActivityIndicatorView(style: .large)
@@ -47,20 +57,122 @@ class DetailedCollectionViewController: UIViewController,
 	super.viewDidLoad()
 	collectionView.delegate = self
 	collectionView.dataSource = self
-	let filterImage = UIImage(systemName: "square.3.stack.3d")
 
+	let saveImage = UIImage(systemName: "arrow.counterclockwise")
+	let filterImage = UIImage(systemName: "square.3.stack.3d")
+	guard let saveImage = saveImage else {
+	  return
+	}
 	guard let filterImage = filterImage else {
 	  return
 	}
+
+	let imageButton = UIBarButtonItem(image: saveImage,
+									  style: .plain,
+									  target: self,
+									  action: #selector(reloadDataAction))
+
 	let filterButton = UIBarButtonItem(image: filterImage,
 									   style: .plain,
 									   target: self,
 									   action: #selector(presentFilterList))
 
-	navigationItem.rightBarButtonItems = [filterButton]
+	navigationItem.rightBarButtonItems = [imageButton, filterButton]
 	view.addSubview(collectionView)
 	makeConstraints()
 	infoLoading()
+  }
+
+  @objc func reloadDataAction(_ sender: UIBarButtonItem) {
+	sender.isEnabled = false
+	//	let serialQueue = DispatchQueue(label: "serial.queue")
+	let group = DispatchGroup()
+	group.enter()
+	sender.isEnabled = false
+	if sender.isEnabled == false {
+	  DispatchQueue.global().async {
+		self.reloadData()
+	  }
+	  group.leave()
+	}
+	group.notify(queue: .global()) {
+	  sender.isEnabled = true
+	}
+  }
+
+  private	func reloadData() {
+	DispatchQueue.main.async {
+	  self.sections.removeAll()
+	  let apiService = APIService()
+	  let group = DispatchGroup()
+	  self.view.isUserInteractionEnabled = false
+	  self.addSpinner()
+	  group.enter()
+	  apiService.getJSON(urlString: urlATMsString,
+						 runQueue: .global(),
+						 complitionQueue: .main) { (result: Result<ATMResponse, CustomError>) in
+		switch result {
+		case .success(let atms) :
+		  self.sectionATM.removeAll()
+		  let sectionItems = Dictionary(grouping: atms.data.atm.sorted {$0.atmID <
+			$1.atmID},
+										by: { String($0.address.townName) })
+		  for index in 0..<sectionItems.count {
+			self.section.append(Section(sectionName: Array(sectionItems.keys)[index],
+										rowData: Array(sectionItems.values)[index]))
+		  }
+		  group.leave()
+		case .failure(let error) : print(error)
+		  self.addingToSections(array: self.sectionATM)
+		}
+	  }
+
+	  group.notify(queue: .main) {
+		self.collectionView.reloadData()
+		self.view.isUserInteractionEnabled = true
+		self.spiner.stopAnimating()
+		self.spiner.removeFromSuperview()
+	  }
+
+	  DispatchQueue.global(qos: .userInteractive).async {
+		apiService.getJSON(urlString: urlInfoboxString,
+						   runQueue: .global(),
+						   complitionQueue: .main) { (result: Result<[InfoBox], CustomError>) in
+		  switch result {
+		  case .success(let infobox) :
+			self.sectionBranch.removeAll()
+			let sectionItems = Dictionary(grouping: infobox.sorted {$0.infoID! < $1.infoID!},
+										  by: {$0.city!})
+			for index in 0..<sectionItems.count {
+			  self.sectionInfobox.append(Section(sectionName: Array(sectionItems.keys)[index],
+												 rowData: Array(sectionItems.values)[index]))
+			  self.section.append(Section(sectionName: Array(sectionItems.keys)[index],
+										  rowData: Array(sectionItems.values)[index]))
+			}
+		  case .failure(let error) :
+			self.addingToSections(array: self.sectionBranch)
+		  }
+		  apiService.getJSON(urlString: urlInfoboxString,
+							 runQueue: .global(),
+							 complitionQueue: .main) { (result: Result<[InfoBox], CustomError>) in
+			switch result {
+			case .success(let infobox) :
+			  self.sectionInfobox.removeAll()
+			  let sectionItems = Dictionary(grouping: infobox.sorted {$0.infoID! < $1.infoID!},
+											by: {$0.city!})
+			  for index in 0..<sectionItems.count {
+				self.sectionInfobox.append(Section(sectionName: Array(sectionItems.keys)[index],
+												   rowData: Array(sectionItems.values)[index]))
+				self.section.append(Section(sectionName: Array(sectionItems.keys)[index],
+											rowData: Array(sectionItems.values)[index]))
+			  }
+			case .failure(let error) :
+			  self.addingToSections(array: self.sectionInfobox)
+			}
+		  }
+		}
+	  }
+	}
   }
 
   @objc func presentFilterList(_ sender: UIBarButtonItem) {
@@ -68,7 +180,7 @@ class DetailedCollectionViewController: UIViewController,
 	filterVC.modalPresentationStyle = .popover
 	let popOverVc = filterVC.popoverPresentationController
 	popOverVc?.delegate = self
-	popOverVc?.sourceView = self.spiner
+	popOverVc?.sourceView = self.collectionView
 	popOverVc?.sourceRect = CGRect(x: view.frame.midX,
 								   y: sender.accessibilityFrame.minY,
 								   width: 0,
@@ -85,23 +197,11 @@ class DetailedCollectionViewController: UIViewController,
   func filter(index: Int) {
 	if 	filteredArray[index].isChecked == true {
 	  if index == 0 {
-		let a = Dictionary(grouping: self.sectionATM,
-						   by: {String($0.sectionName) })
-		for i in 0..<a.keys.count {
-		  self.sections.append(Section(sectionName: Array(a.keys)[i], rowData: Array(a.values)[i]))
-		}
+		addingToSections(array: self.sectionATM)
 	  } else if index == 1 {
-		let a = Dictionary(grouping: self.sectionInfobox,
-						   by: {String($0.sectionName) })
-		for i in 0..<a.keys.count {
-		  self.sections.append(Section(sectionName: Array(a.keys)[i], rowData: Array(a.values)[i]))
-		}
+		addingToSections(array: self.sectionInfobox)
 	  } else if index == 2 {
-		let a = Dictionary(grouping: self.sectionBranch,
-						   by: {String($0.sectionName) })
-		for i in 0..<a.keys.count {
-		  self.sections.append(Section(sectionName: Array(a.keys)[i], rowData: Array(a.values)[i]))
-		}
+		addingToSections(array: self.sectionBranch)
 	  }
 	  collectionView.reloadData()
 	  return
@@ -128,23 +228,28 @@ class DetailedCollectionViewController: UIViewController,
 	}
   }
 
+  func addSpinner() {
+	view.addSubview(spiner)
+	DispatchQueue.main.async {
+	  self.spiner.startAnimating()
+	  self.spiner.snp.makeConstraints { (make) -> Void in
+		make.centerY.equalToSuperview()
+		make.centerX.equalToSuperview()
+	  }
+	}
+  }
+
   func infoLoading() {
 	let apiService = APIService()
+	var errorString: String?
 	let group = DispatchGroup()
 	view.isUserInteractionEnabled = false
-	view.addSubview(spiner)
-	self.spiner.startAnimating()
-	self.spiner.snp.makeConstraints { (make) -> Void in
-	  make.centerY.equalToSuperview()
-	  make.centerX.equalToSuperview()
-	}
-
+	addSpinner()
 	group.enter()
-
 	let minskCoordinates = GeographicCoordinates(latitude: "52.425163", longitude: "31.015039")
 	apiService.getJSON(urlString: urlATMsString,
 					   runQueue: .global(),
-					   complitionQueue: .main) {(result: Result<ATMResponse, Error>) in
+					   complitionQueue: .main) { [self](result: Result<ATMResponse, CustomError>) in
 	  switch result {
 	  case .success(let atms) :
 		let sectionItems = Dictionary(grouping: atms.data.atm.sorted {$0.atmID <
@@ -158,13 +263,25 @@ class DetailedCollectionViewController: UIViewController,
 		}
 
 		group.leave()
-	  case .failure(let error) : print(error)
+	  case .failure(let error) :
+		if	error == .errorGeneral {
+		  DispatchQueue.main.async {
+			if errorString != nil {
+			  errorString?.append(" Банкоматы ")} else {
+				errorString = ""
+				errorString?.append(" Банкоматы ")}
+		  }
+		  group.leave()
+		} else {
+		  present(self.internetErrorAlert, animated: true)
+		  group.leave()
+		}
 	  }
 	}
 	group.enter()
 	apiService.getJSON(urlString: urlInfoboxString,
 					   runQueue: .global(),
-					   complitionQueue: .main) { (result: Result<[InfoBox], Error>) in
+					   complitionQueue: .main) { [self] (result: Result<[InfoBox], CustomError>) in
 	  switch result {
 	  case .success(let infobox) :
 		let sectionItems = Dictionary(grouping: infobox.sorted {$0.infoID! < $1.infoID!},
@@ -176,13 +293,26 @@ class DetailedCollectionViewController: UIViewController,
 									  rowData: Array(sectionItems.values)[index]))
 		}
 		group.leave()
-	  case .failure(let error) : print(error)
+	  case .failure(let error) :
+		if	error == .errorGeneral {
+		  DispatchQueue.main.async {
+			if errorString != nil {
+			  errorString?.append(" Инфокиоски ")} else {
+				errorString = ""
+				errorString?.append(" Инфокиоски ")}
+		  }
+		  group.leave()
+		} else {
+		  present(internetErrorAlert, animated: true)
+		  group.leave()
+		}
 	  }
 	}
+
 	group.enter()
 	apiService.getJSON(urlString: urlbBranchesString,
 					   runQueue: .global(),
-					   complitionQueue: .main) { (result: Result<Branch, Error>) in
+					   complitionQueue: .main) { [self] (result: Result<Branch, CustomError>) in
 	  switch result {
 	  case .success(let branch) :
 		let sectionItems = Dictionary(grouping: branch.data.branch.sorted {$0.branchID < $1.branchID },
@@ -195,35 +325,71 @@ class DetailedCollectionViewController: UIViewController,
 									  rowData: Array(sectionItems.values)[index]))
 		}
 		group.leave()
-	  case .failure(let error) : print(error)
+	  case .failure(let error) :
+		if	error == .errorGeneral {
+		  DispatchQueue.main.async {
+			if errorString != nil {
+			  errorString?.append(" Отделения банка ")} else {
+				errorString = ""
+				errorString?.append(" Отделения банка ")}
+		  }
+		  group.leave()
+		} else {
+		  present(internetErrorAlert, animated: true)
+		  group.leave()
+		}
 	  }
 	}
 
 	group.notify(queue: .main) {
-	  self.view.isUserInteractionEnabled = true
-	  let a = Dictionary(grouping: self.section,
-						 by: {String($0.sectionName) })
-	  for i in 0..<a.keys.count {
-		self.sections.append(Section(sectionName: Array(a.keys)[i], rowData: Array(a.values)[i]))
+
+	  if let errorString = errorString {
+		DispatchQueue.main.async { [self] in
+		  let alert = createErrorAlert(errorString: errorString)
+		  present(alert, animated: true)
+		}
 	  }
+
+	  self.view.isUserInteractionEnabled = true
+	  self.addingToSections(array: self.section)
 	  self.spiner.stopAnimating()
 	  self.spiner.removeFromSuperview()
 	  self.collectionView.reloadData()
 	}
   }
 
-  var section = [Section]()
-  var sectionATM = [Section]()
-  var sectionBranch = [Section]()
-  var sectionInfobox = [Section]()
-
-func	makeConstraints() {
-		collectionView.snp.makeConstraints { (make) -> Void in
-			make.leading.trailing.equalToSuperview()
-			make.top.equalToSuperview()
-			make.bottom.equalToSuperview()
-		}
+  func addingToSections(array: [Section]) {
+	let a = Dictionary(grouping: array,
+					   by: {String($0.sectionName) })
+	for i in 0..<a.keys.count {
+	  self.sections.append(Section(sectionName: Array(a.keys)[i], rowData: Array(a.values)[i]))
 	}
+  }
+
+  func	makeConstraints() {
+	collectionView.snp.makeConstraints { (make) -> Void in
+	  make.leading.trailing.equalToSuperview()
+	  make.top.equalToSuperview()
+	  make.bottom.equalToSuperview()
+	}
+  }
+
+  func createErrorAlert (errorString: String) -> UIAlertController {
+	let alert = UIAlertController(title: "No access to internet connection",
+								  message: "не удалось загрузить  \(errorString)",
+								  preferredStyle: .alert)
+	alert.addAction(UIAlertAction(title: "Закрыть", style: .cancel, handler: nil))
+	alert.addAction(UIAlertAction(title: "Повторить ещё раз", style: .default, handler: { _ in
+	  self.reloadData()
+	}))
+	return alert
+  }
+}
+
+extension DetailedCollectionViewController: UIPopoverPresentationControllerDelegate {
+  func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+	.none
+  }
 }
 
 extension DetailedCollectionViewController: UICollectionViewDelegate, UICollectionViewDataSource {
@@ -286,7 +452,7 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
 					  viewForSupplementaryElementOfKind kind: String,
 					  at indexPath: IndexPath) -> UICollectionReusableView {
 	guard let cell = self.collectionView.dequeueReusableSupplementaryView(ofKind: kind,
-																	  withReuseIdentifier: SectionHeaderView.reuseId,
+																		  withReuseIdentifier: SectionHeaderView.reuseId,
 																		  for: indexPath) as? SectionHeaderView
 	else {
 	  return UICollectionReusableView()
@@ -299,14 +465,11 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
   func collectionView(_ collectionView: UICollectionView,
 					  layout collectionViewLayout: UICollectionViewLayout,
 					  referenceSizeForHeaderInSection section: Int) -> CGSize {
-
 	return CGSize(width: cellHeaderWidth, height: cellHeaderHeight)
   }
 
   func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 	navigationController?.popToRootViewController(animated: true)
-	// let item = sections[indexPath.section].rowData[indexPath.row]
-
 	if let item = self.sections[indexPath.section].rowData[indexPath.row] as? Section {
 	  let q = item.rowData as [General]
 	  if let atm = q as? [ATM] {

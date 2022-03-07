@@ -59,10 +59,7 @@ class MainViewController: UIViewController {
   }()
 
   private lazy var mapOrListsegmentedControl: UISegmentedControl = {
-	let segmentTextContent = [
-	  NSLocalizedString("Map", comment: ""),
-	  NSLocalizedString("List", comment: "")
-	]
+	let segmentTextContent = ["Map", "List"]
 	let segmentedControl = UISegmentedControl(items: segmentTextContent)
 	segmentedControl.selectedSegmentIndex = 0
 	segmentedControl.autoresizingMask = .flexibleWidth
@@ -222,18 +219,6 @@ class MainViewController: UIViewController {
 	}
   }
 
-  private func makeConstraints() {
-	mapOrListsegmentedControl.snp.makeConstraints { (make) -> Void in
-	  make.leading.trailing.equalToSuperview().inset(30)
-	  make.top.equalTo(view.safeAreaLayoutGuide)
-	}
-	mapView.snp.makeConstraints { (make) -> Void in
-	  make.leading.trailing.equalToSuperview()
-	  make.top.equalTo(mapOrListsegmentedControl).inset(50)
-	  make.bottom.equalToSuperview()
-	}
-  }
-
   @objc func reloadDataAction(_ sender: UIBarButtonItem) {
 	sender.isEnabled = false
 	//	let serialQueue = DispatchQueue(label: "serial.queue")
@@ -259,19 +244,11 @@ class MainViewController: UIViewController {
 	  var atmItems = [ATM]()
 	  let group = DispatchGroup()
 	  self.view.isUserInteractionEnabled = false
-	  self.view.addSubview(self.spiner)
-	  DispatchQueue.main.async {
-		self.spiner.startAnimating()
-		self.spiner.snp.makeConstraints { (make) -> Void in
-		  make.centerY.equalToSuperview()
-		  make.centerX.equalToSuperview()
-		}
-	  }
-	  self.spiner.startAnimating()
+	  self.addSpiner()
 	  group.enter()
 	  apiService.getJSON(urlString: urlATMsString,
 						 runQueue: .global(),
-						 complitionQueue: .main) { (result: Result<ATMResponse, Error>) in
+						 complitionQueue: .main) { (result: Result<ATMResponse, CustomError>) in
 		switch result {
 		case .success(let atms) :
 		  atmItems = atms.data.atm
@@ -284,42 +261,27 @@ class MainViewController: UIViewController {
 	  group.notify(queue: .main) {
 		for atm in 0..<atmItems.count {
 		  let item =  atmItems[atm]
-		  guard let latitude = Double(item.address.geolocation.geographicCoordinates.latitude) else {
-			return
-		  }
-		  guard let longitude = Double(item.address.geolocation.geographicCoordinates.longitude) else {
-			return
-		  }
-		  let loc = CLLocationCoordinate2D(latitude: latitude,
-										   longitude: longitude)
+		  let loc = self.findCoordinate(item: item)
 		  self.setATMsPinUsingMKAnnotation(title: item.address.streetName + " " + item.address.buildingNumber,
 										   atm: item,
 										   location: loc)
 		}
 		self.view.isUserInteractionEnabled = true
-		self.spiner.stopAnimating()
-		self.spiner.removeFromSuperview()
+		self.removeSpiner()
 	  }
 
 	  DispatchQueue.global(qos: .userInteractive).async {
 
 		apiService.getJSON(urlString: urlInfoboxString,
 						   runQueue: .global(),
-						   complitionQueue: .main) { (result: Result<[InfoBox], Error>) in
+						   complitionQueue: .main) { (result: Result<[InfoBox], CustomError>) in
 		  switch result {
 		  case .success(let infobox) :
 			self.infoboxAnnotatiom.removeAll()
 			let infoboxItems = infobox
 			for singleBox in 0..<infoboxItems.count {
 			  let item = infoboxItems[singleBox]
-			  guard let latitude = Double(item.gpsX!) else {
-				return
-			  }
-			  guard let longitude = Double(item.gpsY!) else {
-				return
-			  }
-			  let loc = CLLocationCoordinate2D(latitude: latitude,
-											   longitude: longitude)
+			  let loc = self.findCoordinate(item: item)
 			  self.setInfoBoxPinUsingMKAnnotation(title: item.city!, infobox: item, location: loc)
 			}
 		  case .failure(let error) :
@@ -329,21 +291,14 @@ class MainViewController: UIViewController {
 
 		apiService.getJSON(urlString: urlbBranchesString,
 						   runQueue: .global(),
-						   complitionQueue: .main) {  (result: Result<Branch, Error>) in
+						   complitionQueue: .main) {  (result: Result<Branch, CustomError>) in
 		  switch result {
 		  case .success(let branch) :
 			let branchItems = branch.data.branch
 			self.branchAnnotatiom.removeAll()
 			for bra in 0..<branchItems.count {
 			  let item =  branchItems[bra]
-			  guard let latitude = Double(item.address.geoLocation.geographicCoordinates.latitude) else {
-				return
-			  }
-			  guard let longitude = Double(item.address.geoLocation.geographicCoordinates.longitude) else {
-				return
-			  }
-			  let loc = CLLocationCoordinate2D(latitude: latitude,
-											   longitude: longitude)
+			  let loc = self.findCoordinate(item: item)
 			  self.setBranchPinUsingMKAnnotation(title: item.name, branch: item, location: loc)
 			}
 		  case .failure(let error):
@@ -361,6 +316,34 @@ class MainViewController: UIViewController {
 											   longitude: locValue.longitude),
 									regionRadius: regionRadius)
 	}
+  }
+
+  func findCoordinate(item: Any) -> CLLocationCoordinate2D {
+	if let item = item as? ATM {
+	guard let latitude = Double(item.address.geolocation.geographicCoordinates.latitude) else {
+	  return CLLocationCoordinate2D(latitude: 0, longitude: 0) }
+	guard let longitude = Double(item.address.geolocation.geographicCoordinates.longitude) else {
+	  return CLLocationCoordinate2D(latitude: 0, longitude: 0) }
+	return CLLocationCoordinate2D(latitude: latitude,
+									 longitude: longitude)
+	}
+	else if let item = item as? BranchElement {
+	  guard let latitude = Double(item.address.geoLocation.geographicCoordinates.latitude) else {
+		return CLLocationCoordinate2D(latitude: 0, longitude: 0) }
+	  guard let longitude = Double(item.address.geoLocation.geographicCoordinates.longitude) else {
+		return CLLocationCoordinate2D(latitude: 0, longitude: 0) }
+	  return CLLocationCoordinate2D(latitude: latitude,
+									longitude: longitude)
+	}
+	else if let item = item as? InfoBox {
+	  guard let latitude = Double(item.gpsX!) else {
+		return CLLocationCoordinate2D(latitude: 0, longitude: 0) }
+	  guard let longitude = Double(item.gpsY!) else {
+		return CLLocationCoordinate2D(latitude: 0, longitude: 0) }
+	  return CLLocationCoordinate2D(latitude: latitude,
+									longitude: longitude)
+	}
+	return CLLocationCoordinate2D(latitude: 0, longitude: 0)
   }
 
   @objc func action (_ sender: UISegmentedControl) {
@@ -382,7 +365,130 @@ class MainViewController: UIViewController {
 	var atmItems = [ATM]()
 	var infoboxItems = [InfoBox]()
 	let group = DispatchGroup()
+	var errorString: String?
 	view.isUserInteractionEnabled = false
+	addSpiner()
+
+	group.enter()
+	apiService.getJSON(urlString: urlATMsString,
+					   runQueue: .global(),
+					   complitionQueue: .main) { [self] (result: Result<ATMResponse, CustomError>) in
+	  switch result {
+	  case .success(let atms) :
+		atmItems = atms.data.atm
+		group.leave()
+	  case .failure(let error) :
+		if	error == .errorGeneral {
+		  DispatchQueue.main.async {
+			if errorString != nil {
+			  errorString?.append(" Банкоматы ")} else {
+				errorString = ""
+				errorString?.append(" Банкоматы ")}
+		  }
+		  group.leave()
+		} else {
+		present(internetErrorAlert, animated: true)
+		  group.leave()
+		}
+	  }
+	}
+
+	group.enter()
+	apiService.getJSON(urlString: urlInfoboxString,
+					   runQueue: .global(),
+					   complitionQueue: .main) { [self] (result: Result<[InfoBox], CustomError>) in
+	  switch result {
+	  case .success(let infobox) :
+		infoboxItems = infobox
+		group.leave()
+	  case .failure(let error) :
+		if	error == .errorGeneral {
+		  DispatchQueue.main.async {
+			if errorString != nil {
+			  errorString?.append(" Инфокиоски ")} else {
+				errorString = ""
+				errorString?.append(" Инфокиоски ")}
+		  }
+		  group.leave()
+		} else {
+		present(internetErrorAlert, animated: true)
+		  group.leave()
+		}
+	  }
+	}
+
+	group.enter()
+	apiService.getJSON(urlString: urlbBranchesString,
+					   runQueue: .global(),
+					   complitionQueue: .main) { [self] (result: Result<Branch, CustomError>) in
+	  switch result {
+	  case .success(let branch) :
+		branchItems = branch.data.branch
+		group.leave()
+	  case .failure(let error) :
+		if	error == .errorGeneral {
+		  DispatchQueue.main.async {
+			if errorString != nil {
+			  errorString?.append(" Отделения банка ")} else {
+				errorString = ""
+				errorString?.append(" Отделения банка ")}
+		  }
+		  group.leave()
+		} else {
+		present(internetErrorAlert, animated: true)
+		  group.leave()
+		}
+	  }
+	}
+
+	group.notify(queue: .main) {
+
+	  if let errorString = errorString {
+		DispatchQueue.main.async { [self] in
+		  let alert = createErrorAlert(errorString: errorString)
+		  present(alert, animated: true)
+		}
+	  }
+
+	  for bra in 0..<branchItems.count {
+		let item =  branchItems[bra]
+		let loc = self.findCoordinate(item: item)
+		self.setBranchPinUsingMKAnnotation(title: item.name, branch: item, location: loc)
+	  }
+
+	  for singleBox in 0..<infoboxItems.count {
+		let item = infoboxItems[singleBox]
+		let loc = self.findCoordinate(item: item)
+		self.setInfoBoxPinUsingMKAnnotation(title: item.city!, infobox: item, location: loc)
+	  }
+
+	  for atm in 0..<atmItems.count {
+		let item =  atmItems[atm]
+		let loc = self.findCoordinate(item: item)
+		self.setATMsPinUsingMKAnnotation(title: item.address.streetName + " " + item.address.buildingNumber,
+										 atm: item,
+										 location: loc)
+	  }
+	  self.view.isUserInteractionEnabled = true
+	  self.removeSpiner()
+	}
+  }
+}
+
+extension MainViewController {
+
+  private func createErrorAlert (errorString: String) -> UIAlertController {
+	let alert = UIAlertController(title: "No access to internet connection",
+								  message: "не удалось загрузить  \(errorString)",
+								  preferredStyle: .alert)
+	alert.addAction(UIAlertAction(title: "Закрыть", style: .cancel, handler: nil))
+	alert.addAction(UIAlertAction(title: "Повторить ещё раз", style: .default, handler: { _ in
+	  self.reloadData()
+	}))
+	return alert
+  }
+
+  private func addSpiner() {
 	view.addSubview(spiner)
 	DispatchQueue.main.async {
 	  self.spiner.startAnimating()
@@ -391,86 +497,26 @@ class MainViewController: UIViewController {
 		make.centerX.equalToSuperview()
 	  }
 	}
-	spiner.startAnimating()
+  }
 
-	group.enter()
-	apiService.getJSON(urlString: urlATMsString, runQueue: .global(), complitionQueue: .main) { (result: Result<ATMResponse, Error>) in
-	  switch result {
-	  case .success(let atms) :
-		atmItems = atms.data.atm
-		group.leave()
-	  case .failure(let error) : print(error)
-	  }
+  private func removeSpiner() {
+	self.spiner.stopAnimating()
+	self.spiner.removeFromSuperview()
+  }
+
+  private func makeConstraints() {
+	mapOrListsegmentedControl.snp.makeConstraints { (make) -> Void in
+	  make.leading.trailing.equalToSuperview().inset(30)
+	  make.top.equalTo(view.safeAreaLayoutGuide)
 	}
-
-	group.enter()
-	apiService.getJSON(urlString: urlInfoboxString, runQueue: .global(), complitionQueue: .main) { (result: Result<[InfoBox], Error>) in
-	  switch result {
-	  case .success(let infobox) :
-		infoboxItems = infobox
-		group.leave()
-	  case .failure(let error) : print(error)
-	  }
-	}
-
-	group.enter()
-	apiService.getJSON(urlString: urlbBranchesString, runQueue: .global(), complitionQueue: .main) { (result: Result<Branch, Error>) in
-	  switch result {
-	  case .success(let branch) :
-		branchItems = branch.data.branch
-		group.leave()
-	  case .failure(let error) : print(error)
-	  }
-	}
-
-	group.notify(queue: .main) {
-	  for bra in 0..<branchItems.count {
-		let item =  branchItems[bra]
-		guard let latitude = Double(item.address.geoLocation.geographicCoordinates.latitude) else {
-		  return
-		}
-		guard let longitude = Double(item.address.geoLocation.geographicCoordinates.longitude) else {
-		  return
-		}
-		let loc = CLLocationCoordinate2D(latitude: latitude,
-										 longitude: longitude)
-		self.setBranchPinUsingMKAnnotation(title: item.name, branch: item, location: loc)
-	  }
-
-	  for singleBox in 0..<infoboxItems.count {
-		let item = infoboxItems[singleBox]
-
-		guard let latitude = Double(item.gpsX!) else {
-		  return
-		}
-		guard let longitude = Double(item.gpsY!) else {
-		  return
-		}
-		let loc = CLLocationCoordinate2D(latitude: latitude,
-										 longitude: longitude)
-		self.setInfoBoxPinUsingMKAnnotation(title: item.city!, infobox: item, location: loc)
-	  }
-
-	  for atm in 0..<atmItems.count {
-		let item =  atmItems[atm]
-		guard let latitude = Double(item.address.geolocation.geographicCoordinates.latitude) else {
-		  return
-		}
-		guard let longitude = Double(item.address.geolocation.geographicCoordinates.longitude) else {
-		  return
-		}
-		let loc = CLLocationCoordinate2D(latitude: latitude,
-										 longitude: longitude)
-		self.setATMsPinUsingMKAnnotation(title: item.address.streetName + " " + item.address.buildingNumber,
-										 atm: item,
-										 location: loc)
-	  }
-	  self.view.isUserInteractionEnabled = true
-	  self.spiner.stopAnimating()
-	  self.spiner.removeFromSuperview()
+	mapView.snp.makeConstraints { (make) -> Void in
+	  make.leading.trailing.equalToSuperview()
+	  make.top.equalTo(mapOrListsegmentedControl).inset(50)
+	  make.bottom.equalToSuperview()
 	}
   }
 }
+
 extension MainViewController {
   private	func checkAccessToLocation () {
 	if CLLocationManager.locationServicesEnabled() {
