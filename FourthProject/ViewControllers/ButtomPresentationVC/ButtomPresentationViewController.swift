@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ButtomPresentationViewController: UIViewController {
+class ButtomPresentationATMViewController: UIViewController {
 	
 	public var complition: (([ATM]) -> Void)?
 	private var atm: ATM
@@ -138,7 +138,7 @@ class ButtomPresentationViewController: UIViewController {
 	}
 
 	@objc func openFullInfoVC() {
-		let detailNavController = FullInformationViewController(atm: atm)
+		let detailNavController = FullInformationViewController(atm: atm, branch: nil, infobox: nil)
 		let navController = UINavigationController(rootViewController: detailNavController)
 		present(navController, animated: true, completion: nil)
 	}

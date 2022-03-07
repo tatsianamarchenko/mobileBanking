@@ -17,6 +17,8 @@
 		BF4DB9B727CEE4BD00322F92 /* BranchesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF4DB9B427CEE4BD00322F92 /* BranchesModel.swift */; };
 		BF4DB9B927CEE4BD00322F92 /* InfoboxModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF4DB9B627CEE4BD00322F92 /* InfoboxModel.swift */; };
 		BF8A19E427D36D0200524883 /* FilterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8A19E327D36D0200524883 /* FilterViewController.swift */; };
+		BF943B9027D65DB2007557CB /* ButtomPresentationBranchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF943B8F27D65DB2007557CB /* ButtomPresentationBranchViewController.swift */; };
+		BF943B9327D663E4007557CB /* ButtomPresentationInfoboxViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF943B9227D663E4007557CB /* ButtomPresentationInfoboxViewController.swift */; };
 		BFAC088C27C651E9003B1F21 /* ButtomPresentationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFAC088B27C651E9003B1F21 /* ButtomPresentationViewController.swift */; };
 		BFB7319F27C969DC006CF18A /* SectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFB7319E27C969DC006CF18A /* SectionHeaderView.swift */; };
 		BFC89D8527C44FD8004DBEC9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFC89D8427C44FD8004DBEC9 /* AppDelegate.swift */; };
@@ -43,6 +45,8 @@
 		BF4DB9B427CEE4BD00322F92 /* BranchesModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BranchesModel.swift; sourceTree = "<group>"; };
 		BF4DB9B627CEE4BD00322F92 /* InfoboxModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoboxModel.swift; sourceTree = "<group>"; };
 		BF8A19E327D36D0200524883 /* FilterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterViewController.swift; sourceTree = "<group>"; };
+		BF943B8F27D65DB2007557CB /* ButtomPresentationBranchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtomPresentationBranchViewController.swift; sourceTree = "<group>"; };
+		BF943B9227D663E4007557CB /* ButtomPresentationInfoboxViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtomPresentationInfoboxViewController.swift; sourceTree = "<group>"; };
 		BFAC088B27C651E9003B1F21 /* ButtomPresentationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtomPresentationViewController.swift; sourceTree = "<group>"; };
 		BFB7319E27C969DC006CF18A /* SectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeaderView.swift; sourceTree = "<group>"; };
 		BFC89D8127C44FD8004DBEC9 /* FourthProject.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FourthProject.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -113,8 +117,8 @@
 		BF10002A27C57D9C006C4E07 /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				BF943B9127D663BD007557CB /* ButtomPresentationVC */,
 				BFC89D8827C44FD8004DBEC9 /* MainViewController.swift */,
-				BFAC088B27C651E9003B1F21 /* ButtomPresentationViewController.swift */,
 				BF10002E27C5AE96006C4E07 /* FullInformationViewController.swift */,
 				BF10002027C53646006C4E07 /* DetailedCollectionCollectionViewController.swift */,
 				BF8A19E327D36D0200524883 /* FilterViewController.swift */,
@@ -129,6 +133,16 @@
 				BFB7319E27C969DC006CF18A /* SectionHeaderView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		BF943B9127D663BD007557CB /* ButtomPresentationVC */ = {
+			isa = PBXGroup;
+			children = (
+				BFAC088B27C651E9003B1F21 /* ButtomPresentationViewController.swift */,
+				BF943B9227D663E4007557CB /* ButtomPresentationInfoboxViewController.swift */,
+				BF943B8F27D65DB2007557CB /* ButtomPresentationBranchViewController.swift */,
+			);
+			path = ButtomPresentationVC;
 			sourceTree = "<group>";
 		};
 		BFC89D7827C44FD8004DBEC9 = {
@@ -321,6 +335,7 @@
 				BF10002127C53646006C4E07 /* DetailedCollectionCollectionViewController.swift in Sources */,
 				BFCB4EBB27CF828D00D7A056 /* BranchesAnnotation.swift in Sources */,
 				BFC89D8927C44FD8004DBEC9 /* MainViewController.swift in Sources */,
+				BF943B9027D65DB2007557CB /* ButtomPresentationBranchViewController.swift in Sources */,
 				BF10001D27C50B1F006C4E07 /* APIService.swift in Sources */,
 				BF10002F27C5AE97006C4E07 /* FullInformationViewController.swift in Sources */,
 				BF10001F27C50F19006C4E07 /* ATMsModel.swift in Sources */,
@@ -328,6 +343,7 @@
 				BF4DB9B727CEE4BD00322F92 /* BranchesModel.swift in Sources */,
 				BFC89D8527C44FD8004DBEC9 /* AppDelegate.swift in Sources */,
 				BFCB4EB927CF821400D7A056 /* InfoboxAnnotation.swift in Sources */,
+				BF943B9327D663E4007557CB /* ButtomPresentationInfoboxViewController.swift in Sources */,
 				BFC89D8727C44FD8004DBEC9 /* SceneDelegate.swift in Sources */,
 				BF10002527C54EA3006C4E07 /* Constants.swift in Sources */,
 				BF10002D27C58057006C4E07 /* ATMsPinAnnotation.swift in Sources */,
