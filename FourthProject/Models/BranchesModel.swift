@@ -9,7 +9,7 @@ import Foundation
 
 // MARK: - Branch
 struct Branch: Codable {
-	let data: DataClass
+	var data: DataClass
 
 	enum CodingKeys: String, CodingKey {
 		case data = "Data"
@@ -18,7 +18,7 @@ struct Branch: Codable {
 
 // MARK: - DataClass
 struct DataClass: Codable {
-	let branch: [BranchElement]
+	var branch: [BranchElement]
 
 	enum CodingKeys: String, CodingKey {
 		case branch = "Branch"
@@ -27,6 +27,8 @@ struct DataClass: Codable {
 
 // MARK: - BranchElement
 struct BranchElement: Codable, General {
+	var coor: GeographicCoordinates?
+	
   let branchID, name: String
   let cbu, accountNumber: String?
   let equeue, wifi: Int

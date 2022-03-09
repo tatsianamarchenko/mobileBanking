@@ -25,6 +25,8 @@ struct Data: Codable {
 
 // MARK: - ATM
 struct ATM: Codable, General {
+	var coor: GeographicCoordinates?
+	
     let atmID: String
     let type: TypeEnum
     let baseCurrency, currency: Currency

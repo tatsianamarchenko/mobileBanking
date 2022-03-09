@@ -9,9 +9,11 @@ import UIKit
 import MapKit
 
 protocol General {
+	var coor: GeographicCoordinates? {get set}
 }
 
 struct Section: General {
+	var coor: GeographicCoordinates?
 	var sectionName: String
 	var rowData: [General]
 }
@@ -101,7 +103,7 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 		}
 	}
 
-	private	func reloadData() {
+	private func reloadData() {
 		DispatchQueue.main.async {
 			self.sections.removeAll()
 			let apiService = APIService()
@@ -247,22 +249,28 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 		section = [sectionATM, sectionInfobox, sectionBranch]
 		addSpinner()
 		group.enter()
-		let minskCoordinates = GeographicCoordinates(latitude: "52.425163", longitude: "31.015039")
+		//	let minskCoordinates = GeographicCoordinates(latitude: "52.425163", longitude: "31.015039")
 		apiService.getJSON(urlString: urlATMsString,
 						   runQueue: .global(),
 						   complitionQueue: .main) { [self](result: Result<ATMResponse, CustomError>) in
 			switch result {
-			case .success(let atms) :
-				let sectionItems = Dictionary(grouping: atms.data.atm.sorted {$0.atmID <
-					$1.atmID},
-											  by: { String($0.address.townName) })
-				for index in 0..<sectionItems.count {
-					self.sectionATM.append(Section(sectionName: Array(sectionItems.keys)[index],
-												   rowData: Array(sectionItems.values)[index]))
-					self.section[0].append(Section(sectionName: Array(sectionItems.keys)[index],
-												   rowData: Array(sectionItems.values)[index]))
+			case .success(var atms) :
+
+				for i in 0..<atms.data.atm.count {
+					atms.data.atm[i].coor = GeographicCoordinates(latitude: atms.data.atm[i].address.geolocation.geographicCoordinates.latitude,
+																  longitude: atms.data.atm[i].address.geolocation.geographicCoordinates.longitude)
 				}
 
+				let sectionItems = Dictionary(grouping: atms.data.atm,
+											  by: { String($0.address.townName) })
+				for index in 0..<sectionItems.count {
+					self.section[0].append(Section(coor: Array(sectionItems.values)[index].first?.coor,
+												   sectionName: Array(sectionItems.keys)[index],
+												   rowData: Array(sectionItems.values)[index]))	}
+				//	print(section[0].first?.sectionName, 	print(section[0].first?.coor!) )
+				section[0].sort { $0.sectionName > $1.sectionName }
+				print(section[0].first?.sectionName)
+				sectionATM = section[0]
 				group.leave()
 			case .failure(let error) :
 				if	error == .errorGeneral {
@@ -279,20 +287,26 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 				}
 			}
 		}
+
 		group.enter()
 		apiService.getJSON(urlString: urlInfoboxString,
 						   runQueue: .global(),
 						   complitionQueue: .main) { [self] (result: Result<[InfoBox], CustomError>) in
 			switch result {
-			case .success(let infobox) :
-				let sectionItems = Dictionary(grouping: infobox.sorted {$0.infoID! < $1.infoID!},
-											  by: {$0.city!})
+			case .success(var infobox) :
+
+				for i in 0..<infobox.count {
+					infobox[i].coor = GeographicCoordinates(latitude: infobox[i].gpsX!, longitude: infobox[i].gpsY!)
+				}
+
+				let sectionItems = Dictionary(grouping: infobox, by: {$0.city!})
 				for index in 0..<sectionItems.count {
-					self.sectionInfobox.append(Section(sectionName: Array(sectionItems.keys)[index],
-													   rowData: Array(sectionItems.values)[index]))
-					self.section[1].append(Section(sectionName: Array(sectionItems.keys)[index],
+					self.section[1].append(Section(coor: Array(sectionItems.values)[index].first?.coor,
+												   sectionName: Array(sectionItems.keys)[index],
 												   rowData: Array(sectionItems.values)[index]))
 				}
+				section[1].sort { $0.sectionName > $1.sectionName }
+				sectionInfobox = section[1]
 				group.leave()
 			case .failure(let error) :
 				if	error == .errorGeneral {
@@ -315,16 +329,21 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 						   runQueue: .global(),
 						   complitionQueue: .main) { [self] (result: Result<Branch, CustomError>) in
 			switch result {
-			case .success(let branch) :
-				let sectionItems = Dictionary(grouping: branch.data.branch.sorted {$0.branchID < $1.branchID },
-											  by: { String($0.address.townName) })
+			case .success(var branch) :
 
+				for i in 0..<branch.data.branch.count {
+					branch.data.branch[i].coor = GeographicCoordinates(latitude:
+																		branch.data.branch[i].address.geoLocation.geographicCoordinates.latitude,
+																	   longitude: branch.data.branch[i].address.geoLocation.geographicCoordinates.longitude)
+				}
+				let sectionItems = Dictionary(grouping: branch.data.branch, by: { String($0.address.townName) })
 				for index in 0..<sectionItems.count {
-					self.sectionBranch.append(Section(sectionName: Array(sectionItems.keys)[index],
-													  rowData: Array(sectionItems.values)[index]))
-					self.section[2].append(Section(sectionName: Array(sectionItems.keys)[index],
+					self.section[2].append(Section(coor: Array(sectionItems.values)[index].first?.coor,
+												   sectionName: Array(sectionItems.keys)[index],
 												   rowData: Array(sectionItems.values)[index]))
 				}
+				section[2].sort { $0.sectionName > $1.sectionName}
+				sectionBranch = section[2]
 				group.leave()
 			case .failure(let error) :
 				if	error == .errorGeneral {
@@ -343,21 +362,23 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 		}
 
 		group.notify(queue: .main) {
-
 			if let errorString = errorString {
 				DispatchQueue.main.async { [self] in
 					let alert = createErrorAlert(errorString: errorString)
 					present(alert, animated: true)
 				}
 			}
-
-			self.view.isUserInteractionEnabled = true
-			self.addingToSections()
-
-			self.spiner.stopAnimating()
-			self.spiner.removeFromSuperview()
-			self.collectionView.reloadData()
+			self.finalView()
 		}
+	}
+
+	func finalView() {
+		self.view.isUserInteractionEnabled = true
+		self.addingToSections()
+
+		self.spiner.stopAnimating()
+		self.spiner.removeFromSuperview()
+		self.collectionView.reloadData()
 	}
 
 	private func addingToSections() {
@@ -367,11 +388,25 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 		arr.append(contentsOf: sectionATM)
 		arr.append(contentsOf: sectionInfobox)
 		arr.append(contentsOf: sectionBranch)
+		let minskCoordinates = GeographicCoordinates(latitude: "52.425163", longitude: "31.015039")
 		let a = Dictionary(grouping: arr,
 						   by: {String($0.sectionName) })
 		for i in 0..<a.keys.count {
-			self.sections.append(Section(sectionName: Array(a.keys)[i], rowData: Array(a.values)[i]))
+			self.sections.append(Section(coor: Array(a.values)[i].first?.coor,
+										 sectionName: Array(a.keys)[i],
+										 rowData: Array(a.values)[i]))
+		//	print(Array(a.values)[i].first?.coor)
 		}
+		sections.sort {
+			"Гомель" != $1.sectionName && minskCoordinates != $1.coor!
+		}
+
+		sections.sort {
+			var item1 = $0.rowData
+			var item2 = $1.rowData
+			return item1.sort { $0.coor! > $1.coor! } > item2.sort { $0.coor! > $1.coor! }
+		}
+
 		if !sectionATM.isEmpty {
 			savedSectionATM = sectionATM}
 		if !sectionBranch.isEmpty {

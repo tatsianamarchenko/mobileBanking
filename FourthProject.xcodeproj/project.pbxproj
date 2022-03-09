@@ -19,6 +19,7 @@
 		BF8A19E427D36D0200524883 /* FilterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8A19E327D36D0200524883 /* FilterViewController.swift */; };
 		BF943B9027D65DB2007557CB /* ButtomPresentationBranchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF943B8F27D65DB2007557CB /* ButtomPresentationBranchViewController.swift */; };
 		BF943B9327D663E4007557CB /* ButtomPresentationInfoboxViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF943B9227D663E4007557CB /* ButtomPresentationInfoboxViewController.swift */; };
+		BFA1312227D8FDBF0034848D /* FourthProject.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BFA1312027D8FDBF0034848D /* FourthProject.xcdatamodeld */; };
 		BFAC088C27C651E9003B1F21 /* ButtomPresentationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFAC088B27C651E9003B1F21 /* ButtomPresentationViewController.swift */; };
 		BFB7319F27C969DC006CF18A /* SectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFB7319E27C969DC006CF18A /* SectionHeaderView.swift */; };
 		BFC89D8527C44FD8004DBEC9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFC89D8427C44FD8004DBEC9 /* AppDelegate.swift */; };
@@ -47,6 +48,7 @@
 		BF8A19E327D36D0200524883 /* FilterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterViewController.swift; sourceTree = "<group>"; };
 		BF943B8F27D65DB2007557CB /* ButtomPresentationBranchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtomPresentationBranchViewController.swift; sourceTree = "<group>"; };
 		BF943B9227D663E4007557CB /* ButtomPresentationInfoboxViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtomPresentationInfoboxViewController.swift; sourceTree = "<group>"; };
+		BFA1312127D8FDBF0034848D /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		BFAC088B27C651E9003B1F21 /* ButtomPresentationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtomPresentationViewController.swift; sourceTree = "<group>"; };
 		BFB7319E27C969DC006CF18A /* SectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeaderView.swift; sourceTree = "<group>"; };
 		BFC89D8127C44FD8004DBEC9 /* FourthProject.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FourthProject.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -173,6 +175,7 @@
 				BF10002927C57D94006C4E07 /* Models */,
 				BF10002827C57D70006C4E07 /* Manager */,
 				BF008DB827C5030B00CB04F7 /* Supporting files */,
+				BFA1312027D8FDBF0034848D /* FourthProject.xcdatamodeld */,
 			);
 			path = FourthProject;
 			sourceTree = "<group>";
@@ -335,6 +338,7 @@
 				BF10002127C53646006C4E07 /* DetailedCollectionCollectionViewController.swift in Sources */,
 				BFCB4EBB27CF828D00D7A056 /* BranchesAnnotation.swift in Sources */,
 				BFC89D8927C44FD8004DBEC9 /* MainViewController.swift in Sources */,
+				BFA1312227D8FDBF0034848D /* FourthProject.xcdatamodeld in Sources */,
 				BF943B9027D65DB2007557CB /* ButtomPresentationBranchViewController.swift in Sources */,
 				BF10001D27C50B1F006C4E07 /* APIService.swift in Sources */,
 				BF10002F27C5AE97006C4E07 /* FullInformationViewController.swift in Sources */,
@@ -558,6 +562,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		BFA1312027D8FDBF0034848D /* FourthProject.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				BFA1312127D8FDBF0034848D /* Model.xcdatamodel */,
+			);
+			currentVersion = BFA1312127D8FDBF0034848D /* Model.xcdatamodel */;
+			path = FourthProject.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = BFC89D7927C44FD8004DBEC9 /* Project object */;
 }
