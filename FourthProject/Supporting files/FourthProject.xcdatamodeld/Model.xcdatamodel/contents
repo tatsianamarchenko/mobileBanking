@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="19574" systemVersion="21D62" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="ATMAnnatation" representedClassName=".ATMAnnatation" syncable="YES">
+        <attribute name="atmitems" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName=".[ATMsPinAnnotation]"/>
+    </entity>
+    <entity name="BranchAnnatation" representedClassName=".BranchAnnatation" syncable="YES">
+        <attribute name="branchitems" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName=".[BranchesPinAnnotation]"/>
+    </entity>
+    <entity name="InfoboxAnnatation" representedClassName=".InfoboxAnnatation" syncable="YES">
+        <attribute name="infoboxitem" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName=".[InfoboxsPinAnnotation]"/>
+    </entity>
+    <elements>
+        <element name="ATMAnnatation" positionX="-54" positionY="-9" width="128" height="44"/>
+        <element name="BranchAnnatation" positionX="-54" positionY="0" width="128" height="44"/>
+        <element name="InfoboxAnnatation" positionX="-45" positionY="9" width="128" height="44"/>
+    </elements>
+</model>

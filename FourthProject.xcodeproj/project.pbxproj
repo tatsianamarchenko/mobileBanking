@@ -16,10 +16,17 @@
 		BF10002F27C5AE97006C4E07 /* FullInformationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002E27C5AE96006C4E07 /* FullInformationViewController.swift */; };
 		BF4DB9B727CEE4BD00322F92 /* BranchesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF4DB9B427CEE4BD00322F92 /* BranchesModel.swift */; };
 		BF4DB9B927CEE4BD00322F92 /* InfoboxModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF4DB9B627CEE4BD00322F92 /* InfoboxModel.swift */; };
+		BF59863227DA5B1400337FFF /* InfoboxAnnatation+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF59862C27DA5B1400337FFF /* InfoboxAnnatation+CoreDataProperties.swift */; };
+		BF59863327DA5B1400337FFF /* BranchAnnatation+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF59862D27DA5B1400337FFF /* BranchAnnatation+CoreDataClass.swift */; };
+		BF59863427DA5B1400337FFF /* BranchAnnatation+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF59862E27DA5B1400337FFF /* BranchAnnatation+CoreDataProperties.swift */; };
+		BF59863527DA5B1400337FFF /* ATMAnnatation+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF59862F27DA5B1400337FFF /* ATMAnnatation+CoreDataProperties.swift */; };
+		BF59863627DA5B1400337FFF /* ATMAnnatation+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF59863027DA5B1400337FFF /* ATMAnnatation+CoreDataClass.swift */; };
+		BF59863727DA5B1400337FFF /* InfoboxAnnatation+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF59863127DA5B1400337FFF /* InfoboxAnnatation+CoreDataClass.swift */; };
+		BF59863A27DA5B2700337FFF /* FourthProject.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BF59863827DA5B2700337FFF /* FourthProject.xcdatamodeld */; };
+		BF59863C27DA5B5400337FFF /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF59863B27DA5B5400337FFF /* CoreDataStack.swift */; };
 		BF8A19E427D36D0200524883 /* FilterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8A19E327D36D0200524883 /* FilterViewController.swift */; };
 		BF943B9027D65DB2007557CB /* ButtomPresentationBranchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF943B8F27D65DB2007557CB /* ButtomPresentationBranchViewController.swift */; };
 		BF943B9327D663E4007557CB /* ButtomPresentationInfoboxViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF943B9227D663E4007557CB /* ButtomPresentationInfoboxViewController.swift */; };
-		BFA1312227D8FDBF0034848D /* FourthProject.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BFA1312027D8FDBF0034848D /* FourthProject.xcdatamodeld */; };
 		BFAC088C27C651E9003B1F21 /* ButtomPresentationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFAC088B27C651E9003B1F21 /* ButtomPresentationViewController.swift */; };
 		BFB7319F27C969DC006CF18A /* SectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFB7319E27C969DC006CF18A /* SectionHeaderView.swift */; };
 		BFC89D8527C44FD8004DBEC9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFC89D8427C44FD8004DBEC9 /* AppDelegate.swift */; };
@@ -45,10 +52,17 @@
 		BF10002E27C5AE96006C4E07 /* FullInformationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullInformationViewController.swift; sourceTree = "<group>"; };
 		BF4DB9B427CEE4BD00322F92 /* BranchesModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BranchesModel.swift; sourceTree = "<group>"; };
 		BF4DB9B627CEE4BD00322F92 /* InfoboxModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoboxModel.swift; sourceTree = "<group>"; };
+		BF59862C27DA5B1400337FFF /* InfoboxAnnatation+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "InfoboxAnnatation+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		BF59862D27DA5B1400337FFF /* BranchAnnatation+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "BranchAnnatation+CoreDataClass.swift"; sourceTree = "<group>"; };
+		BF59862E27DA5B1400337FFF /* BranchAnnatation+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "BranchAnnatation+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		BF59862F27DA5B1400337FFF /* ATMAnnatation+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ATMAnnatation+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		BF59863027DA5B1400337FFF /* ATMAnnatation+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ATMAnnatation+CoreDataClass.swift"; sourceTree = "<group>"; };
+		BF59863127DA5B1400337FFF /* InfoboxAnnatation+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "InfoboxAnnatation+CoreDataClass.swift"; sourceTree = "<group>"; };
+		BF59863927DA5B2700337FFF /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
+		BF59863B27DA5B5400337FFF /* CoreDataStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
 		BF8A19E327D36D0200524883 /* FilterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterViewController.swift; sourceTree = "<group>"; };
 		BF943B8F27D65DB2007557CB /* ButtomPresentationBranchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtomPresentationBranchViewController.swift; sourceTree = "<group>"; };
 		BF943B9227D663E4007557CB /* ButtomPresentationInfoboxViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtomPresentationInfoboxViewController.swift; sourceTree = "<group>"; };
-		BFA1312127D8FDBF0034848D /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		BFAC088B27C651E9003B1F21 /* ButtomPresentationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtomPresentationViewController.swift; sourceTree = "<group>"; };
 		BFB7319E27C969DC006CF18A /* SectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeaderView.swift; sourceTree = "<group>"; };
 		BFC89D8127C44FD8004DBEC9 /* FourthProject.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FourthProject.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -92,6 +106,7 @@
 				BFC89D8627C44FD8004DBEC9 /* SceneDelegate.swift */,
 				BFC89D8F27C44FDA004DBEC9 /* LaunchScreen.storyboard */,
 				BFC89D8D27C44FDA004DBEC9 /* Assets.xcassets */,
+				BF59863827DA5B2700337FFF /* FourthProject.xcdatamodeld */,
 			);
 			path = "Supporting files";
 			sourceTree = "<group>";
@@ -99,6 +114,7 @@
 		BF10002827C57D70006C4E07 /* Manager */ = {
 			isa = PBXGroup;
 			children = (
+				BF59863B27DA5B5400337FFF /* CoreDataStack.swift */,
 				BF10002427C54EA3006C4E07 /* Constants.swift */,
 				BF10001C27C50B1F006C4E07 /* APIService.swift */,
 			);
@@ -170,12 +186,17 @@
 			isa = PBXGroup;
 			children = (
 				BFC89D9227C44FDA004DBEC9 /* Info.plist */,
+				BF59863027DA5B1400337FFF /* ATMAnnatation+CoreDataClass.swift */,
+				BF59862F27DA5B1400337FFF /* ATMAnnatation+CoreDataProperties.swift */,
+				BF59862D27DA5B1400337FFF /* BranchAnnatation+CoreDataClass.swift */,
+				BF59862E27DA5B1400337FFF /* BranchAnnatation+CoreDataProperties.swift */,
+				BF59863127DA5B1400337FFF /* InfoboxAnnatation+CoreDataClass.swift */,
+				BF59862C27DA5B1400337FFF /* InfoboxAnnatation+CoreDataProperties.swift */,
 				BF10002B27C57DB9006C4E07 /* Views */,
 				BF10002A27C57D9C006C4E07 /* ViewControllers */,
 				BF10002927C57D94006C4E07 /* Models */,
 				BF10002827C57D70006C4E07 /* Manager */,
 				BF008DB827C5030B00CB04F7 /* Supporting files */,
-				BFA1312027D8FDBF0034848D /* FourthProject.xcdatamodeld */,
 			);
 			path = FourthProject;
 			sourceTree = "<group>";
@@ -333,16 +354,23 @@
 			files = (
 				BF4DB9B927CEE4BD00322F92 /* InfoboxModel.swift in Sources */,
 				BF10002327C536A8006C4E07 /* DetailedCollectionViewCell.swift in Sources */,
+				BF59863327DA5B1400337FFF /* BranchAnnatation+CoreDataClass.swift in Sources */,
+				BF59863C27DA5B5400337FFF /* CoreDataStack.swift in Sources */,
+				BF59863527DA5B1400337FFF /* ATMAnnatation+CoreDataProperties.swift in Sources */,
 				BFAC088C27C651E9003B1F21 /* ButtomPresentationViewController.swift in Sources */,
 				BF8A19E427D36D0200524883 /* FilterViewController.swift in Sources */,
+				BF59863727DA5B1400337FFF /* InfoboxAnnatation+CoreDataClass.swift in Sources */,
 				BF10002127C53646006C4E07 /* DetailedCollectionCollectionViewController.swift in Sources */,
 				BFCB4EBB27CF828D00D7A056 /* BranchesAnnotation.swift in Sources */,
+				BF59863A27DA5B2700337FFF /* FourthProject.xcdatamodeld in Sources */,
 				BFC89D8927C44FD8004DBEC9 /* MainViewController.swift in Sources */,
-				BFA1312227D8FDBF0034848D /* FourthProject.xcdatamodeld in Sources */,
+				BF59863427DA5B1400337FFF /* BranchAnnatation+CoreDataProperties.swift in Sources */,
 				BF943B9027D65DB2007557CB /* ButtomPresentationBranchViewController.swift in Sources */,
 				BF10001D27C50B1F006C4E07 /* APIService.swift in Sources */,
 				BF10002F27C5AE97006C4E07 /* FullInformationViewController.swift in Sources */,
+				BF59863227DA5B1400337FFF /* InfoboxAnnatation+CoreDataProperties.swift in Sources */,
 				BF10001F27C50F19006C4E07 /* ATMsModel.swift in Sources */,
+				BF59863627DA5B1400337FFF /* ATMAnnatation+CoreDataClass.swift in Sources */,
 				BFB7319F27C969DC006CF18A /* SectionHeaderView.swift in Sources */,
 				BF4DB9B727CEE4BD00322F92 /* BranchesModel.swift in Sources */,
 				BFC89D8527C44FD8004DBEC9 /* AppDelegate.swift in Sources */,
@@ -564,12 +592,12 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		BFA1312027D8FDBF0034848D /* FourthProject.xcdatamodeld */ = {
+		BF59863827DA5B2700337FFF /* FourthProject.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				BFA1312127D8FDBF0034848D /* Model.xcdatamodel */,
+				BF59863927DA5B2700337FFF /* Model.xcdatamodel */,
 			);
-			currentVersion = BFA1312127D8FDBF0034848D /* Model.xcdatamodel */;
+			currentVersion = BF59863927DA5B2700337FFF /* Model.xcdatamodel */;
 			path = FourthProject.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

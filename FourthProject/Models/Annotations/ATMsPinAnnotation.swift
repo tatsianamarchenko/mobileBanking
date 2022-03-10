@@ -7,16 +7,16 @@
 
 import MapKit
 
-class ATMsPinAnnotation: NSObject, MKAnnotation {
-  @objc dynamic var coordinate: CLLocationCoordinate2D
-  let title: String?
-  let atm: ATM
-  init(title: String,
-       atm: ATM,
-       coordinate: CLLocationCoordinate2D) {
-    self.coordinate = coordinate
-    self.title = title
-    self.atm = atm
-    super.init()
-  }
+public class ATMsPinAnnotation: NSObject, MKAnnotation {
+	@objc dynamic public var coordinate: CLLocationCoordinate2D
+	public let title: String?
+	let atm: ATM
+	init(title: String,
+		 atm: ATM,
+		 coordinate: CLLocationCoordinate2D) {
+		self.coordinate = coordinate
+		self.title = title
+		self.atm = atm
+		super.init()
+	}
 }

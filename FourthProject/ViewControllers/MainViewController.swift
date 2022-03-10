@@ -10,6 +10,7 @@ import SnapKit
 import MapKit
 import CoreLocation
 import Network
+import CoreData
 
 class MainViewController: UIViewController {
 	let monitor = NWPathMonitor()
@@ -20,6 +21,7 @@ class MainViewController: UIViewController {
 	var atmAnnotatiom = [ATMsPinAnnotation]()
 	var branchAnnotatiom = [BranchesPinAnnotation]()
 	var infoboxAnnotatiom = [InfoboxsPinAnnotation]()
+	let context = CoreDataStack.sharedInstance.persistentContainer.viewContext
 
 	var displayedAnnotations: [MKAnnotation]? {
 		didSet {
@@ -28,6 +30,30 @@ class MainViewController: UIViewController {
 			}
 		}
 	}
+
+	lazy var fetchedhResultController: NSFetchedResultsController<NSFetchRequestResult> = {
+		let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: ATMAnnatation.self))
+		 fetchRequest.sortDescriptors = [NSSortDescriptor(key: "atmitems", ascending: true)]
+		let frc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: CoreDataStack.sharedInstance.persistentContainer.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+		frc.delegate = self
+		return frc
+	}()
+
+	lazy var branchFetchedhResultController: NSFetchedResultsController<NSFetchRequestResult> = {
+		let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: BranchAnnatation.self))
+		 fetchRequest.sortDescriptors = [NSSortDescriptor(key: "branchitems", ascending: true)]
+		let frc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: CoreDataStack.sharedInstance.persistentContainer.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+		frc.delegate = self
+		return frc
+	}()
+
+	lazy var infoboxFetchedhResultController: NSFetchedResultsController<NSFetchRequestResult> = {
+		let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: InfoboxAnnatation.self))
+		 fetchRequest.sortDescriptors = [NSSortDescriptor(key: "infoboxitem", ascending: true)]
+		let frc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: CoreDataStack.sharedInstance.persistentContainer.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+		frc.delegate = self
+		return frc
+	}()
 
 	private lazy var internetAccessAlert: UIAlertController = {
 		let alert = UIAlertController(title: "No access to internet connection",
@@ -76,7 +102,7 @@ class MainViewController: UIViewController {
 		view.addSubview(mapView)
 		mapView.delegate = self
 		registerMapAnnotationViews()
-
+	//	updateTableContent()
 		let saveImage = UIImage(systemName: "arrow.counterclockwise")
 		let filterImage = UIImage(systemName: "square.3.stack.3d")
 		guard let saveImage = saveImage else {
@@ -129,7 +155,7 @@ class MainViewController: UIViewController {
 		monitor.start(queue: queue)
 		self.createPins()
 		monitor.cancel()
-
+		// self.addPerson()
 		makeConstraints()
 	}
 
@@ -184,7 +210,6 @@ class MainViewController: UIViewController {
 
 	@objc func reloadDataAction(_ sender: UIBarButtonItem) {
 		sender.isEnabled = false
-		//	let serialQueue = DispatchQueue(label: "serial.queue")
 		let group = DispatchGroup()
 		group.enter()
 		sender.isEnabled = false
@@ -199,7 +224,7 @@ class MainViewController: UIViewController {
 		}
 	}
 
-	private	func reloadData() {
+	private func reloadData() {
 		DispatchQueue.main.async {
 			let annotations = self.mapView.annotations
 			self.mapView.removeAnnotations(annotations)
@@ -287,25 +312,19 @@ class MainViewController: UIViewController {
 				return CLLocationCoordinate2D(latitude: 0, longitude: 0) }
 			guard let longitude = Double(item.address.geolocation.geographicCoordinates.longitude) else {
 				return CLLocationCoordinate2D(latitude: 0, longitude: 0) }
-			return CLLocationCoordinate2D(latitude: latitude,
-										  longitude: longitude)
-		}
+			return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)}
 		else if let item = item as? BranchElement {
 			guard let latitude = Double(item.address.geoLocation.geographicCoordinates.latitude) else {
 				return CLLocationCoordinate2D(latitude: 0, longitude: 0) }
-			guard let longitude = Double(item.address.geoLocation.geographicCoordinates.longitude) else {
-				return CLLocationCoordinate2D(latitude: 0, longitude: 0) }
-			return CLLocationCoordinate2D(latitude: latitude,
-										  longitude: longitude)
-		}
+			guard let longitude = Double(item.address.geoLocation.geographicCoordinates.longitude)
+			else { return CLLocationCoordinate2D(latitude: 0, longitude: 0) }
+			return CLLocationCoordinate2D(latitude: latitude, longitude: longitude) }
 		else if let item = item as? InfoBox {
 			guard let latitude = Double(item.gpsX!) else {
 				return CLLocationCoordinate2D(latitude: 0, longitude: 0) }
 			guard let longitude = Double(item.gpsY!) else {
 				return CLLocationCoordinate2D(latitude: 0, longitude: 0) }
-			return CLLocationCoordinate2D(latitude: latitude,
-										  longitude: longitude)
-		}
+			return CLLocationCoordinate2D(latitude: latitude, longitude: longitude) }
 		return CLLocationCoordinate2D(latitude: 0, longitude: 0)
 	}
 
@@ -341,14 +360,32 @@ class MainViewController: UIViewController {
 		var errorString: String?
 		view.isUserInteractionEnabled = false
 		addSpiner()
-
+		do {
+			try self.fetchedhResultController.performFetch()
+			print("COUNT FETCHED FIRST: \(String(describing: self.fetchedhResultController.sections?[0].numberOfObjects))")
+		} catch let error  {
+			print("ERROR: \(error)")
+		}
+		do {
+			try self.branchFetchedhResultController.performFetch()
+			print("COUNT FETCHED FIRST: \(String(describing: self.branchFetchedhResultController.sections?[0].numberOfObjects))")
+		} catch let error  {
+			print("ERROR: \(error)")
+		}
+		do {
+			try self.infoboxFetchedhResultController.performFetch()
+			print("COUNT FETCHED FIRST: \(String(describing: self.infoboxFetchedhResultController.sections?[0].numberOfObjects))")
+		} catch let error  {
+			print("ERROR: \(error)")
+		}
 		group.enter()
 		apiService.getJSON(urlString: urlATMsString,
 						   runQueue: .global(),
 						   complitionQueue: .main) { [self] (result: Result<ATMResponse, CustomError>) in
 			switch result {
-			case .success(let atms) :
-				atmItems = atms.data.atm
+			case .success(let atms) : atmItems = atms.data.atm
+				print("atms \(atms.data.atm.count)")
+				clearData()
 				group.leave()
 			case .failure(let error) :
 				if	error == .errorGeneral {
@@ -371,15 +408,13 @@ class MainViewController: UIViewController {
 						   runQueue: .global(),
 						   complitionQueue: .main) { [self] (result: Result<[InfoBox], CustomError>) in
 			switch result {
-			case .success(let infobox) :
-				infoboxItems = infobox
+			case .success(let infobox) : infoboxItems = infobox
+				print("infobox \(infobox.count)")
+				clearData()
 				group.leave()
 			case .failure(let error) :
-				if	error == .errorGeneral {
-					DispatchQueue.main.async {
-						if errorString != nil {
-							errorString?.append(" Инфокиоски ")} else {
-								errorString = ""
+				if	error == .errorGeneral {DispatchQueue.main.async {
+						if errorString != nil { errorString?.append(" Инфокиоски ")} else {	errorString = ""
 								errorString?.append(" Инфокиоски ")}
 					}
 					group.leave()
@@ -395,15 +430,13 @@ class MainViewController: UIViewController {
 						   runQueue: .global(),
 						   complitionQueue: .main) { [self] (result: Result<Branch, CustomError>) in
 			switch result {
-			case .success(let branch) :
-				branchItems = branch.data.branch
+			case .success(let branch) :	branchItems = branch.data.branch
+				print("branch \(branch.data.branch.count)")
+				clearData()
 				group.leave()
 			case .failure(let error) :
-				if	error == .errorGeneral {
-					DispatchQueue.main.async {
-						if errorString != nil {
-							errorString?.append(" Отделения банка ")} else {
-								errorString = ""
+				if	error == .errorGeneral {	DispatchQueue.main.async {	if errorString != nil {
+							errorString?.append(" Отделения банка ")} else { errorString = ""
 								errorString?.append(" Отделения банка ")}
 					}
 					group.leave()
@@ -415,12 +448,12 @@ class MainViewController: UIViewController {
 		}
 
 		group.notify(queue: .main) {
-
 			if let errorString = errorString {
 				DispatchQueue.main.async { [self] in
 					let alert = createErrorAlert(errorString: errorString)
 					present(alert, animated: true)
 				}
+				return
 			}
 
 			for bra in 0..<branchItems.count {
@@ -449,7 +482,137 @@ class MainViewController: UIViewController {
 }
 
 extension MainViewController {
-	
+//	func updateTableContent() {
+//		do {
+//			try self.fetchedhResultController.performFetch()
+//			print("COUNT FETCHED FIRST: \(String(describing: self.fetchedhResultController.sections?[0].numberOfObjects))")
+//		} catch let error  {
+//			print("ERROR: \(error)")
+//		}
+//		let service = APIService()
+//		service.getJSON(urlString: urlbBranchesString,
+//						   runQueue: .global(),
+//						   complitionQueue: .main) { [self] (result: Result<Branch, CustomError>) in
+//			switch result {
+//			case .success(let branch) :
+//				//branchItems = branch.data.servicebranch
+//				clearData()
+//			case .failure(let error) :
+//				if	error == .errorGeneral {
+//					print("error")
+//					} else {
+//					present(internetErrorAlert, animated: true)
+//				}
+//			}
+//		}
+//	}
+
+//	private func saveInCoreDataWith(branchPin: BranchesPinAnnotation?,
+//									atmPin: ATMsPinAnnotation?,
+//									infoboxPin: InfoboxsPinAnnotation?) {
+//		let context = CoreDataStack.sharedInstance.persistentContainer.viewContext
+//
+//		if let branchPin = branchPin {
+//			var branchEntity: BranchAnnatation = (NSEntityDescription.insertNewObject(forEntityName: "BranchAnnatation", into: context) as? BranchAnnatation)!
+//				branchEntity.item = branchPin
+//		}
+//
+//		if let atmPin = atmPin {
+//			var atmEntity: ATMAnnatation = (NSEntityDescription.insertNewObject(forEntityName: "ATMAnnatation", into: context) as? ATMAnnatation)!
+//			atmEntity.item = atmPin
+//		}
+//
+//		if let infoboxPin = infoboxPin {
+//			var infoboxEntity: InfoboxAnnatation = (NSEntityDescription.insertNewObject(forEntityName: "InfoboxAnnatation", into: context) as? InfoboxAnnatation)!
+//			infoboxEntity.item = infoboxPin
+//		}
+//		do {
+//			try CoreDataStack.sharedInstance.persistentContainer.viewContext.save()
+//		} catch let error {
+//			print(error)
+//		}
+//	}
+
+
+	private func saveATMInCoreDataWith(atmPin: ATMsPinAnnotation) {
+		var atmEntity: ATMAnnatation = (NSEntityDescription.insertNewObject(forEntityName: "ATMAnnatation", into: self.context) as? ATMAnnatation)!
+		atmEntity.atmitems?.append(atmPin)
+		do {
+			try self.context.save()
+		} catch let error {
+			print(error)
+		}
+	}
+
+	private func saveBranchInCoreDataWith(branchPin: BranchesPinAnnotation) {
+		var branchEntity: BranchAnnatation = (NSEntityDescription.insertNewObject(forEntityName: "BranchAnnatation", into: self.context) as? BranchAnnatation)!
+		branchEntity.branchitems?.append(branchPin)
+		do {
+			try self.context.save()
+		} catch let error {
+			print(error)
+		}
+	}
+
+	private func saveInfoBoxInCoreDataWith(infoboxPin: InfoboxsPinAnnotation) {
+		var infoboxEntity: InfoboxAnnatation = (NSEntityDescription.insertNewObject(forEntityName: "InfoboxAnnatation", into: self.context) as? InfoboxAnnatation)!
+		infoboxEntity.infoboxitem?.append(infoboxPin)
+		do {
+			try self.context.save()
+		} catch let error {
+			print(error)
+		}
+	}
+
+	private func clearData() {
+		do {
+			let context = CoreDataStack.sharedInstance.persistentContainer.viewContext
+			let atmfetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName:
+																		String(describing: ATMAnnatation.self))
+			let branchfetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName:
+																			String(describing: BranchAnnatation.self))
+			let infoboxfetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName:
+																			String(describing: InfoboxAnnatation.self))
+			do {
+				let objects  = try context.fetch(atmfetchRequest) as? [NSManagedObject]
+				let branchobjects  = try context.fetch(branchfetchRequest) as? [NSManagedObject]
+				let infoboxobjects  = try context.fetch(infoboxfetchRequest) as? [NSManagedObject]
+				_ = objects.map{ $0.map{context.delete($0)} }
+				_ = branchobjects.map{ $0.map{context.delete($0)} }
+				_ = infoboxobjects.map{ $0.map{context.delete($0)} }
+				CoreDataStack.sharedInstance.saveContext()
+			} catch let error {
+				print("ERROR DELETING : \(error)")
+			}
+		}
+	}
+}
+
+extension MainViewController: NSFetchedResultsControllerDelegate {
+//
+//	func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+//
+//	 switch type {
+//	 case .insert: print("lol")
+//		// self.tableView.insertRows(at: [newIndexPath!], with: .automatic)
+//	 case .delete: print("lol")
+//		// self.tableView.deleteRows(at: [indexPath!], with: .automatic)
+//	 default:
+//		 break
+//	 }
+// }
+//
+// func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+//	// self.tableView.endUpdates()
+// }
+//
+// func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+//	// tableView.beginUpdates()
+// }
+}
+
+extension MainViewController {
+
 	private func createErrorAlert (errorString: String) -> UIAlertController {
 		let alert = UIAlertController(title: "No access to internet connection",
 									  message: "не удалось загрузить  \(errorString)",
@@ -460,7 +623,7 @@ extension MainViewController {
 		}))
 		return alert
 	}
-	
+
 	private func addSpiner() {
 		view.addSubview(spiner)
 		DispatchQueue.main.async {
@@ -471,12 +634,12 @@ extension MainViewController {
 			}
 		}
 	}
-	
+
 	private func removeSpiner() {
 		self.spiner.stopAnimating()
 		self.spiner.removeFromSuperview()
 	}
-	
+
 	private func makeConstraints() {
 		mapOrListsegmentedControl.snp.makeConstraints { (make) -> Void in
 			make.leading.trailing.equalToSuperview().inset(30)
@@ -661,6 +824,7 @@ extension MainViewController {
 												   coordinate: location))
 			self.atmAnnotatiom.append(pinAnnotation)
 			self.mapView.addAnnotations(self.atmAnnotatiom)
+			self.saveATMInCoreDataWith(atmPin: pinAnnotation)
 		}
 	}
 
@@ -671,16 +835,18 @@ extension MainViewController {
 													   coordinate: location))
 			self.infoboxAnnotatiom.append(pinAnnotation)
 			self.mapView.addAnnotations(self.infoboxAnnotatiom)
+			self.saveInfoBoxInCoreDataWith(infoboxPin: pinAnnotation)
 		}
 	}
 
-	private	func setBranchPinUsingMKAnnotation(title: String, branch: BranchElement, location: CLLocationCoordinate2D) {
+	private func setBranchPinUsingMKAnnotation(title: String, branch: BranchElement, location: CLLocationCoordinate2D) {
 		DispatchQueue.main.async {
 			let pinAnnotation = (BranchesPinAnnotation(title: title,
 													   branch: branch,
 													   coordinate: location))
 			self.branchAnnotatiom.append(pinAnnotation)
 			self.mapView.addAnnotations(self.branchAnnotatiom)
+			self.saveBranchInCoreDataWith(branchPin: pinAnnotation)
 		}
 	}
 }
@@ -817,3 +983,15 @@ extension MKMapView {
 //Сохранение всех точек в CoreData так, чтобы приложение работало без интернет-соединения, отображая точки на карте.
 //Пересмотреть архитектуру приложения, чтобы оно соответствовало принципам SOLID и Clean Architecture.
 //Использовать архитектуру Clean Swift
+
+
+extension CodingUserInfoKey {
+	static let context = CodingUserInfoKey(rawValue: "context")!
+}
+
+extension JSONDecoder {
+	convenience init(context: NSManagedObjectContext) {
+		self.init()
+		self.userInfo[.context] = context
+	}
+}
