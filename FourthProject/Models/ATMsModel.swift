@@ -8,14 +8,14 @@
 import Foundation
 
 struct ATMResponse: Codable {
-    var data: Data
+    var data: DataInfo
 
     enum CodingKeys: String, CodingKey {
         case data = "Data"
     }
 }
 // MARK: - DataClass
-struct Data: Codable {
+struct DataInfo: Codable {
   var atm: [ATM]
 
     enum CodingKeys: String, CodingKey {
@@ -26,7 +26,6 @@ struct Data: Codable {
 // MARK: - ATM
 struct ATM: Codable, General {
 	var coor: GeographicCoordinates?
-	
     let atmID: String
     let type: TypeEnum
     let baseCurrency, currency: Currency

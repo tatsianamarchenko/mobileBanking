@@ -16,14 +16,14 @@
 		BF10002F27C5AE97006C4E07 /* FullInformationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002E27C5AE96006C4E07 /* FullInformationViewController.swift */; };
 		BF4DB9B727CEE4BD00322F92 /* BranchesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF4DB9B427CEE4BD00322F92 /* BranchesModel.swift */; };
 		BF4DB9B927CEE4BD00322F92 /* InfoboxModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF4DB9B627CEE4BD00322F92 /* InfoboxModel.swift */; };
-		BF59863227DA5B1400337FFF /* InfoboxAnnatation+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF59862C27DA5B1400337FFF /* InfoboxAnnatation+CoreDataProperties.swift */; };
-		BF59863327DA5B1400337FFF /* BranchAnnatation+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF59862D27DA5B1400337FFF /* BranchAnnatation+CoreDataClass.swift */; };
-		BF59863427DA5B1400337FFF /* BranchAnnatation+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF59862E27DA5B1400337FFF /* BranchAnnatation+CoreDataProperties.swift */; };
-		BF59863527DA5B1400337FFF /* ATMAnnatation+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF59862F27DA5B1400337FFF /* ATMAnnatation+CoreDataProperties.swift */; };
-		BF59863627DA5B1400337FFF /* ATMAnnatation+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF59863027DA5B1400337FFF /* ATMAnnatation+CoreDataClass.swift */; };
-		BF59863727DA5B1400337FFF /* InfoboxAnnatation+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF59863127DA5B1400337FFF /* InfoboxAnnatation+CoreDataClass.swift */; };
 		BF59863A27DA5B2700337FFF /* FourthProject.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BF59863827DA5B2700337FFF /* FourthProject.xcdatamodeld */; };
 		BF59863C27DA5B5400337FFF /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF59863B27DA5B5400337FFF /* CoreDataStack.swift */; };
+		BF5986C327DBD15F00337FFF /* BranchData+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF5986BD27DBD15F00337FFF /* BranchData+CoreDataClass.swift */; };
+		BF5986C427DBD15F00337FFF /* BranchData+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF5986BE27DBD15F00337FFF /* BranchData+CoreDataProperties.swift */; };
+		BF5986C527DBD15F00337FFF /* ATMData+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF5986BF27DBD15F00337FFF /* ATMData+CoreDataClass.swift */; };
+		BF5986C627DBD15F00337FFF /* ATMData+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF5986C027DBD15F00337FFF /* ATMData+CoreDataProperties.swift */; };
+		BF5986C727DBD15F00337FFF /* InfoboxData+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF5986C127DBD15F00337FFF /* InfoboxData+CoreDataClass.swift */; };
+		BF5986C827DBD15F00337FFF /* InfoboxData+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF5986C227DBD15F00337FFF /* InfoboxData+CoreDataProperties.swift */; };
 		BF8A19E427D36D0200524883 /* FilterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8A19E327D36D0200524883 /* FilterViewController.swift */; };
 		BF943B9027D65DB2007557CB /* ButtomPresentationBranchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF943B8F27D65DB2007557CB /* ButtomPresentationBranchViewController.swift */; };
 		BF943B9327D663E4007557CB /* ButtomPresentationInfoboxViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF943B9227D663E4007557CB /* ButtomPresentationInfoboxViewController.swift */; };
@@ -52,14 +52,14 @@
 		BF10002E27C5AE96006C4E07 /* FullInformationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullInformationViewController.swift; sourceTree = "<group>"; };
 		BF4DB9B427CEE4BD00322F92 /* BranchesModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BranchesModel.swift; sourceTree = "<group>"; };
 		BF4DB9B627CEE4BD00322F92 /* InfoboxModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoboxModel.swift; sourceTree = "<group>"; };
-		BF59862C27DA5B1400337FFF /* InfoboxAnnatation+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "InfoboxAnnatation+CoreDataProperties.swift"; sourceTree = "<group>"; };
-		BF59862D27DA5B1400337FFF /* BranchAnnatation+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "BranchAnnatation+CoreDataClass.swift"; sourceTree = "<group>"; };
-		BF59862E27DA5B1400337FFF /* BranchAnnatation+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "BranchAnnatation+CoreDataProperties.swift"; sourceTree = "<group>"; };
-		BF59862F27DA5B1400337FFF /* ATMAnnatation+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ATMAnnatation+CoreDataProperties.swift"; sourceTree = "<group>"; };
-		BF59863027DA5B1400337FFF /* ATMAnnatation+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ATMAnnatation+CoreDataClass.swift"; sourceTree = "<group>"; };
-		BF59863127DA5B1400337FFF /* InfoboxAnnatation+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "InfoboxAnnatation+CoreDataClass.swift"; sourceTree = "<group>"; };
 		BF59863927DA5B2700337FFF /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		BF59863B27DA5B5400337FFF /* CoreDataStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
+		BF5986BD27DBD15F00337FFF /* BranchData+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BranchData+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		BF5986BE27DBD15F00337FFF /* BranchData+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BranchData+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
+		BF5986BF27DBD15F00337FFF /* ATMData+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ATMData+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		BF5986C027DBD15F00337FFF /* ATMData+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ATMData+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
+		BF5986C127DBD15F00337FFF /* InfoboxData+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InfoboxData+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		BF5986C227DBD15F00337FFF /* InfoboxData+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InfoboxData+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
 		BF8A19E327D36D0200524883 /* FilterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterViewController.swift; sourceTree = "<group>"; };
 		BF943B8F27D65DB2007557CB /* ButtomPresentationBranchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtomPresentationBranchViewController.swift; sourceTree = "<group>"; };
 		BF943B9227D663E4007557CB /* ButtomPresentationInfoboxViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtomPresentationInfoboxViewController.swift; sourceTree = "<group>"; };
@@ -185,13 +185,13 @@
 		BFC89D8327C44FD8004DBEC9 /* FourthProject */ = {
 			isa = PBXGroup;
 			children = (
+				BF5986BD27DBD15F00337FFF /* BranchData+CoreDataClass.swift */,
+				BF5986BE27DBD15F00337FFF /* BranchData+CoreDataProperties.swift */,
+				BF5986BF27DBD15F00337FFF /* ATMData+CoreDataClass.swift */,
+				BF5986C027DBD15F00337FFF /* ATMData+CoreDataProperties.swift */,
+				BF5986C127DBD15F00337FFF /* InfoboxData+CoreDataClass.swift */,
+				BF5986C227DBD15F00337FFF /* InfoboxData+CoreDataProperties.swift */,
 				BFC89D9227C44FDA004DBEC9 /* Info.plist */,
-				BF59863027DA5B1400337FFF /* ATMAnnatation+CoreDataClass.swift */,
-				BF59862F27DA5B1400337FFF /* ATMAnnatation+CoreDataProperties.swift */,
-				BF59862D27DA5B1400337FFF /* BranchAnnatation+CoreDataClass.swift */,
-				BF59862E27DA5B1400337FFF /* BranchAnnatation+CoreDataProperties.swift */,
-				BF59863127DA5B1400337FFF /* InfoboxAnnatation+CoreDataClass.swift */,
-				BF59862C27DA5B1400337FFF /* InfoboxAnnatation+CoreDataProperties.swift */,
 				BF10002B27C57DB9006C4E07 /* Views */,
 				BF10002A27C57D9C006C4E07 /* ViewControllers */,
 				BF10002927C57D94006C4E07 /* Models */,
@@ -353,24 +353,23 @@
 			buildActionMask = 2147483647;
 			files = (
 				BF4DB9B927CEE4BD00322F92 /* InfoboxModel.swift in Sources */,
+				BF5986C727DBD15F00337FFF /* InfoboxData+CoreDataClass.swift in Sources */,
+				BF5986C827DBD15F00337FFF /* InfoboxData+CoreDataProperties.swift in Sources */,
+				BF5986C427DBD15F00337FFF /* BranchData+CoreDataProperties.swift in Sources */,
 				BF10002327C536A8006C4E07 /* DetailedCollectionViewCell.swift in Sources */,
-				BF59863327DA5B1400337FFF /* BranchAnnatation+CoreDataClass.swift in Sources */,
 				BF59863C27DA5B5400337FFF /* CoreDataStack.swift in Sources */,
-				BF59863527DA5B1400337FFF /* ATMAnnatation+CoreDataProperties.swift in Sources */,
 				BFAC088C27C651E9003B1F21 /* ButtomPresentationViewController.swift in Sources */,
 				BF8A19E427D36D0200524883 /* FilterViewController.swift in Sources */,
-				BF59863727DA5B1400337FFF /* InfoboxAnnatation+CoreDataClass.swift in Sources */,
+				BF5986C527DBD15F00337FFF /* ATMData+CoreDataClass.swift in Sources */,
 				BF10002127C53646006C4E07 /* DetailedCollectionCollectionViewController.swift in Sources */,
 				BFCB4EBB27CF828D00D7A056 /* BranchesAnnotation.swift in Sources */,
 				BF59863A27DA5B2700337FFF /* FourthProject.xcdatamodeld in Sources */,
 				BFC89D8927C44FD8004DBEC9 /* MainViewController.swift in Sources */,
-				BF59863427DA5B1400337FFF /* BranchAnnatation+CoreDataProperties.swift in Sources */,
 				BF943B9027D65DB2007557CB /* ButtomPresentationBranchViewController.swift in Sources */,
 				BF10001D27C50B1F006C4E07 /* APIService.swift in Sources */,
 				BF10002F27C5AE97006C4E07 /* FullInformationViewController.swift in Sources */,
-				BF59863227DA5B1400337FFF /* InfoboxAnnatation+CoreDataProperties.swift in Sources */,
 				BF10001F27C50F19006C4E07 /* ATMsModel.swift in Sources */,
-				BF59863627DA5B1400337FFF /* ATMAnnatation+CoreDataClass.swift in Sources */,
+				BF5986C327DBD15F00337FFF /* BranchData+CoreDataClass.swift in Sources */,
 				BFB7319F27C969DC006CF18A /* SectionHeaderView.swift in Sources */,
 				BF4DB9B727CEE4BD00322F92 /* BranchesModel.swift in Sources */,
 				BFC89D8527C44FD8004DBEC9 /* AppDelegate.swift in Sources */,
@@ -379,6 +378,7 @@
 				BFC89D8727C44FD8004DBEC9 /* SceneDelegate.swift in Sources */,
 				BF10002527C54EA3006C4E07 /* Constants.swift in Sources */,
 				BF10002D27C58057006C4E07 /* ATMsPinAnnotation.swift in Sources */,
+				BF5986C627DBD15F00337FFF /* ATMData+CoreDataProperties.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

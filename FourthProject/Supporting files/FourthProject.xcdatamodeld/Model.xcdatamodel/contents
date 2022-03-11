@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="19574" systemVersion="21D62" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
-    <entity name="ATMAnnatation" representedClassName=".ATMAnnatation" syncable="YES">
-        <attribute name="atmitems" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName=".[ATMsPinAnnotation]"/>
+    <entity name="ATMData" representedClassName=".ATMData" syncable="YES">
+        <attribute name="atmData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES"/>
     </entity>
-    <entity name="BranchAnnatation" representedClassName=".BranchAnnatation" syncable="YES">
-        <attribute name="branchitems" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName=".[BranchesPinAnnotation]"/>
+    <entity name="BranchData" representedClassName=".BranchData" syncable="YES">
+        <attribute name="branchData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES"/>
     </entity>
-    <entity name="InfoboxAnnatation" representedClassName=".InfoboxAnnatation" syncable="YES">
-        <attribute name="infoboxitem" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName=".[InfoboxsPinAnnotation]"/>
+    <entity name="InfoboxData" representedClassName=".InfoboxData" syncable="YES">
+        <attribute name="infoboxData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES"/>
     </entity>
     <elements>
-        <element name="ATMAnnatation" positionX="-54" positionY="-9" width="128" height="44"/>
-        <element name="BranchAnnatation" positionX="-54" positionY="0" width="128" height="44"/>
-        <element name="InfoboxAnnatation" positionX="-45" positionY="9" width="128" height="44"/>
+        <element name="ATMData" positionX="18" positionY="90" width="128" height="44"/>
+        <element name="BranchData" positionX="72" positionY="153" width="128" height="44"/>
+        <element name="InfoboxData" positionX="45" positionY="126" width="128" height="44"/>
     </elements>
 </model>
