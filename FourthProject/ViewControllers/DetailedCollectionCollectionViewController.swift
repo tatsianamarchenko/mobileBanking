@@ -398,10 +398,6 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 		//	print(Array(a.values)[i].first?.coor)
 		}
 		sections.sort {
-			"Гомель" != $1.sectionName && minskCoordinates != $1.coor!
-		}
-
-		sections.sort {
 			var item1 = $0.rowData
 			var item2 = $1.rowData
 			return item1.sort { $0.coor! > $1.coor! } > item2.sort { $0.coor! > $1.coor! }
