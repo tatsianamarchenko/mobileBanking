@@ -5,6 +5,7 @@
 //  Created by Tatsiana Marchanka on 22.02.22.
 //
 
+
 import UIKit
 import SnapKit
 import MapKit
@@ -30,37 +31,7 @@ class MainViewController: UIViewController {
 			}
 		}
 	}
-
-//	lazy var ATMfetchedhResultController: NSFetchedResultsController<NSFetchRequestResult> = {
-//		let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: ATMAnnatation.self))
-//		fetchRequest.sortDescriptors = [NSSortDescriptor(key: "atmitems", ascending: true)]
-//		let frc = NSFetchedResultsController(fetchRequest: fetchRequest,
-//											 managedObjectContext: CoreDataStack.sharedInstance.persistentContainer.viewContext,
-//											 sectionNameKeyPath: nil, cacheName: nil)
-//		frc.delegate = self
-//		return frc
-//	}()
-
-//	lazy var branchFetchedhResultController: NSFetchedResultsController<NSFetchRequestResult> = {
-//		let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: BranchAnnatation.self))
-//		fetchRequest.sortDescriptors = [NSSortDescriptor(key: "branchitems", ascending: true)]
-//		let frc = NSFetchedResultsController(fetchRequest: fetchRequest,
-//											 managedObjectContext: CoreDataStack.sharedInstance.persistentContainer.viewContext,
-//											 sectionNameKeyPath: nil, cacheName: nil)
-//		frc.delegate = self
-//		return frc
-//	}()
-//
-//	lazy var infoboxFetchedhResultController: NSFetchedResultsController<NSFetchRequestResult> = {
-//		let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: InfoboxAnnatation.self))
-//		fetchRequest.sortDescriptors = [NSSortDescriptor(key: "infoboxitem", ascending: true)]
-//		let frc = NSFetchedResultsController(fetchRequest: fetchRequest,
-//											 managedObjectContext: CoreDataStack.sharedInstance.persistentContainer.viewContext,
-//											 sectionNameKeyPath: nil, cacheName: nil)
-//		frc.delegate = self
-//		return frc
-//	}()
-
+	
 	private lazy var internetAccessAlert: UIAlertController = {
 		let alert = UIAlertController(title: "No access to internet connection",
 									  message: "приложение не работает без доступа к интернету.",
@@ -654,9 +625,9 @@ extension MainViewController {
 		mapView.centerToLocation(CLLocation(latitude: lat, longitude: lng), regionRadius: regionRadius)
 
 		var breake = ""
-		if  atmRecived.availability.standardAvailability.day[0].dayBreak.breakFromTime.rawValue != "00:00" {
-			breake = atmRecived.availability.standardAvailability.day[0].dayBreak.breakFromTime.rawValue + "-" +
-			atmRecived.availability.standardAvailability.day[0].dayBreak.breakToTime.rawValue}
+		if  atmRecived.availability.standardAvailability.day[0].dayBreak.breakFromTime != "00:00" {
+			breake = atmRecived.availability.standardAvailability.day[0].dayBreak.breakFromTime + "-" +
+			atmRecived.availability.standardAvailability.day[0].dayBreak.breakToTime}
 
 		var abc = atmRecived.services[0].serviceType.rawValue
 		for index in 0..<atmRecived.services.count {
@@ -672,10 +643,10 @@ extension MainViewController {
 																	  atm: atmRecived,
 																	  timeOfWork:
 																		atmRecived.availability.standardAvailability.day[0]
-																		.openingTime.rawValue
+																		.openingTime
 																	  + "-" +
 																	  atmRecived.availability.standardAvailability.day[0]
-																		.closingTime.rawValue
+																		.closingTime
 																	  + " " + breake,
 																	  currancy: atmRecived.currency.rawValue,
 																	  cashIn: abc)
@@ -736,13 +707,13 @@ extension MainViewController {
 
 		mapView.centerToLocation(CLLocation(latitude: lat, longitude: lng), regionRadius: regionRadius)
 
-		let sheetViewController = ButtomPresentationInfoboxViewController(adressOfATM: infoboxRecived.addressType!.rawValue +
+		let sheetViewController = ButtomPresentationInfoboxViewController(adressOfATM: infoboxRecived.addressType! +
 																		  " " + infoboxRecived.address!,
 																		  infobox: infoboxRecived,
 																		  timeOfWork:
 																			infoboxRecived.workTime!,
-																		  currancy: infoboxRecived.currency!.rawValue,
-																		  cashIn: infoboxRecived.cashIn!.rawValue)
+																		  currancy: infoboxRecived.currency!,
+																		  cashIn: infoboxRecived.cashIn!)
 
 		let nav = UINavigationController(rootViewController: sheetViewController)
 		nav.modalPresentationStyle = .automatic
@@ -941,9 +912,9 @@ extension MainViewController: MKMapViewDelegate {
 	func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
 		if let annotation = view.annotation as? ATMsPinAnnotation {
 			var breake = " "
-			if  annotation.atm.availability.standardAvailability.day[0].dayBreak.breakFromTime.rawValue != "00:00" {
-				breake = annotation.atm.availability.standardAvailability.day[0].dayBreak.breakFromTime.rawValue + "-" +
-				annotation.atm.availability.standardAvailability.day[0].dayBreak.breakToTime.rawValue}
+			if  annotation.atm.availability.standardAvailability.day[0].dayBreak.breakFromTime != "00:00" {
+				breake = annotation.atm.availability.standardAvailability.day[0].dayBreak.breakFromTime + "-" +
+				annotation.atm.availability.standardAvailability.day[0].dayBreak.breakToTime}
 
 			let atm = annotation.atm
 			var abc = atm.services[0].serviceType.rawValue
@@ -956,8 +927,8 @@ extension MainViewController: MKMapViewDelegate {
 			}
 			let sheetViewController = ButtomPresentationATMViewController(adressOfATM: atm.address.streetName + " "
 																		  + atm.address.buildingNumber,
-																		  atm: atm, timeOfWork: atm.availability.standardAvailability.day[0].openingTime.rawValue
-																		  + "-" + atm.availability.standardAvailability.day[0].closingTime.rawValue
+																		  atm: atm, timeOfWork: atm.availability.standardAvailability.day[0].openingTime
+																		  + "-" + atm.availability.standardAvailability.day[0].closingTime
 																		  + " " + breake,
 																		  currancy: atm.currency.rawValue, cashIn: abc)
 			mapView.centerToLocation(CLLocation(latitude: annotation.coordinate.latitude,
@@ -985,7 +956,3 @@ extension MKMapView {
 		setRegion(coordinateRegion, animated: true)
 	}
 }
-// В отдельной ветке улучшить предыдущие задание, добавив туда:
-// Сохранение всех точек в CoreData так, чтобы приложение работало без интернет-соединения, отображая точки на карте.
-// Пересмотреть архитектуру приложения, чтобы оно соответствовало принципам SOLID и Clean Architecture.
-// Использовать архитектуру Clean Swift
