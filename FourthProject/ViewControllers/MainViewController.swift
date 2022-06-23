@@ -5,6 +5,7 @@
 //  Created by Tatsiana Marchanka on 22.02.22.
 //
 
+
 import UIKit
 import SnapKit
 import MapKit
@@ -30,7 +31,11 @@ class MainViewController: UIViewController {
 			}
 		}
 	}
+<<<<<<< HEAD
 
+=======
+	
+>>>>>>> 3f145932269d37bf69a9b99b30fed57212b63ad2
 	private lazy var internetAccessAlert: UIAlertController = {
 		let alert = UIAlertController(title: "No access to internet connection",
 									  message: "приложение не работает без доступа к интернету.",
@@ -911,9 +916,15 @@ extension MainViewController: MKMapViewDelegate {
 	func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
 		if let annotation = view.annotation as? PinAnnotation<ATM> {
 			var breake = " "
+<<<<<<< HEAD
 			if  annotation.item.availability.standardAvailability.day[0].dayBreak.breakFromTime != "00:00" {
 				breake = annotation.item.availability.standardAvailability.day[0].dayBreak.breakFromTime + "-" +
 				annotation.item.availability.standardAvailability.day[0].dayBreak.breakToTime}
+=======
+			if  annotation.atm.availability.standardAvailability.day[0].dayBreak.breakFromTime != "00:00" {
+				breake = annotation.atm.availability.standardAvailability.day[0].dayBreak.breakFromTime + "-" +
+				annotation.atm.availability.standardAvailability.day[0].dayBreak.breakToTime}
+>>>>>>> 3f145932269d37bf69a9b99b30fed57212b63ad2
 
 			let atm = annotation.item
 			var abc = atm.services[0].serviceType.rawValue
