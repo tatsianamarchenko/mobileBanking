@@ -473,14 +473,14 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
 					let infobox = infobox[i]
 					cell.timeLabel.text = infobox.workTime!
 					cell.placeLabel.text =  infobox.city
-					cell.currancyLabel.text = infobox.currency?.rawValue
+					cell.currancyLabel.text = infobox.currency
 				}
 			}
 			if	let atm = q as? [ATM] {
 				for i in 0..<atm.count {
 					let atm = atm[i]
-					cell.timeLabel.text = atm.availability.standardAvailability.day[0].openingTime.rawValue
-					+ " " + atm.availability.standardAvailability.day[0].closingTime.rawValue
+					cell.timeLabel.text = atm.availability.standardAvailability.day[0].openingTime
+					+ " " + atm.availability.standardAvailability.day[0].closingTime
 					cell.placeLabel.text =  atm.address.addressLine
 					+ " " + atm.address.buildingNumber
 					+ " " + atm.address.addressLine
@@ -497,7 +497,7 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
 					cell.placeLabel.text =  branch.address.streetName
 					+ " " + branch.address.buildingNumber
 					+ " " + branch.address.addressLine
-					cell.currancyLabel.text = String( branch.services.service.currencyExchange.count)
+					cell.currancyLabel.text = String( branch.services.currencyExchange.count)
 				}
 			}
 		}

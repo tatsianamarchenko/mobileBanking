@@ -7,7 +7,7 @@
 
 import Foundation
 
-// MARK: - Branch
+// MARK: - Welcome
 struct Branch: Codable {
 	var data: DataClass
 
@@ -25,33 +25,29 @@ struct DataClass: Codable {
 	}
 }
 
-// MARK: - BranchElement
+// MARK: - Branch
 struct BranchElement: Codable, General {
 	var coor: GeographicCoordinates?
-	
-  let branchID, name: String
-  let cbu, accountNumber: String?
-  let equeue, wifi: Int
-  let accessibilities: AccessibilitiesInfo
-  let address: AddressInfo
-  let information: Information
-  let services: Services
+	let branchID, name, cbu, accountNumber: String
+	let equeue, wifi: Int
+	var address: AddressBranch
+	let information: InformationBranch
+	let services: ServicesBranch
 
-  enum CodingKeys: String, CodingKey {
-	case branchID = "branchId"
-	case name
-	case cbu = "CBU"
-	case accountNumber, equeue, wifi
-	case accessibilities = "Accessibilities"
-	case address = "Address"
-	case information = "Information"
-	case services = "Services"
-  }
+	enum CodingKeys: String, CodingKey {
+		case branchID = "branchId"
+		case name
+		case cbu = "CBU"
+		case accountNumber, equeue, wifi
+		case address = "Address"
+		case information = "Information"
+		case services = "Services"
+	}
 }
 
-// MARK: - AccessibilitiesInfo
-struct AccessibilitiesInfo: Codable {
-	let accessibility: Accessibility
+// MARK: - Accessibilities
+struct AccessibilitiesBranch: Codable {
+	let accessibility: AccessibilityBranch
 
 	enum CodingKeys: String, CodingKey {
 		case accessibility = "Accessibility"
@@ -59,9 +55,8 @@ struct AccessibilitiesInfo: Codable {
 }
 
 // MARK: - Accessibility
-struct Accessibility: Codable {
-	let type: TypeUnion
-	let accessibilityDescription: String
+struct AccessibilityBranch: Codable {
+	let type, accessibilityDescription: String
 
 	enum CodingKeys: String, CodingKey {
 		case type
@@ -69,42 +64,12 @@ struct Accessibility: Codable {
 	}
 }
 
-enum TypeUnion: Codable {
-	case integer(Int)
-	case string(String)
-
-	init(from decoder: Decoder) throws {
-		let container = try decoder.singleValueContainer()
-		if let x = try? container.decode(Int.self) {
-			self = .integer(x)
-			return
-		}
-		if let x = try? container.decode(String.self) {
-			self = .string(x)
-			return
-		}
-		throw DecodingError.typeMismatch(TypeUnion.self,
-										 DecodingError.Context(codingPath: decoder.codingPath,
-															   debugDescription: "Wrong type for TypeUnion"))
-	}
-
-	func encode(to encoder: Encoder) throws {
-		var container = encoder.singleValueContainer()
-		switch self {
-		case .integer(let x):
-			try container.encode(x)
-		case .string(let x):
-			try container.encode(x)
-		}
-	}
-}
-
-// MARK: - AddressInfo
-struct AddressInfo: Codable {
+// MARK: - Address
+struct AddressBranch: Codable {
 	let streetName, buildingNumber, department, postCode: String
 	let townName, countrySubDivision, country, addressLine: String
-	let addressDescription: String
-	let geoLocation: GeoLocationInfo
+	var addressDescription: String
+	var geoLocation: GeoLocationBranch
 
 	enum CodingKeys: String, CodingKey {
 		case streetName, buildingNumber, department, postCode, townName, countrySubDivision, country, addressLine
@@ -113,9 +78,9 @@ struct AddressInfo: Codable {
 	}
 }
 
-// MARK: - GeoLocationInfo
-struct GeoLocationInfo: Codable {
-	let geographicCoordinates: GeographicCoordinatesInfo
+// MARK: - GeoLocation
+struct GeoLocationBranch: Codable {
+	var geographicCoordinates: GeographicCoordinates
 
 	enum CodingKeys: String, CodingKey {
 		case geographicCoordinates = "GeographicCoordinates"
@@ -123,15 +88,15 @@ struct GeoLocationInfo: Codable {
 }
 
 // MARK: - GeographicCoordinates
-struct GeographicCoordinatesInfo: Codable {
-	let latitude, longitude: String
+struct GeographicCoordinatesBranch: Codable {
+	var latitude, longitude: String
 }
 
 // MARK: - Information
-struct Information: Codable {
+struct InformationBranch: Codable {
 	let segment: String
-	let availability: AvailabilityInfo
-	let contactDetails: ContactDetailsInfo
+	let availability: AvailabilityBranch
+	let contactDetails: ContactDetailsBranch
 
 	enum CodingKeys: String, CodingKey {
 		case segment
@@ -140,65 +105,35 @@ struct Information: Codable {
 	}
 }
 
-// MARK: - AvailabilityInfo
-struct AvailabilityInfo: Codable {
+// MARK: - Availability
+struct AvailabilityBranch: Codable {
 	let access24Hours, isRestricted, sameAsOrganization: Int
 	let availabilityDescription: String
-	let standardAvailability: StandardAvailabilityInfo
-	let nonStandardAvailability: [NonStandardAvailability]
+	let standardAvailability: StandardAvailabilityBranch
+	//	let nonStandardAvailability: [JSONAny]
 
 	enum CodingKeys: String, CodingKey {
 		case access24Hours, isRestricted, sameAsOrganization
 		case availabilityDescription = "description"
 		case standardAvailability = "StandardAvailability"
-		case nonStandardAvailability = "NonStandardAvailability"
+		//	case nonStandardAvailability = "NonStandardAvailability"
 	}
-}
-
-// MARK: - NonStandardAvailability
-struct NonStandardAvailability: Codable {
-	let name: String
-	let fromDate, toDate: String
-	let nonStandardAvailabilityDescription: String
-	let day: NonStandardAvailabilityDay
-
-	enum CodingKeys: String, CodingKey {
-		case name, fromDate, toDate
-		case nonStandardAvailabilityDescription = "description"
-		case day = "Day"
-	}
-}
-
-// MARK: - NonStandardAvailabilityDay
-struct NonStandardAvailabilityDay: Codable {
-	let dayCode, openingTime, closingTime: String
-	let dayBreak: BreakInfo
-
-	enum CodingKeys: String, CodingKey {
-		case dayCode, openingTime, closingTime
-		case dayBreak = "Break"
-	}
-}
-
-// MARK: - BreakInfo
-struct BreakInfo: Codable {
-	let breakFromTime, breakToTime: String
 }
 
 // MARK: - StandardAvailability
-struct StandardAvailabilityInfo: Codable {
-	let day: [DayElement]
+struct StandardAvailabilityBranch: Codable {
+	let day: [DayBranch]
 
 	enum CodingKeys: String, CodingKey {
 		case day = "Day"
 	}
 }
 
-// MARK: - DayElement
-struct DayElement: Codable {
+// MARK: - Day
+struct DayBranch: Codable {
 	let dayCode: Int
 	let openingTime, closingTime: String
-	let dayBreak: BreakInfo
+	let dayBreak: BreakBranch
 
 	enum CodingKeys: String, CodingKey {
 		case dayCode, openingTime, closingTime
@@ -206,11 +141,16 @@ struct DayElement: Codable {
 	}
 }
 
-// MARK: - ContactDetailsInfo
-struct ContactDetailsInfo: Codable {
+// MARK: - Break
+struct BreakBranch: Codable {
+	let breakFromTime, breakToTime: String
+}
+
+// MARK: - ContactDetails
+struct ContactDetailsBranch: Codable {
 	let name, phoneNumber, mobileNumber, faxNumber: String
 	let emailAddress, other: String
-	let socialNetworks: [SocialNetwork]
+	let socialNetworks: [SocialNetworkBranch]
 
 	enum CodingKeys: String, CodingKey {
 		case name, phoneNumber, mobileNumber, faxNumber, emailAddress, other
@@ -219,7 +159,7 @@ struct ContactDetailsInfo: Codable {
 }
 
 // MARK: - SocialNetwork
-struct SocialNetwork: Codable {
+struct SocialNetworkBranch: Codable {
 	let networkName: String
 	let url: String
 	let socialNetworkDescription: String
@@ -231,25 +171,18 @@ struct SocialNetwork: Codable {
 }
 
 // MARK: - Services
-struct Services: Codable {
-	let service: ServiceInfo
+struct ServicesBranch: Codable {
+	let service: [ServiceBranch]
+	let currencyExchange: [CurrencyExchangeBranch]
 
 	enum CodingKeys: String, CodingKey {
 		case service = "Service"
-	}
-}
-
-// MARK: - Service
-struct ServiceInfo: Codable {
-	let currencyExchange: [CurrencyExchange]
-
-	enum CodingKeys: String, CodingKey {
 		case currencyExchange = "CurrencyExchange"
 	}
 }
 
 // MARK: - CurrencyExchange
-struct CurrencyExchange: Codable {
+struct CurrencyExchangeBranch: Codable {
 	let exchangeTypeStaticType: String
 	let sourceCurrency, targetCurrency, exchangeRate: String
 	let direction: String
@@ -261,20 +194,21 @@ struct CurrencyExchange: Codable {
 		case sourceCurrency, targetCurrency, exchangeRate, direction, scaleCurrency, dateTime
 	}
 }
-// MARK: - The0
-struct The0: Codable {
+
+// MARK: - Service
+struct ServiceBranch: Codable {
 	let serviceID: String
 	let type: String?
 	let name: String
 	let segment: String
 	let url: String
 	let currentStatus: String
-	let dateTime: Date
-	let the0Description: String
+	let dateTime: String
+	let serviceDescription: String
 
 	enum CodingKeys: String, CodingKey {
 		case serviceID = "serviceId"
 		case type, name, segment, url, currentStatus, dateTime
-		case the0Description = "description"
+		case serviceDescription = "description"
 	}
 }

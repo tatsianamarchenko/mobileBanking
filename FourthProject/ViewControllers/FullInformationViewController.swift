@@ -58,7 +58,7 @@ class FullInformationViewController: UIViewController {
 		return stack
 		}
 		if let infobox = infobox {
-			let stack = createStack(contentLableText: infobox.infType!.rawValue , name: "Тип")
+			let stack = createStack(contentLableText: infobox.infType! , name: "Тип")
 		return stack
 		}
 		return UIStackView()
@@ -66,7 +66,7 @@ class FullInformationViewController: UIViewController {
 
 	private lazy var currencyStack: UIStackView = {
 		if let atm = atm {
-		let stack = createStack(contentLableText: atm.currency.rawValue, name: "Валюта")
+			let stack = createStack(contentLableText: atm.currency.rawValue, name: "Валюта")
 		return stack
 		}
 		if let branch = branch {
@@ -74,7 +74,7 @@ class FullInformationViewController: UIViewController {
 		return stack
 		}
 		if let infobox = infobox {
-			let stack = createStack(contentLableText: infobox.currency!.rawValue, name: "Валюта")
+			let stack = createStack(contentLableText: infobox.currency!, name: "Валюта")
 		return stack
 		}
 		return UIStackView()
@@ -92,7 +92,7 @@ class FullInformationViewController: UIViewController {
 			return stack
 		}
 		if let infobox = infobox {
-			let content = infobox.infPrinter?.rawValue
+			let content = infobox.infPrinter
 			let stack = createStack(contentLableText: content!, name: "Чек")
 			return stack
 		}
@@ -122,12 +122,12 @@ class FullInformationViewController: UIViewController {
 			return stack
 		}
 		if let branch = branch {
-			let content = branch.services.service.currencyExchange[0].exchangeRate + " " + branch.services.service.currencyExchange[0].sourceCurrency
+			let content = branch.services.currencyExchange[0].exchangeRate + " " + branch.services.currencyExchange[0].sourceCurrency
 		let stack = createStack(contentLableText: content, name: "exchangeRate")
 			return stack
 		}
 		if let infobox = infobox {
-			let content = infobox.cashInExist?.rawValue
+			let content = infobox.cashInExist
 			let stack = createStack(contentLableText: content!, name: "Сервисы")
 			return stack
 		}
@@ -140,8 +140,8 @@ class FullInformationViewController: UIViewController {
 			if atm.availability.access24Hours {
 				time = "Круглосуточно"
 			} else {
-				time = atm.availability.standardAvailability.day[0].openingTime.rawValue
-				+ "-" + atm.availability.standardAvailability.day[0].closingTime.rawValue
+				time = atm.availability.standardAvailability.day[0].openingTime
+				+ "-" + atm.availability.standardAvailability.day[0].closingTime
 			}
 			let stack = createStack(contentLableText: time,
 									name: "На данный момент")
@@ -379,7 +379,7 @@ class FullInformationViewController: UIViewController {
 
 extension MKMapItem {
   convenience init(coordinate: CLLocationCoordinate2D, name: String) {
-    self.init(placemark: .init(coordinate: coordinate))
-    self.name = name
+	self.init(placemark: .init(coordinate: coordinate))
+	self.name = name
   }
 }

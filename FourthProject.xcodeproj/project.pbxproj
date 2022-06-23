@@ -8,14 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		BF10001D27C50B1F006C4E07 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10001C27C50B1F006C4E07 /* APIService.swift */; };
-		BF10001F27C50F19006C4E07 /* ATMsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10001E27C50F19006C4E07 /* ATMsModel.swift */; };
 		BF10002127C53646006C4E07 /* DetailedCollectionCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002027C53646006C4E07 /* DetailedCollectionCollectionViewController.swift */; };
 		BF10002327C536A8006C4E07 /* DetailedCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002227C536A8006C4E07 /* DetailedCollectionViewCell.swift */; };
 		BF10002527C54EA3006C4E07 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002427C54EA3006C4E07 /* Constants.swift */; };
-		BF10002D27C58057006C4E07 /* ATMsPinAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002C27C58057006C4E07 /* ATMsPinAnnotation.swift */; };
 		BF10002F27C5AE97006C4E07 /* FullInformationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002E27C5AE96006C4E07 /* FullInformationViewController.swift */; };
-		BF4DB9B727CEE4BD00322F92 /* BranchesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF4DB9B427CEE4BD00322F92 /* BranchesModel.swift */; };
-		BF4DB9B927CEE4BD00322F92 /* InfoboxModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF4DB9B627CEE4BD00322F92 /* InfoboxModel.swift */; };
+		BF1C6DF72864D45E00C94383 /* ATMsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF1C6DF42864D45E00C94383 /* ATMsModel.swift */; };
+		BF1C6DF82864D45E00C94383 /* BranchesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF1C6DF52864D45E00C94383 /* BranchesModel.swift */; };
+		BF1C6DF92864D45E00C94383 /* InfoboxModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF1C6DF62864D45E00C94383 /* InfoboxModel.swift */; };
 		BF59863A27DA5B2700337FFF /* FourthProject.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BF59863827DA5B2700337FFF /* FourthProject.xcdatamodeld */; };
 		BF59863C27DA5B5400337FFF /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF59863B27DA5B5400337FFF /* CoreDataStack.swift */; };
 		BF5986C327DBD15F00337FFF /* BranchData+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF5986BD27DBD15F00337FFF /* BranchData+CoreDataClass.swift */; };
@@ -35,8 +34,7 @@
 		BFC89D8E27C44FDA004DBEC9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BFC89D8D27C44FDA004DBEC9 /* Assets.xcassets */; };
 		BFC89D9127C44FDA004DBEC9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BFC89D8F27C44FDA004DBEC9 /* LaunchScreen.storyboard */; };
 		BFC89D9C27C45866004DBEC9 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = BFC89D9B27C45866004DBEC9 /* .swiftlint.yml */; };
-		BFCB4EB927CF821400D7A056 /* InfoboxAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB4EB827CF821400D7A056 /* InfoboxAnnotation.swift */; };
-		BFCB4EBB27CF828D00D7A056 /* BranchesAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB4EBA27CF828D00D7A056 /* BranchesAnnotation.swift */; };
+		BFCB4EBB27CF828D00D7A056 /* PinAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB4EBA27CF828D00D7A056 /* PinAnnotation.swift */; };
 		F99005DCF5F91BBEFDAA8590 /* Pods_FourthProject.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 201B40A932CD948C881225CD /* Pods_FourthProject.framework */; };
 /* End PBXBuildFile section */
 
@@ -44,14 +42,13 @@
 		201B40A932CD948C881225CD /* Pods_FourthProject.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FourthProject.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5DCE030AC27323584470EAFB /* Pods-FourthProject.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FourthProject.debug.xcconfig"; path = "Target Support Files/Pods-FourthProject/Pods-FourthProject.debug.xcconfig"; sourceTree = "<group>"; };
 		BF10001C27C50B1F006C4E07 /* APIService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
-		BF10001E27C50F19006C4E07 /* ATMsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ATMsModel.swift; sourceTree = "<group>"; };
 		BF10002027C53646006C4E07 /* DetailedCollectionCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedCollectionCollectionViewController.swift; sourceTree = "<group>"; };
 		BF10002227C536A8006C4E07 /* DetailedCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedCollectionViewCell.swift; sourceTree = "<group>"; };
 		BF10002427C54EA3006C4E07 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
-		BF10002C27C58057006C4E07 /* ATMsPinAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ATMsPinAnnotation.swift; sourceTree = "<group>"; };
 		BF10002E27C5AE96006C4E07 /* FullInformationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullInformationViewController.swift; sourceTree = "<group>"; };
-		BF4DB9B427CEE4BD00322F92 /* BranchesModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BranchesModel.swift; sourceTree = "<group>"; };
-		BF4DB9B627CEE4BD00322F92 /* InfoboxModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoboxModel.swift; sourceTree = "<group>"; };
+		BF1C6DF42864D45E00C94383 /* ATMsModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ATMsModel.swift; sourceTree = "<group>"; };
+		BF1C6DF52864D45E00C94383 /* BranchesModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BranchesModel.swift; sourceTree = "<group>"; };
+		BF1C6DF62864D45E00C94383 /* InfoboxModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoboxModel.swift; sourceTree = "<group>"; };
 		BF59863927DA5B2700337FFF /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		BF59863B27DA5B5400337FFF /* CoreDataStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
 		BF5986BD27DBD15F00337FFF /* BranchData+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BranchData+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
@@ -73,8 +70,7 @@
 		BFC89D9027C44FDA004DBEC9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		BFC89D9227C44FDA004DBEC9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BFC89D9B27C45866004DBEC9 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
-		BFCB4EB827CF821400D7A056 /* InfoboxAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoboxAnnotation.swift; sourceTree = "<group>"; };
-		BFCB4EBA27CF828D00D7A056 /* BranchesAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BranchesAnnotation.swift; sourceTree = "<group>"; };
+		BFCB4EBA27CF828D00D7A056 /* PinAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinAnnotation.swift; sourceTree = "<group>"; };
 		E42D9151B3717D6DF143233C /* Pods-FourthProject.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FourthProject.release.xcconfig"; path = "Target Support Files/Pods-FourthProject/Pods-FourthProject.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -125,9 +121,9 @@
 			isa = PBXGroup;
 			children = (
 				BFCB4EB727CF81F100D7A056 /* Annotations */,
-				BF10001E27C50F19006C4E07 /* ATMsModel.swift */,
-				BF4DB9B427CEE4BD00322F92 /* BranchesModel.swift */,
-				BF4DB9B627CEE4BD00322F92 /* InfoboxModel.swift */,
+				BF1C6DF42864D45E00C94383 /* ATMsModel.swift */,
+				BF1C6DF52864D45E00C94383 /* BranchesModel.swift */,
+				BF1C6DF62864D45E00C94383 /* InfoboxModel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -204,9 +200,7 @@
 		BFCB4EB727CF81F100D7A056 /* Annotations */ = {
 			isa = PBXGroup;
 			children = (
-				BF10002C27C58057006C4E07 /* ATMsPinAnnotation.swift */,
-				BFCB4EB827CF821400D7A056 /* InfoboxAnnotation.swift */,
-				BFCB4EBA27CF828D00D7A056 /* BranchesAnnotation.swift */,
+				BFCB4EBA27CF828D00D7A056 /* PinAnnotation.swift */,
 			);
 			path = Annotations;
 			sourceTree = "<group>";
@@ -352,32 +346,30 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BF4DB9B927CEE4BD00322F92 /* InfoboxModel.swift in Sources */,
 				BF5986C727DBD15F00337FFF /* InfoboxData+CoreDataClass.swift in Sources */,
 				BF5986C827DBD15F00337FFF /* InfoboxData+CoreDataProperties.swift in Sources */,
 				BF5986C427DBD15F00337FFF /* BranchData+CoreDataProperties.swift in Sources */,
 				BF10002327C536A8006C4E07 /* DetailedCollectionViewCell.swift in Sources */,
 				BF59863C27DA5B5400337FFF /* CoreDataStack.swift in Sources */,
+				BF1C6DF92864D45E00C94383 /* InfoboxModel.swift in Sources */,
 				BFAC088C27C651E9003B1F21 /* ButtomPresentationViewController.swift in Sources */,
 				BF8A19E427D36D0200524883 /* FilterViewController.swift in Sources */,
+				BF1C6DF72864D45E00C94383 /* ATMsModel.swift in Sources */,
 				BF5986C527DBD15F00337FFF /* ATMData+CoreDataClass.swift in Sources */,
 				BF10002127C53646006C4E07 /* DetailedCollectionCollectionViewController.swift in Sources */,
-				BFCB4EBB27CF828D00D7A056 /* BranchesAnnotation.swift in Sources */,
+				BFCB4EBB27CF828D00D7A056 /* PinAnnotation.swift in Sources */,
 				BF59863A27DA5B2700337FFF /* FourthProject.xcdatamodeld in Sources */,
 				BFC89D8927C44FD8004DBEC9 /* MainViewController.swift in Sources */,
+				BF1C6DF82864D45E00C94383 /* BranchesModel.swift in Sources */,
 				BF943B9027D65DB2007557CB /* ButtomPresentationBranchViewController.swift in Sources */,
 				BF10001D27C50B1F006C4E07 /* APIService.swift in Sources */,
 				BF10002F27C5AE97006C4E07 /* FullInformationViewController.swift in Sources */,
-				BF10001F27C50F19006C4E07 /* ATMsModel.swift in Sources */,
 				BF5986C327DBD15F00337FFF /* BranchData+CoreDataClass.swift in Sources */,
 				BFB7319F27C969DC006CF18A /* SectionHeaderView.swift in Sources */,
-				BF4DB9B727CEE4BD00322F92 /* BranchesModel.swift in Sources */,
 				BFC89D8527C44FD8004DBEC9 /* AppDelegate.swift in Sources */,
-				BFCB4EB927CF821400D7A056 /* InfoboxAnnotation.swift in Sources */,
 				BF943B9327D663E4007557CB /* ButtomPresentationInfoboxViewController.swift in Sources */,
 				BFC89D8727C44FD8004DBEC9 /* SceneDelegate.swift in Sources */,
 				BF10002527C54EA3006C4E07 /* Constants.swift in Sources */,
-				BF10002D27C58057006C4E07 /* ATMsPinAnnotation.swift in Sources */,
 				BF5986C627DBD15F00337FFF /* ATMData+CoreDataProperties.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

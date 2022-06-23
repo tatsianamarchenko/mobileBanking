@@ -7,16 +7,16 @@
 
 import MapKit
 
-public class BranchesPinAnnotation: NSObject, MKAnnotation {
+public class PinAnnotation<T: Codable> : NSObject, MKAnnotation{
 	@objc dynamic public var coordinate: CLLocationCoordinate2D
 	public let title: String?
-	let atm: BranchElement
+	let item: T
 	init(title: String,
-		 branch: BranchElement,
+		 item: T,
 		 coordinate: CLLocationCoordinate2D) {
 		self.coordinate = coordinate
 		self.title = title
-		self.atm = branch
+		self.item = item
 		super.init()
 	}
 }

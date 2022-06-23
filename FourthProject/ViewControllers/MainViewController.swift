@@ -18,9 +18,9 @@ class MainViewController: UIViewController {
 	var atmRecived: ATM?
 	var branchRecived: BranchElement?
 	var infoboxRecived: InfoBox?
-	var atmAnnotatiom = [ATMsPinAnnotation]()
-	var branchAnnotatiom = [BranchesPinAnnotation]()
-	var infoboxAnnotatiom = [InfoboxsPinAnnotation]()
+	var atmAnnotatiom = [PinAnnotation<ATM>]()
+	var branchAnnotatiom = [PinAnnotation<BranchElement>]()
+	var infoboxAnnotatiom = [PinAnnotation<InfoBox>]()
 	let context = CoreDataStack.sharedInstance.persistentContainer.viewContext
 
 	var displayedAnnotations: [MKAnnotation]? {
@@ -30,36 +30,6 @@ class MainViewController: UIViewController {
 			}
 		}
 	}
-
-//	lazy var ATMfetchedhResultController: NSFetchedResultsController<NSFetchRequestResult> = {
-//		let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: ATMAnnatation.self))
-//		fetchRequest.sortDescriptors = [NSSortDescriptor(key: "atmitems", ascending: true)]
-//		let frc = NSFetchedResultsController(fetchRequest: fetchRequest,
-//											 managedObjectContext: CoreDataStack.sharedInstance.persistentContainer.viewContext,
-//											 sectionNameKeyPath: nil, cacheName: nil)
-//		frc.delegate = self
-//		return frc
-//	}()
-
-//	lazy var branchFetchedhResultController: NSFetchedResultsController<NSFetchRequestResult> = {
-//		let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: BranchAnnatation.self))
-//		fetchRequest.sortDescriptors = [NSSortDescriptor(key: "branchitems", ascending: true)]
-//		let frc = NSFetchedResultsController(fetchRequest: fetchRequest,
-//											 managedObjectContext: CoreDataStack.sharedInstance.persistentContainer.viewContext,
-//											 sectionNameKeyPath: nil, cacheName: nil)
-//		frc.delegate = self
-//		return frc
-//	}()
-//
-//	lazy var infoboxFetchedhResultController: NSFetchedResultsController<NSFetchRequestResult> = {
-//		let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: InfoboxAnnatation.self))
-//		fetchRequest.sortDescriptors = [NSSortDescriptor(key: "infoboxitem", ascending: true)]
-//		let frc = NSFetchedResultsController(fetchRequest: fetchRequest,
-//											 managedObjectContext: CoreDataStack.sharedInstance.persistentContainer.viewContext,
-//											 sectionNameKeyPath: nil, cacheName: nil)
-//		frc.delegate = self
-//		return frc
-//	}()
 
 	private lazy var internetAccessAlert: UIAlertController = {
 		let alert = UIAlertController(title: "No access to internet connection",
@@ -654,9 +624,9 @@ extension MainViewController {
 		mapView.centerToLocation(CLLocation(latitude: lat, longitude: lng), regionRadius: regionRadius)
 
 		var breake = ""
-		if  atmRecived.availability.standardAvailability.day[0].dayBreak.breakFromTime.rawValue != "00:00" {
-			breake = atmRecived.availability.standardAvailability.day[0].dayBreak.breakFromTime.rawValue + "-" +
-			atmRecived.availability.standardAvailability.day[0].dayBreak.breakToTime.rawValue}
+		if  atmRecived.availability.standardAvailability.day[0].dayBreak.breakFromTime != "00:00" {
+			breake = atmRecived.availability.standardAvailability.day[0].dayBreak.breakFromTime + "-" +
+			atmRecived.availability.standardAvailability.day[0].dayBreak.breakToTime}
 
 		var abc = atmRecived.services[0].serviceType.rawValue
 		for index in 0..<atmRecived.services.count {
@@ -672,10 +642,10 @@ extension MainViewController {
 																	  atm: atmRecived,
 																	  timeOfWork:
 																		atmRecived.availability.standardAvailability.day[0]
-																		.openingTime.rawValue
+																		.openingTime
 																	  + "-" +
 																	  atmRecived.availability.standardAvailability.day[0]
-																		.closingTime.rawValue
+																		.closingTime
 																	  + " " + breake,
 																	  currancy: atmRecived.currency.rawValue,
 																	  cashIn: abc)
@@ -703,8 +673,8 @@ extension MainViewController {
 			breake = branchRecived.information.availability.standardAvailability.day[0].dayBreak.breakFromTime + "-" +
 			branchRecived.information.availability.standardAvailability.day[0].dayBreak.breakToTime}
 		var abc = ""
-		for service in 0..<branchRecived.services.service.currencyExchange.count {
-			abc = branchRecived.services.service.currencyExchange[service].direction
+		for service in 0..<branchRecived.services.currencyExchange.count {
+			abc = branchRecived.services.currencyExchange[service].direction
 		}
 
 		let sheetViewController = ButtomPresentationBranchViewController(adressOfATM: branchRecived.address.streetName + " "
@@ -736,13 +706,13 @@ extension MainViewController {
 
 		mapView.centerToLocation(CLLocation(latitude: lat, longitude: lng), regionRadius: regionRadius)
 
-		let sheetViewController = ButtomPresentationInfoboxViewController(adressOfATM: infoboxRecived.addressType!.rawValue +
+		let sheetViewController = ButtomPresentationInfoboxViewController(adressOfATM: infoboxRecived.addressType! +
 																		  " " + infoboxRecived.address!,
 																		  infobox: infoboxRecived,
 																		  timeOfWork:
 																			infoboxRecived.workTime!,
-																		  currancy: infoboxRecived.currency!.rawValue,
-																		  cashIn: infoboxRecived.cashIn!.rawValue)
+																		  currancy: infoboxRecived.currency!,
+																		  cashIn: infoboxRecived.cashIn!)
 
 		let nav = UINavigationController(rootViewController: sheetViewController)
 		nav.modalPresentationStyle = .automatic
@@ -823,17 +793,17 @@ extension MainViewController {
 
 	private func registerMapAnnotationViews() {
 		mapView.register(MKMarkerAnnotationView.self,
-						 forAnnotationViewWithReuseIdentifier: NSStringFromClass(ATMsPinAnnotation.self))
+						 forAnnotationViewWithReuseIdentifier: NSStringFromClass(PinAnnotation<ATM>.self))
 		mapView.register(MKMarkerAnnotationView.self,
-						 forAnnotationViewWithReuseIdentifier: NSStringFromClass(InfoboxsPinAnnotation.self))
+						 forAnnotationViewWithReuseIdentifier: NSStringFromClass(PinAnnotation<InfoBox>.self))
 		mapView.register(MKMarkerAnnotationView.self,
-						 forAnnotationViewWithReuseIdentifier: NSStringFromClass(BranchesPinAnnotation.self))
+						 forAnnotationViewWithReuseIdentifier: NSStringFromClass(PinAnnotation<BranchElement>.self))
 	}
 
 	private	func setATMsPinUsingMKAnnotation(title: String, atm: ATM, location: CLLocationCoordinate2D) {
 		DispatchQueue.main.async {
-			let pinAnnotation = (ATMsPinAnnotation(title: title,
-												   atm: atm,
+			let pinAnnotation = (PinAnnotation<ATM>(title: title,
+											   item: atm,
 												   coordinate: location))
 			self.atmAnnotatiom.append(pinAnnotation)
 			self.mapView.addAnnotations(self.atmAnnotatiom)
@@ -842,8 +812,8 @@ extension MainViewController {
 
 	private	func setInfoBoxPinUsingMKAnnotation(title: String, infobox: InfoBox, location: CLLocationCoordinate2D) {
 		DispatchQueue.main.async {
-			let pinAnnotation = (InfoboxsPinAnnotation(title: title,
-													   infoBox: infobox,
+			let pinAnnotation = (PinAnnotation<InfoBox>(title: title,
+													   item: infobox,
 													   coordinate: location))
 			self.infoboxAnnotatiom.append(pinAnnotation)
 			self.mapView.addAnnotations(self.infoboxAnnotatiom)
@@ -852,8 +822,8 @@ extension MainViewController {
 
 	private func setBranchPinUsingMKAnnotation(title: String, branch: BranchElement, location: CLLocationCoordinate2D) {
 		DispatchQueue.main.async {
-			let pinAnnotation = (BranchesPinAnnotation(title: title,
-													   branch: branch,
+			let pinAnnotation = (PinAnnotation<BranchElement>(title: title,
+													   item: branch,
 													   coordinate: location))
 			self.branchAnnotatiom.append(pinAnnotation)
 			self.mapView.addAnnotations(self.branchAnnotatiom)
@@ -881,18 +851,18 @@ extension MainViewController: CLLocationManagerDelegate {
 extension MainViewController: MKMapViewDelegate {
 	func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
 		var annotationView: MKAnnotationView?
-		if let annotation = annotation as? ATMsPinAnnotation {
+		if let annotation = annotation as? PinAnnotation<ATM> {
 			annotationView = setupATMsAnnotationView(for: annotation, on: mapView)
-		} else if let annotation = annotation as? InfoboxsPinAnnotation {
+		} else if let annotation = annotation as? PinAnnotation<InfoBox> {
 			annotationView = setupInfoBoxAnnotationView(for: annotation, on: mapView)
-		} else if let annotation = annotation as? BranchesPinAnnotation {
+		} else if let annotation = annotation as? PinAnnotation<BranchElement> {
 			annotationView = setupBranchAnnotationView(for: annotation, on: mapView)
 		}
 		return annotationView
 	}
 
-	private func setupATMsAnnotationView(for annotation: ATMsPinAnnotation, on mapView: MKMapView) -> MKAnnotationView {
-		let identifier = NSStringFromClass(ATMsPinAnnotation.self)
+	private func setupATMsAnnotationView(for annotation: PinAnnotation<ATM>, on mapView: MKMapView) -> MKAnnotationView {
+		let identifier = NSStringFromClass(PinAnnotation<ATM>.self)
 		let view = mapView.dequeueReusableAnnotationView(withIdentifier: identifier, for: annotation)
 		view.canShowCallout = true
 		let image = UIImage(named: "atm")
@@ -906,9 +876,9 @@ extension MainViewController: MKMapViewDelegate {
 		return view
 	}
 
-	private func setupInfoBoxAnnotationView(for annotation: InfoboxsPinAnnotation,
+	private func setupInfoBoxAnnotationView(for annotation: PinAnnotation<InfoBox>,
 											on mapView: MKMapView) -> MKAnnotationView {
-		let identifier = NSStringFromClass(InfoboxsPinAnnotation.self)
+		let identifier = NSStringFromClass(PinAnnotation<InfoBox>.self)
 		let view = mapView.dequeueReusableAnnotationView(withIdentifier: identifier, for: annotation)
 		view.canShowCallout = true
 		let image = UIImage(named: "info")
@@ -922,9 +892,9 @@ extension MainViewController: MKMapViewDelegate {
 		return view
 	}
 
-	private func setupBranchAnnotationView(for annotation: BranchesPinAnnotation,
+	private func setupBranchAnnotationView(for annotation: PinAnnotation<BranchElement>,
 										   on mapView: MKMapView) -> MKAnnotationView {
-		let identifier = NSStringFromClass(BranchesPinAnnotation.self)
+		let identifier = NSStringFromClass(PinAnnotation<BranchElement>.self)
 		let view = mapView.dequeueReusableAnnotationView(withIdentifier: identifier, for: annotation)
 		view.canShowCallout = false
 		let image = UIImage(named: "bank")
@@ -939,13 +909,13 @@ extension MainViewController: MKMapViewDelegate {
 
 	}
 	func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-		if let annotation = view.annotation as? ATMsPinAnnotation {
+		if let annotation = view.annotation as? PinAnnotation<ATM> {
 			var breake = " "
-			if  annotation.atm.availability.standardAvailability.day[0].dayBreak.breakFromTime.rawValue != "00:00" {
-				breake = annotation.atm.availability.standardAvailability.day[0].dayBreak.breakFromTime.rawValue + "-" +
-				annotation.atm.availability.standardAvailability.day[0].dayBreak.breakToTime.rawValue}
+			if  annotation.item.availability.standardAvailability.day[0].dayBreak.breakFromTime != "00:00" {
+				breake = annotation.item.availability.standardAvailability.day[0].dayBreak.breakFromTime + "-" +
+				annotation.item.availability.standardAvailability.day[0].dayBreak.breakToTime}
 
-			let atm = annotation.atm
+			let atm = annotation.item
 			var abc = atm.services[0].serviceType.rawValue
 			for index in 0..<atm.services.count {
 				if atm.services[index].serviceType.rawValue == "CashIn" {
@@ -956,8 +926,8 @@ extension MainViewController: MKMapViewDelegate {
 			}
 			let sheetViewController = ButtomPresentationATMViewController(adressOfATM: atm.address.streetName + " "
 																		  + atm.address.buildingNumber,
-																		  atm: atm, timeOfWork: atm.availability.standardAvailability.day[0].openingTime.rawValue
-																		  + "-" + atm.availability.standardAvailability.day[0].closingTime.rawValue
+																		  atm: atm, timeOfWork: atm.availability.standardAvailability.day[0].openingTime
+																		  + "-" + atm.availability.standardAvailability.day[0].closingTime
 																		  + " " + breake,
 																		  currancy: atm.currency.rawValue, cashIn: abc)
 			mapView.centerToLocation(CLLocation(latitude: annotation.coordinate.latitude,
@@ -985,7 +955,3 @@ extension MKMapView {
 		setRegion(coordinateRegion, animated: true)
 	}
 }
-// В отдельной ветке улучшить предыдущие задание, добавив туда:
-// Сохранение всех точек в CoreData так, чтобы приложение работало без интернет-соединения, отображая точки на карте.
-// Пересмотреть архитектуру приложения, чтобы оно соответствовало принципам SOLID и Clean Architecture.
-// Использовать архитектуру Clean Swift
