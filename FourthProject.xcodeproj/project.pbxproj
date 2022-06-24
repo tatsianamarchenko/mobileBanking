@@ -25,8 +25,6 @@
 		BF5986C827DBD15F00337FFF /* InfoboxData+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF5986C227DBD15F00337FFF /* InfoboxData+CoreDataProperties.swift */; };
 		BF8A19E427D36D0200524883 /* FilterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8A19E327D36D0200524883 /* FilterViewController.swift */; };
 		BF943B9027D65DB2007557CB /* ButtomPresentationBranchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF943B8F27D65DB2007557CB /* ButtomPresentationBranchViewController.swift */; };
-		BF943B9327D663E4007557CB /* ButtomPresentationInfoboxViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF943B9227D663E4007557CB /* ButtomPresentationInfoboxViewController.swift */; };
-		BFAC088C27C651E9003B1F21 /* ButtomPresentationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFAC088B27C651E9003B1F21 /* ButtomPresentationViewController.swift */; };
 		BFB7319F27C969DC006CF18A /* SectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFB7319E27C969DC006CF18A /* SectionHeaderView.swift */; };
 		BFC89D8527C44FD8004DBEC9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFC89D8427C44FD8004DBEC9 /* AppDelegate.swift */; };
 		BFC89D8727C44FD8004DBEC9 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFC89D8627C44FD8004DBEC9 /* SceneDelegate.swift */; };
@@ -59,8 +57,6 @@
 		BF5986C227DBD15F00337FFF /* InfoboxData+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InfoboxData+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
 		BF8A19E327D36D0200524883 /* FilterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterViewController.swift; sourceTree = "<group>"; };
 		BF943B8F27D65DB2007557CB /* ButtomPresentationBranchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtomPresentationBranchViewController.swift; sourceTree = "<group>"; };
-		BF943B9227D663E4007557CB /* ButtomPresentationInfoboxViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtomPresentationInfoboxViewController.swift; sourceTree = "<group>"; };
-		BFAC088B27C651E9003B1F21 /* ButtomPresentationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtomPresentationViewController.swift; sourceTree = "<group>"; };
 		BFB7319E27C969DC006CF18A /* SectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeaderView.swift; sourceTree = "<group>"; };
 		BFC89D8127C44FD8004DBEC9 /* FourthProject.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FourthProject.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BFC89D8427C44FD8004DBEC9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -120,7 +116,7 @@
 		BF10002927C57D94006C4E07 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				BFCB4EB727CF81F100D7A056 /* Annotations */,
+				BFCB4EB727CF81F100D7A056 /* Annotation */,
 				BF1C6DF42864D45E00C94383 /* ATMsModel.swift */,
 				BF1C6DF52864D45E00C94383 /* BranchesModel.swift */,
 				BF1C6DF62864D45E00C94383 /* InfoboxModel.swift */,
@@ -131,7 +127,7 @@
 		BF10002A27C57D9C006C4E07 /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
-				BF943B9127D663BD007557CB /* ButtomPresentationVC */,
+				BF943B8F27D65DB2007557CB /* ButtomPresentationBranchViewController.swift */,
 				BFC89D8827C44FD8004DBEC9 /* MainViewController.swift */,
 				BF10002E27C5AE96006C4E07 /* FullInformationViewController.swift */,
 				BF10002027C53646006C4E07 /* DetailedCollectionCollectionViewController.swift */,
@@ -147,16 +143,6 @@
 				BFB7319E27C969DC006CF18A /* SectionHeaderView.swift */,
 			);
 			path = Views;
-			sourceTree = "<group>";
-		};
-		BF943B9127D663BD007557CB /* ButtomPresentationVC */ = {
-			isa = PBXGroup;
-			children = (
-				BFAC088B27C651E9003B1F21 /* ButtomPresentationViewController.swift */,
-				BF943B9227D663E4007557CB /* ButtomPresentationInfoboxViewController.swift */,
-				BF943B8F27D65DB2007557CB /* ButtomPresentationBranchViewController.swift */,
-			);
-			path = ButtomPresentationVC;
 			sourceTree = "<group>";
 		};
 		BFC89D7827C44FD8004DBEC9 = {
@@ -197,12 +183,12 @@
 			path = FourthProject;
 			sourceTree = "<group>";
 		};
-		BFCB4EB727CF81F100D7A056 /* Annotations */ = {
+		BFCB4EB727CF81F100D7A056 /* Annotation */ = {
 			isa = PBXGroup;
 			children = (
 				BFCB4EBA27CF828D00D7A056 /* PinAnnotation.swift */,
 			);
-			path = Annotations;
+			path = Annotation;
 			sourceTree = "<group>";
 		};
 		FE05A19A00B58CD620EDC73F /* Frameworks */ = {
@@ -352,7 +338,6 @@
 				BF10002327C536A8006C4E07 /* DetailedCollectionViewCell.swift in Sources */,
 				BF59863C27DA5B5400337FFF /* CoreDataStack.swift in Sources */,
 				BF1C6DF92864D45E00C94383 /* InfoboxModel.swift in Sources */,
-				BFAC088C27C651E9003B1F21 /* ButtomPresentationViewController.swift in Sources */,
 				BF8A19E427D36D0200524883 /* FilterViewController.swift in Sources */,
 				BF1C6DF72864D45E00C94383 /* ATMsModel.swift in Sources */,
 				BF5986C527DBD15F00337FFF /* ATMData+CoreDataClass.swift in Sources */,
@@ -367,7 +352,6 @@
 				BF5986C327DBD15F00337FFF /* BranchData+CoreDataClass.swift in Sources */,
 				BFB7319F27C969DC006CF18A /* SectionHeaderView.swift in Sources */,
 				BFC89D8527C44FD8004DBEC9 /* AppDelegate.swift in Sources */,
-				BF943B9327D663E4007557CB /* ButtomPresentationInfoboxViewController.swift in Sources */,
 				BFC89D8727C44FD8004DBEC9 /* SceneDelegate.swift in Sources */,
 				BF10002527C54EA3006C4E07 /* Constants.swift in Sources */,
 				BF5986C627DBD15F00337FFF /* ATMData+CoreDataProperties.swift in Sources */,

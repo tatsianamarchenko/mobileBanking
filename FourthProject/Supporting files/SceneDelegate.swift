@@ -19,7 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
       let myWindow = UIWindow(windowScene: windowScene)
       let navVC = UINavigationController()
       let viewController = MainViewController()
-      viewController.title = navTitle
+		viewController.title = Constants.share.navTitle
       navVC.viewControllers = [viewController]
       myWindow.rootViewController = navVC
       self.window = myWindow

@@ -10,23 +10,22 @@ import UIKit
 import CoreData
 
 class CoreDataStack: NSObject {
-    
+
     static let sharedInstance = CoreDataStack()
     private override init() {}
-    
+
     // MARK: - Core Data stack
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "FourthProject")
-        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+        container.loadPersistentStores(completionHandler: { (_, error) in
             if let error = error as NSError? {
                 fatalError("Unresolved error \(error), \(error.userInfo)")
             }
         })
         return container
     }()
-    
+
     // MARK: - Core Data Saving support
-    
     func saveContext () {
         let context = persistentContainer.viewContext
         if context.hasChanges {
@@ -41,7 +40,6 @@ class CoreDataStack: NSObject {
 }
 
 extension CoreDataStack {
-    
     func applicationDocumentsDirectory() {
         if let url = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask).last {
             print(url.absoluteString)

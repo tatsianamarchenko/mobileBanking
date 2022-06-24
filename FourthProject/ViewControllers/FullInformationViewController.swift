@@ -10,9 +10,10 @@ import UIKit
 import MapKit
 
 class FullInformationViewController: UIViewController {
-	var atm: ATM?
-	var branch: BranchElement?
-	var infobox: InfoBox?
+	var item: General
+	var itemLng: String
+	var itemLat: String
+
 	private lazy var scrollView: UIScrollView = {
 		let scrollView = UIScrollView()
 		scrollView.alwaysBounceVertical = true
@@ -33,16 +34,16 @@ class FullInformationViewController: UIViewController {
 	}()
 
 	private lazy var atmStack: UIStackView = {
-		if let atm = atm {
-			let stack = createStack(contentLableText: atm.atmID, name: "ID")
+		if let atm = item as? AtmElement {
+			let stack = createStack(contentLableText: atm.itemID, name: "ID")
 			return stack
 		}
-		if let branch = branch {
-			let stack = createStack(contentLableText: branch.branchID, name: "ID")
+		if let branch = item as? BranchElement {
+			let stack = createStack(contentLableText: branch.itemID, name: "ID")
 			return stack
 		}
-		if let infobox = infobox {
-			let stack = createStack(contentLableText: String(infobox.infoID!), name: "ID")
+		if let infobox = item as? InfoBoxElement {
+			let stack = createStack(contentLableText: String(infobox.itemID!), name: "ID")
 			return stack
 		}
 
@@ -50,31 +51,31 @@ class FullInformationViewController: UIViewController {
 	}()
 
 	private lazy var typeStack: UIStackView = {
-		if let atm = atm {
-		let stack = createStack(contentLableText: atm.type.rawValue, name: "Тип")
+		if let atm = item as? AtmElement {
+		let stack = createStack(contentLableText: atm.type, name: "Тип")
 		return stack
 		}
-		if let branch = branch {
-			let stack = createStack(contentLableText: branch.name, name: "Название")
+		if let branch = item as? BranchElement {
+			let stack = createStack(contentLableText: branch.type, name: "Название")
 		return stack
 		}
-		if let infobox = infobox {
-			let stack = createStack(contentLableText: infobox.infType! , name: "Тип")
+		if let infobox = item as? InfoBoxElement {
+			let stack = createStack(contentLableText: infobox.infType!, name: "Тип")
 		return stack
 		}
 		return UIStackView()
 	}()
 
 	private lazy var currencyStack: UIStackView = {
-		if let atm = atm {
+		if let atm = item as? AtmElement {
 			let stack = createStack(contentLableText: atm.currency.rawValue, name: "Валюта")
 		return stack
 		}
-		if let branch = branch {
+		if let branch = item as? BranchElement {
 			let stack = createStack(contentLableText: branch.information.segment, name: "Сегмент")
 		return stack
 		}
-		if let infobox = infobox {
+		if let infobox = item as? InfoBoxElement {
 			let stack = createStack(contentLableText: infobox.currency!, name: "Валюта")
 		return stack
 		}
@@ -82,17 +83,17 @@ class FullInformationViewController: UIViewController {
 	}()
 
 	private lazy var cardsStack: UIStackView = {
-		if let atm = atm {
+		if let atm = item as? AtmElement {
 			let content = atm.cards.map { "\($0)" }
 			let stack = createStack(contentLableText: content.formatted(), name: "Карты")
 			return stack
 		}
-		if let branch = branch {
+		if let branch = item as? BranchElement {
 			let content = String( branch.wifi)
 			let stack = createStack(contentLableText: content, name: "Wi-Fi")
 			return stack
 		}
-		if let infobox = infobox {
+		if let infobox = item as? InfoBoxElement {
 			let content = infobox.infPrinter
 			let stack = createStack(contentLableText: content!, name: "Чек")
 			return stack
@@ -101,15 +102,15 @@ class FullInformationViewController: UIViewController {
 	}()
 
 	private lazy var addessStack: UIStackView = {
-		if let atm = atm {
+		if let atm = item as? AtmElement {
 			let stack = createStack(contentLableText: atm.address.addressLine, name: "Адрес")
 			return stack
 		}
-		if let branch = branch {
+		if let branch = item as? BranchElement {
 			let stack = createStack(contentLableText: branch.address.addressLine, name: "Адрес")
 			return stack
 		}
-		if let infobox = infobox {
+		if let infobox = item as? InfoBoxElement {
 			let stack = createStack(contentLableText: infobox.address!, name: "Адрес")
 			return stack
 		}
@@ -117,17 +118,17 @@ class FullInformationViewController: UIViewController {
 	}()
 
 	private lazy var serviceStack: UIStackView = {
-		if let atm = atm {
+		if let atm = item as? AtmElement {
 			let content = atm.services.map { "\($0.serviceType.rawValue)" }
 			let stack = createStack(contentLableText: content.formatted(), name: "Сервисы")
 			return stack
 		}
-		if let branch = branch {
+		if let branch = item as? BranchElement {
 			let content = branch.services.currencyExchange[0].exchangeRate + " " + branch.services.currencyExchange[0].sourceCurrency
 		let stack = createStack(contentLableText: content, name: "exchangeRate")
 			return stack
 		}
-		if let infobox = infobox {
+		if let infobox = item as? InfoBoxElement {
 			let content = infobox.cashInExist
 			let stack = createStack(contentLableText: content!, name: "Сервисы")
 			return stack
@@ -137,7 +138,7 @@ class FullInformationViewController: UIViewController {
 
 	private lazy var availabilityStack: UIStackView = {
 		var time: String
-		if let atm = atm {
+		if let atm = item as? AtmElement {
 			if atm.availability.access24Hours {
 				time = "Круглосуточно"
 			} else {
@@ -148,7 +149,7 @@ class FullInformationViewController: UIViewController {
 									name: "На данный момент")
 			return stack
 		}
-		if let branch = branch {
+		if let branch = item as? BranchElement {
 			time = branch.information.availability.standardAvailability.day[0].openingTime
 			+ "-" + branch.information.availability.standardAvailability.day[0].closingTime
 
@@ -156,7 +157,7 @@ class FullInformationViewController: UIViewController {
 									name: "На данный момент")
 			return stack
 		}
-		if let infobox = infobox {
+		if let infobox = item as? InfoBoxElement {
 
 			time = infobox.timeLong!
 			let stack = createStack(contentLableText: time,
@@ -168,7 +169,7 @@ class FullInformationViewController: UIViewController {
 
 	private lazy var contactDetailsStack: UIStackView = {
 		let phone: String
-		if let atm = atm {
+		if let atm = item as? AtmElement {
 			if atm.contactDetails.phoneNumber == "" {
 				phone = "недоступно"
 			} else {
@@ -177,11 +178,11 @@ class FullInformationViewController: UIViewController {
 			let stack = createStack(contentLableText: phone, name: "Контактная информация")
 			return stack
 		}
-		if let branch = branch {
+		if let branch = item as? BranchElement {
 			let stack = createStack(contentLableText: branch.information.contactDetails.phoneNumber , name: "Контактная информация")
 			return stack
 		}
-		if let infobox = infobox {
+		if let infobox = item as? InfoBoxElement {
 			let stack = createStack(contentLableText: "нет информации", name: "Контактная информация")
 			return stack
 		}
@@ -189,27 +190,19 @@ class FullInformationViewController: UIViewController {
 	}()
 
 	private lazy var otherStack: UIStackView = {
-		if let atm = atm {
+		if let atm = item as? AtmElement {
 		let stack = createStack(contentLableText: atm.baseCurrency.rawValue, name: "Базовая валюта")
 			return stack
 		}
 		return UIStackView()
 	}()
 
-	init(atm: ATM?, branch: BranchElement?, infobox: InfoBox?) {
+	init(item: General, itemLng: String, itemLat: String, title: String) {
+		self.itemLat = itemLat
+		self.itemLng = itemLng
+		self.item = item
 		super.init(nibName: nil, bundle: nil)
-		if let atm = atm {
-			self.atm = atm
-			title = atm.address.townName
-		}
-		if let branch = branch {
-			self.branch = branch
-			title = branch.address.addressLine
-		}
-		if let infobox = infobox {
-			self.infobox = infobox
-			title = infobox.address
-		}
+		self.title = title
 	}
 
 	required init?(coder: NSCoder) {
@@ -240,48 +233,19 @@ class FullInformationViewController: UIViewController {
 	}
 
 	@objc func createRoute() {
-		if let atm = atm {
-			guard let lat = Double(atm.address.geolocation.geographicCoordinates.latitude) else {
-				return
-			}
-			guard  let lng = Double(atm.address.geolocation.geographicCoordinates.longitude) else {
-				return
-			}
-			let source = MKMapItem(coordinate: .init(latitude: lat, longitude: lng), name: "Source")
-			let destination = MKMapItem(coordinate: .init(latitude: lat, longitude: lng), name: "Destination")
-
-			MKMapItem.openMaps(
-				with: [source, destination],
-				launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving]
-			)
+		guard let lat = Double(itemLat) else {
+			return
 		}
-		if let branch = branch {
-			guard let lat = Double(branch.address.geoLocation.geographicCoordinates.latitude) else {
-				return
-			}
-			guard  let lng = Double(branch.address.geoLocation.geographicCoordinates.latitude) else {
-				return
-			}
-			let source = MKMapItem(coordinate: .init(latitude: lat, longitude: lng), name: "Source")
-			let destination = MKMapItem(coordinate: .init(latitude: lat, longitude: lng), name: "Destination")
-
-			MKMapItem.openMaps(
-				with: [source, destination],
-				launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving]
-			)
+		guard  let lng = Double(itemLng) else {
+			return
 		}
+		let source = MKMapItem(coordinate: .init(latitude: lat, longitude: lng), name: "Source")
+		let destination = MKMapItem(coordinate: .init(latitude: lat, longitude: lng), name: "Destination")
 
-		if let infobox = infobox {
-			guard let lat = Double(infobox.gpsX! ) else {return}
-			guard  let lng = Double(infobox.gpsY! ) else {return}
-			let source = MKMapItem(coordinate: .init(latitude: lat, longitude: lng), name: "Source")
-			let destination = MKMapItem(coordinate: .init(latitude: lat, longitude: lng), name: "Destination")
-
-			MKMapItem.openMaps(
-				with: [source, destination],
-				launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving]
-			)
-		}
+		MKMapItem.openMaps(
+			with: [source, destination],
+			launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving]
+		)
 	}
 
 	@objc func done () {
@@ -297,47 +261,47 @@ class FullInformationViewController: UIViewController {
 
 		atmStack.snp.makeConstraints { (make) -> Void in
 			make.centerX.equalToSuperview()
-			make.top.equalTo(scrollView).inset(sideOffset)
+			make.top.equalTo(scrollView).inset(Constants.share.sideOffset)
 		}
 
 		typeStack.snp.makeConstraints { (make) -> Void in
 			make.centerX.equalToSuperview()
-			make.top.equalTo(atmStack.snp_bottomMargin).inset(-sideOffset)
+			make.top.equalTo(atmStack.snp_bottomMargin).inset(-Constants.share.sideOffset)
 		}
 
 		cardsStack.snp.makeConstraints { (make) -> Void in
 			make.centerX.equalToSuperview()
-			make.top.equalTo(typeStack.snp_bottomMargin).inset(-sideOffset)
+			make.top.equalTo(typeStack.snp_bottomMargin).inset(-Constants.share.sideOffset)
 		}
 
 		addessStack.snp.makeConstraints { (make) -> Void in
 			make.centerX.equalToSuperview()
-			make.top.equalTo(cardsStack.snp_bottomMargin).inset(-sideOffset)
+			make.top.equalTo(cardsStack.snp_bottomMargin).inset(-Constants.share.sideOffset)
 		}
 
 		serviceStack.snp.makeConstraints { (make) -> Void in
 			make.centerX.equalToSuperview()
-			make.top.equalTo(addessStack.snp_bottomMargin).inset(-sideOffset)
+			make.top.equalTo(addessStack.snp_bottomMargin).inset(-Constants.share.sideOffset)
 		}
 
 		currencyStack.snp.makeConstraints { (make) -> Void in
 			make.centerX.equalToSuperview()
-			make.top.equalTo(serviceStack.snp_bottomMargin).inset(-sideOffset)
+			make.top.equalTo(serviceStack.snp_bottomMargin).inset(-Constants.share.sideOffset)
 		}
 
 		availabilityStack.snp.makeConstraints { (make) -> Void in
 			make.centerX.equalToSuperview()
-			make.top.equalTo(currencyStack.snp_bottomMargin).inset(-sideOffset)
+			make.top.equalTo(currencyStack.snp_bottomMargin).inset(-Constants.share.sideOffset)
 		}
 
 		otherStack.snp.makeConstraints { (make) -> Void in
 			make.centerX.equalToSuperview()
-			make.top.equalTo(availabilityStack.snp_bottomMargin).inset(-sideOffset)
+			make.top.equalTo(availabilityStack.snp_bottomMargin).inset(-Constants.share.sideOffset)
 		}
 
 		contactDetailsStack.snp.makeConstraints { (make) -> Void in
 			make.centerX.equalToSuperview()
-			make.top.equalTo(otherStack.snp_bottomMargin).inset(-sideOffset)
+			make.top.equalTo(otherStack.snp_bottomMargin).inset(-Constants.share.sideOffset)
 		}
 
 		routButton.snp.makeConstraints { (make) -> Void in

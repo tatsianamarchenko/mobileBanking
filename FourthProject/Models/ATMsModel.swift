@@ -16,7 +16,7 @@ struct ATMResponse: Codable {
 }
 // MARK: - DataClass
 struct DataInfo: Codable {
-  var atm: [ATM]
+  var atm: [AtmElement]
 
     enum CodingKeys: String, CodingKey {
         case atm = "ATM"
@@ -24,13 +24,13 @@ struct DataInfo: Codable {
 }
 
 // MARK: - ATM
-struct ATM: Codable, General {
+struct AtmElement: Codable, General {
 	var coor: GeographicCoordinates?
-    let atmID: String
-    let type: TypeEnum
+    let itemID: String
+    let type: String
     let baseCurrency, currency: Currency
     let cards: [Card]
-    let currentStatus: CurrentStatus
+    let currentStatus: String
     let address: Address
     let services: [Service]
     let availability: Availability
@@ -38,7 +38,7 @@ struct ATM: Codable, General {
     let accessibilities: Accessibilities?
 
     enum CodingKeys: String, CodingKey {
-        case atmID = "atmId"
+        case itemID = "atmId"
         case type, baseCurrency, currency, cards, currentStatus
         case address = "Address"
         case services = "Services"
@@ -92,38 +92,14 @@ enum ServiceType: String, Codable {
 
 // MARK: - Address
 struct Address: Codable {
-    let streetName, buildingNumber, townName: String
-    let countrySubDivision: CountrySubDivision
-    let country: Country
-    let addressLine: String
-    let addressDescription: AddressDescription
-    let geolocation: Geolocation
+    let streetName, buildingNumber, townName, countrySubDivision, country, addressLine, addressDescription: String
+    var geolocation: Geolocation
 
     enum CodingKeys: String, CodingKey {
         case streetName, buildingNumber, townName, countrySubDivision, country, addressLine
         case addressDescription = "description"
         case geolocation = "Geolocation"
     }
-}
-
-enum AddressDescription: String, Codable {
-    case внешний = "Внешний"
-    case внутренний = "Внутренний"
-    case уличный = "Уличный"
-}
-
-enum Country: String, Codable {
-    case by = "BY"
-}
-
-enum CountrySubDivision: String, Codable {
-    case брестская = "Брестская"
-    case витебская = "Витебская"
-    case гомельская = "Гомельская"
-    case гродненская = "Гродненская"
-    case минск = "Минск"
-    case минская = "Минская"
-    case могилевская = "Могилевская"
 }
 
 // MARK: - Geolocation
@@ -198,13 +174,4 @@ enum Card: String, Codable {
 // MARK: - ContactDetails
 struct ContactDetails: Codable {
     let phoneNumber: String
-}
-
-enum CurrentStatus: String, Codable {
-    case off = "Off"
-    case on = "On"
-}
-
-enum TypeEnum: String, Codable {
-    case atm = "ATM"
 }

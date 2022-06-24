@@ -19,9 +19,9 @@ struct Section: General {
 }
 
 class DetailedCollectionViewController: UIViewController, UICollectionViewDelegateFlowLayout {
-	public var complitionATM: ((ATM?) -> Void)?
+	public var complitionATM: ((AtmElement?) -> Void)?
 	public var complitionBranch: ((BranchElement?) -> Void)?
-	public var complitionInfobox: ((InfoBox?) -> Void)?
+	public var complitionInfobox: ((InfoBoxElement?) -> Void)?
 	var sectionATM = [Section]()
 	var sectionBranch = [Section]()
 	var sectionInfobox = [Section]()
@@ -111,14 +111,14 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 			self.view.isUserInteractionEnabled = false
 			self.addSpinner()
 			group.enter()
-			apiService.getJSON(urlString: urlATMsString,
+			apiService.getJSON(urlString: Constants.share.urlATMsString,
 							   runQueue: .global(),
 							   complitionQueue: .main) { (result: Result<ATMResponse, CustomError>) in
 				switch result {
 				case .success(let atms) :
 					self.sectionATM.removeAll()
-					let sectionItems = Dictionary(grouping: atms.data.atm.sorted {$0.atmID <
-						$1.atmID},
+					let sectionItems = Dictionary(grouping: atms.data.atm.sorted {$0.itemID <
+						$1.itemID},
 												  by: { String($0.address.townName) })
 					for index in 0..<sectionItems.count {
 						self.section[0].append(Section(sectionName: Array(sectionItems.keys)[index],
@@ -139,13 +139,13 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 			}
 
 			DispatchQueue.global(qos: .userInteractive).async {
-				apiService.getJSON(urlString: urlInfoboxString,
+				apiService.getJSON(urlString: Constants.share.urlInfoboxString,
 								   runQueue: .global(),
-								   complitionQueue: .main) { (result: Result<[InfoBox], CustomError>) in
+								   complitionQueue: .main) { (result: Result<[InfoBoxElement], CustomError>) in
 					switch result {
 					case .success(let infobox) :
 						self.sectionBranch.removeAll()
-						let sectionItems = Dictionary(grouping: infobox.sorted {$0.infoID! < $1.infoID!},
+						let sectionItems = Dictionary(grouping: infobox.sorted {$0.itemID! < $1.itemID!},
 													  by: {$0.city!})
 						for index in 0..<sectionItems.count {
 							self.sectionInfobox.append(Section(sectionName: Array(sectionItems.keys)[index],
@@ -156,13 +156,13 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 					case .failure(let error) :
 						self.addingToSectionsSingle(array: self.sectionBranch)
 					}
-					apiService.getJSON(urlString: urlInfoboxString,
+					apiService.getJSON(urlString: Constants.share.urlInfoboxString,
 									   runQueue: .global(),
-									   complitionQueue: .main) { (result: Result<[InfoBox], CustomError>) in
+									   complitionQueue: .main) { (result: Result<[InfoBoxElement], CustomError>) in
 						switch result {
 						case .success(let infobox) :
 							self.sectionInfobox.removeAll()
-							let sectionItems = Dictionary(grouping: infobox.sorted {$0.infoID! < $1.infoID!},
+							let sectionItems = Dictionary(grouping: infobox.sorted {$0.itemID! < $1.itemID!},
 														  by: {$0.city!})
 							for index in 0..<sectionItems.count {
 								self.sectionInfobox.append(Section(sectionName: Array(sectionItems.keys)[index],
@@ -250,7 +250,7 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 		addSpinner()
 		group.enter()
 		//	let minskCoordinates = GeographicCoordinates(latitude: "52.425163", longitude: "31.015039")
-		apiService.getJSON(urlString: urlATMsString,
+		apiService.getJSON(urlString: Constants.share.urlATMsString,
 						   runQueue: .global(),
 						   complitionQueue: .main) { [self](result: Result<ATMResponse, CustomError>) in
 			switch result {
@@ -289,9 +289,9 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 		}
 
 		group.enter()
-		apiService.getJSON(urlString: urlInfoboxString,
+		apiService.getJSON(urlString: Constants.share.urlInfoboxString,
 						   runQueue: .global(),
-						   complitionQueue: .main) { [self] (result: Result<[InfoBox], CustomError>) in
+						   complitionQueue: .main) { [self] (result: Result<[InfoBoxElement], CustomError>) in
 			switch result {
 			case .success(var infobox) :
 
@@ -325,7 +325,7 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 		}
 
 		group.enter()
-		apiService.getJSON(urlString: urlbBranchesString,
+		apiService.getJSON(urlString: Constants.share.urlbBranchesString,
 						   runQueue: .global(),
 						   complitionQueue: .main) { [self] (result: Result<Branch, CustomError>) in
 			switch result {
@@ -333,8 +333,8 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 
 				for i in 0..<branch.data.branch.count {
 					branch.data.branch[i].coor = GeographicCoordinates(latitude:
-																		branch.data.branch[i].address.geoLocation.geographicCoordinates.latitude,
-																	   longitude: branch.data.branch[i].address.geoLocation.geographicCoordinates.longitude)
+																		branch.data.branch[i].address.geolocation.geographicCoordinates.latitude,
+																	   longitude: branch.data.branch[i].address.geolocation.geographicCoordinates.longitude)
 				}
 				let sectionItems = Dictionary(grouping: branch.data.branch, by: { String($0.address.townName) })
 				for index in 0..<sectionItems.count {
@@ -463,12 +463,12 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
 		guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier:
 																DetailedCollectionViewCell.reuseIdentifier, for: indexPath)
 				as? DetailedCollectionViewCell else {
-					return UICollectionViewCell()
-				}
+			return UICollectionViewCell()
+		}
 
 		if let item = self.sections[indexPath.section].rowData[indexPath.row] as? Section {
 			let q = item.rowData as [General]
-			if let infobox = q as? [InfoBox] {
+			if let infobox = q as? [InfoBoxElement] {
 				for i in 0..<infobox.count {
 					let infobox = infobox[i]
 					cell.timeLabel.text = infobox.workTime!
@@ -476,7 +476,7 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
 					cell.currancyLabel.text = infobox.currency
 				}
 			}
-			if	let atm = q as? [ATM] {
+			if	let atm = q as? [AtmElement] {
 				for i in 0..<atm.count {
 					let atm = atm[i]
 					cell.timeLabel.text = atm.availability.standardAvailability.day[0].openingTime
@@ -521,16 +521,16 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
 	func collectionView(_ collectionView: UICollectionView,
 						layout collectionViewLayout: UICollectionViewLayout,
 						referenceSizeForHeaderInSection section: Int) -> CGSize {
-		return CGSize(width: cellHeaderWidth, height: cellHeaderHeight)
+		return CGSize(width: Constants.share.cellHeaderWidth, height: Constants.share.cellHeaderHeight)
 	}
 
 	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 		navigationController?.popToRootViewController(animated: true)
 		if let item = self.sections[indexPath.section].rowData[indexPath.row] as? Section {
 			let q = item.rowData as [General]
-			if let atm = q as? [ATM] {
+			if let atm = q as? [AtmElement] {
 				complitionATM?(atm[indexPath.item])
-			} else if let infobox = q as? [InfoBox] {
+			} else if let infobox = q as? [InfoBoxElement] {
 				complitionInfobox?(infobox[indexPath.item])
 			} else if let branch = q as? [BranchElement] {
 				complitionBranch?(branch[indexPath.item])
@@ -541,7 +541,7 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
 	func collectionView(_ collectionView: UICollectionView,
 						layout collectionViewLayout: UICollectionViewLayout,
 						sizeForItemAt indexPath: IndexPath) -> CGSize {
-		return CGSize(width: widthCell, height: heightCell)
+		return CGSize(width: Constants.share.widthCell, height: Constants.share.heightCell)
 	}
 
 	func collectionView(_ collectionView: UICollectionView,
@@ -552,12 +552,12 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
 	func collectionView(_ collectionView: UICollectionView,
 						layout collectionViewLayout: UICollectionViewLayout,
 						minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-		return cellOffset
+		return Constants.share.cellOffset
 	}
 
 	func collectionView(_ collectionView: UICollectionView,
 						layout collectionViewLayout: UICollectionViewLayout,
 						insetForSectionAt section: Int) -> UIEdgeInsets {
-		return UIEdgeInsets(top: cellOffset, left: sideOffsetCell, bottom: cellOffset, right: sideOffsetCell)
+		return UIEdgeInsets(top: Constants.share.cellOffset, left: Constants.share.sideOffsetCell, bottom: Constants.share.cellOffset, right: Constants.share.sideOffsetCell)
 	}
 }

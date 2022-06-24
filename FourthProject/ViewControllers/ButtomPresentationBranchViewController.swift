@@ -2,15 +2,19 @@
 //  ButtomPresentationViewController.swift
 //  FourthProject
 //
-//  Created by Tatsiana Marchanka on 23.02.22.
+//  Created by Tatsiana Marchanka on 7.03.22.
 //
 
 import UIKit
 
-class ButtomPresentationATMViewController: UIViewController {
-	
-	public var complition: (([ATM]) -> Void)?
-	private var atm: ATM
+class ButtomPresentationViewController: UIViewController {
+
+	public var complition: (([General]) -> Void)?
+
+	private var item: General
+	private var itemLng: String
+	private var itemLat: String
+
 	private lazy var infoButton: UIButton = {
 		var button = UIButton(type: .roundedRect)
 		button.setTitle("open full  info", for: .normal)
@@ -22,37 +26,40 @@ class ButtomPresentationATMViewController: UIViewController {
 		button.addTarget(self, action: #selector(openFullInfoVC), for: .touchUpInside)
 		return button
 	}()
-	
-	private lazy var adressOfATMLable = UILabel()
+
+	private lazy var adressOfItemLable = UILabel()
 	private lazy var timeOfWorkLable = UILabel()
 	private lazy var currancyLable = UILabel()
 	private lazy var cashInLable = UILabel()
-	
+
 	private lazy var placeStack: UIStackView = {
-		let stack = createStack(contentLable: adressOfATMLable, name: "Место установки банкомата")
+		let stack = createStack(contentLable: adressOfItemLable, name: "Место установки банкомата")
 		return stack
 	}()
-	
+
 	private lazy var timeStack: UIStackView = {
 		let stack = createStack(contentLable: timeOfWorkLable, name: "Режим работы")
 		return stack
 	}()
-	
+
 	private lazy var currenceStack: UIStackView = {
 		let stack = createStack(contentLable: currancyLable, name: "Выдаваемая валюта")
 		return stack
 	}()
-	
+
 	private lazy var cashInStack: UIStackView = {
 		let stack = createStack(contentLable: cashInLable, name: "Cash in")
 		return stack
 	}()
-	
-	init(adressOfATM: String, atm: ATM, timeOfWork: String, currancy: String, cashIn: String) {
-		self.atm = atm
+
+	init(adressOfATM: String, item: General, timeOfWork: String, currancy: String, cashIn: String,
+		title: String, itemLng: String, itemLat: String) {
+		self.item = item
+		self.itemLat = itemLat
+		self.itemLng = itemLng
 		super.init(nibName: nil, bundle: nil)
-		title = atm.address.townName
-		self.adressOfATMLable.text = adressOfATM
+		self.title = title
+		self.adressOfItemLable.text = adressOfATM
 		self.timeOfWorkLable.text = timeOfWork
 		self.currancyLable.text = currancy
 		self.cashInLable.text = cashIn
@@ -103,7 +110,7 @@ class ButtomPresentationATMViewController: UIViewController {
 			make.top.equalTo(currenceStack.snp_bottomMargin).inset(-3)
 		}
 		infoButton.snp.makeConstraints { (make) -> Void in
-			make.leading.trailing.equalToSuperview().inset(screenSize.width*0.05)
+			make.leading.trailing.equalToSuperview().inset(Constants.share.screenSize.width*0.05)
 			make.bottom.equalToSuperview().inset(80)
 		}
 	}
@@ -132,13 +139,16 @@ class ButtomPresentationATMViewController: UIViewController {
 		}
 		contentLable.snp.makeConstraints { (make) -> Void in
 			make.centerX.equalToSuperview()
-			make.top.equalTo(lableName.snp_topMargin).inset(sideOffset)
+			make.top.equalTo(lableName.snp_topMargin).inset(Constants.share.sideOffset)
 		}
 		return stack
 	}
 
 	@objc func openFullInfoVC() {
-		let detailNavController = FullInformationViewController(atm: atm, branch: nil, infobox: nil)
+		let detailNavController = FullInformationViewController(item: item,
+																itemLng: itemLng,
+																itemLat: itemLat,
+																title: item.coor?.longitude.description ?? "")
 		let navController = UINavigationController(rootViewController: detailNavController)
 		present(navController, animated: true, completion: nil)
 	}

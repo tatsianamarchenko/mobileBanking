@@ -28,15 +28,15 @@ struct DataClass: Codable {
 // MARK: - Branch
 struct BranchElement: Codable, General {
 	var coor: GeographicCoordinates?
-	let branchID, name, cbu, accountNumber: String
+	let itemID, type, cbu, accountNumber: String
 	let equeue, wifi: Int
 	var address: AddressBranch
 	let information: InformationBranch
 	let services: ServicesBranch
 
 	enum CodingKeys: String, CodingKey {
-		case branchID = "branchId"
-		case name
+		case itemID = "branchId"
+		case type = "name"
 		case cbu = "CBU"
 		case accountNumber, equeue, wifi
 		case address = "Address"
@@ -66,30 +66,14 @@ struct AccessibilityBranch: Codable {
 
 // MARK: - Address
 struct AddressBranch: Codable {
-	let streetName, buildingNumber, department, postCode: String
-	let townName, countrySubDivision, country, addressLine: String
-	var addressDescription: String
-	var geoLocation: GeoLocationBranch
+	let streetName, buildingNumber, townName, countrySubDivision, country, addressDescription, addressLine: String
+	var geolocation: Geolocation
 
 	enum CodingKeys: String, CodingKey {
-		case streetName, buildingNumber, department, postCode, townName, countrySubDivision, country, addressLine
+		case streetName, buildingNumber, townName, countrySubDivision, country, addressLine
 		case addressDescription = "description"
-		case geoLocation = "GeoLocation"
+		case geolocation = "GeoLocation"
 	}
-}
-
-// MARK: - GeoLocation
-struct GeoLocationBranch: Codable {
-	var geographicCoordinates: GeographicCoordinates
-
-	enum CodingKeys: String, CodingKey {
-		case geographicCoordinates = "GeographicCoordinates"
-	}
-}
-
-// MARK: - GeographicCoordinates
-struct GeographicCoordinatesBranch: Codable {
-	var latitude, longitude: String
 }
 
 // MARK: - Information

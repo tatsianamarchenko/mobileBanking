@@ -8,23 +8,22 @@
 import Foundation
 
 // MARK: - WelcomeElement
-struct InfoBox: Codable, General {
+struct InfoBoxElement: Codable, General {
 	var coor: GeographicCoordinates?
-	let infoID: Int?
+	let itemID: Int?
 	let area: Area?
 	let cityType: String?
 	let city: String?
 	let addressType: String?
 	let address, house: String?
 	let installPlace: String?
-	let locationNameDesc, workTime, timeLong, gpsX: String?
-	let gpsY: String?
+	let locationNameDesc, workTime, timeLong, gpsX, gpsY: String?
 	let currency: String?
 	let infType: String?
 	let cashInExist, cashIn, typeCashIn, infPrinter: String?
 	let regionPlatej, popolneniePlatej, infStatus: String?
 	enum CodingKeys: String, CodingKey {
-		case infoID = "info_id"
+		case itemID = "info_id"
 		case area
 		case cityType = "city_type"
 		case city
