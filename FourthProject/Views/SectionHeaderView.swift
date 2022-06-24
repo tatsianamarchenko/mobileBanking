@@ -9,42 +9,44 @@ import UIKit
 
 class SectionHeaderView: UICollectionViewCell {
 
-    static var reuseId = "reuseId"
+	static var reuseId = "reuseId"
 
-    var title: UILabel = {
-      var lable = UILabel()
-      lable.textColor = .label
-      lable.font = .systemFont(ofSize: 30, weight: .bold)
+	var title: UILabel = {
+		var lable = UILabel()
+		lable.textColor = .label
+		lable.font = .systemFont(ofSize: 25, weight: .bold)
+		lable.lineBreakMode = .byWordWrapping
+		lable.lineBreakStrategy = .pushOut
+		lable.textAlignment = .center
+		lable.numberOfLines = 3
+		return lable
+	}()
 
-      lable.font.withSize(30)
-      lable.lineBreakMode = .byWordWrapping
-      lable.lineBreakStrategy = .pushOut
-      lable.textAlignment = .center
-      lable.numberOfLines = 0
-      return lable
-    }()
+	override init(frame: CGRect) {
+		super.init(frame: frame)
+	}
 
-    override init(frame: CGRect) {
-      super.init(frame: frame)
-    }
+	required init?(coder: NSCoder) {
+		fatalError("init(coder:) has not been implemented")
+	}
 
-    required init?(coder: NSCoder) {
-      fatalError("init(coder:) has not been implemented")
-    }
+	override func layoutSubviews() {
+		super.layoutSubviews()
+		self.addSubview(title)
+		backgroundColor = .systemGray5
+		makeConstraints()
 
-  override func layoutSubviews() {
-    super.layoutSubviews()
-    self.addSubview(title)
-    backgroundColor = .systemGray5
+	}
 
-    title.snp.makeConstraints { (make) -> Void in
-      make.centerX.equalTo(contentView).inset(30)
-      make.width.equalToSuperview()
-      make.top.equalTo(contentView.snp_topMargin).inset(10)
-    }
-  }
+	private func makeConstraints() {
+		title.snp.makeConstraints { (make) -> Void in
+			make.centerX.equalTo(contentView).inset(30)
+			make.width.equalToSuperview()
+			make.top.equalTo(contentView.snp_topMargin).inset(10)
+		}
+	}
 
-    func setTitle(title: String) {
-      self.title.text = title
-    }
-  }
+	func setTitle(title: String) {
+		self.title.text = title
+	}
+}

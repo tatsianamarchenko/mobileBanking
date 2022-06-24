@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		BF10001D27C50B1F006C4E07 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10001C27C50B1F006C4E07 /* APIService.swift */; };
 		BF10002127C53646006C4E07 /* DetailedCollectionCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002027C53646006C4E07 /* DetailedCollectionCollectionViewController.swift */; };
 		BF10002327C536A8006C4E07 /* DetailedCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002227C536A8006C4E07 /* DetailedCollectionViewCell.swift */; };
 		BF10002527C54EA3006C4E07 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF10002427C54EA3006C4E07 /* Constants.swift */; };
@@ -15,6 +14,9 @@
 		BF1C6DF72864D45E00C94383 /* ATMsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF1C6DF42864D45E00C94383 /* ATMsModel.swift */; };
 		BF1C6DF82864D45E00C94383 /* BranchesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF1C6DF52864D45E00C94383 /* BranchesModel.swift */; };
 		BF1C6DF92864D45E00C94383 /* InfoboxModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF1C6DF62864D45E00C94383 /* InfoboxModel.swift */; };
+		BF1C6DFD2865FE0700C94383 /* NetworkDataFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF1C6DFB2865FE0600C94383 /* NetworkDataFetcher.swift */; };
+		BF1C6DFE2865FE0700C94383 /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF1C6DFC2865FE0700C94383 /* NetworkService.swift */; };
+		BF1C6E002865FE1600C94383 /* DataFetcherService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF1C6DFF2865FE1600C94383 /* DataFetcherService.swift */; };
 		BF59863A27DA5B2700337FFF /* FourthProject.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BF59863827DA5B2700337FFF /* FourthProject.xcdatamodeld */; };
 		BF59863C27DA5B5400337FFF /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF59863B27DA5B5400337FFF /* CoreDataStack.swift */; };
 		BF5986C327DBD15F00337FFF /* BranchData+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF5986BD27DBD15F00337FFF /* BranchData+CoreDataClass.swift */; };
@@ -39,7 +41,6 @@
 /* Begin PBXFileReference section */
 		201B40A932CD948C881225CD /* Pods_FourthProject.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FourthProject.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5DCE030AC27323584470EAFB /* Pods-FourthProject.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FourthProject.debug.xcconfig"; path = "Target Support Files/Pods-FourthProject/Pods-FourthProject.debug.xcconfig"; sourceTree = "<group>"; };
-		BF10001C27C50B1F006C4E07 /* APIService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
 		BF10002027C53646006C4E07 /* DetailedCollectionCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedCollectionCollectionViewController.swift; sourceTree = "<group>"; };
 		BF10002227C536A8006C4E07 /* DetailedCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedCollectionViewCell.swift; sourceTree = "<group>"; };
 		BF10002427C54EA3006C4E07 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -47,14 +48,17 @@
 		BF1C6DF42864D45E00C94383 /* ATMsModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ATMsModel.swift; sourceTree = "<group>"; };
 		BF1C6DF52864D45E00C94383 /* BranchesModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BranchesModel.swift; sourceTree = "<group>"; };
 		BF1C6DF62864D45E00C94383 /* InfoboxModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoboxModel.swift; sourceTree = "<group>"; };
+		BF1C6DFB2865FE0600C94383 /* NetworkDataFetcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkDataFetcher.swift; sourceTree = "<group>"; };
+		BF1C6DFC2865FE0700C94383 /* NetworkService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
+		BF1C6DFF2865FE1600C94383 /* DataFetcherService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataFetcherService.swift; sourceTree = "<group>"; };
 		BF59863927DA5B2700337FFF /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		BF59863B27DA5B5400337FFF /* CoreDataStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
-		BF5986BD27DBD15F00337FFF /* BranchData+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BranchData+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
-		BF5986BE27DBD15F00337FFF /* BranchData+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BranchData+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
-		BF5986BF27DBD15F00337FFF /* ATMData+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ATMData+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
-		BF5986C027DBD15F00337FFF /* ATMData+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ATMData+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
-		BF5986C127DBD15F00337FFF /* InfoboxData+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InfoboxData+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
-		BF5986C227DBD15F00337FFF /* InfoboxData+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InfoboxData+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
+		BF5986BD27DBD15F00337FFF /* BranchData+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "BranchData+CoreDataClass.swift"; path = "FourthProject/CoreData/BranchData+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		BF5986BE27DBD15F00337FFF /* BranchData+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "BranchData+CoreDataProperties.swift"; path = "FourthProject/CoreData/BranchData+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
+		BF5986BF27DBD15F00337FFF /* ATMData+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "ATMData+CoreDataClass.swift"; path = "FourthProject/CoreData/ATMData+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		BF5986C027DBD15F00337FFF /* ATMData+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "ATMData+CoreDataProperties.swift"; path = "FourthProject/CoreData/ATMData+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
+		BF5986C127DBD15F00337FFF /* InfoboxData+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "InfoboxData+CoreDataClass.swift"; path = "FourthProject/CoreData/InfoboxData+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		BF5986C227DBD15F00337FFF /* InfoboxData+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "InfoboxData+CoreDataProperties.swift"; path = "FourthProject/CoreData/InfoboxData+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
 		BF8A19E327D36D0200524883 /* FilterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterViewController.swift; sourceTree = "<group>"; };
 		BF943B8F27D65DB2007557CB /* ButtomPresentationBranchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtomPresentationBranchViewController.swift; sourceTree = "<group>"; };
 		BFB7319E27C969DC006CF18A /* SectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeaderView.swift; sourceTree = "<group>"; };
@@ -106,9 +110,9 @@
 		BF10002827C57D70006C4E07 /* Manager */ = {
 			isa = PBXGroup;
 			children = (
-				BF59863B27DA5B5400337FFF /* CoreDataStack.swift */,
 				BF10002427C54EA3006C4E07 /* Constants.swift */,
-				BF10001C27C50B1F006C4E07 /* APIService.swift */,
+				BF1C6E02286622A900C94383 /* CoreDataManager */,
+				BF1C6E012866228E00C94383 /* NetworkManager */,
 			);
 			path = Manager;
 			sourceTree = "<group>";
@@ -145,6 +149,37 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		BF1C6DFA2865FBC800C94383 /* CoreData */ = {
+			isa = PBXGroup;
+			children = (
+				BF5986BD27DBD15F00337FFF /* BranchData+CoreDataClass.swift */,
+				BF5986BE27DBD15F00337FFF /* BranchData+CoreDataProperties.swift */,
+				BF5986BF27DBD15F00337FFF /* ATMData+CoreDataClass.swift */,
+				BF5986C027DBD15F00337FFF /* ATMData+CoreDataProperties.swift */,
+				BF5986C127DBD15F00337FFF /* InfoboxData+CoreDataClass.swift */,
+				BF5986C227DBD15F00337FFF /* InfoboxData+CoreDataProperties.swift */,
+			);
+			path = CoreData;
+			sourceTree = "<group>";
+		};
+		BF1C6E012866228E00C94383 /* NetworkManager */ = {
+			isa = PBXGroup;
+			children = (
+				BF1C6DFB2865FE0600C94383 /* NetworkDataFetcher.swift */,
+				BF1C6DFC2865FE0700C94383 /* NetworkService.swift */,
+				BF1C6DFF2865FE1600C94383 /* DataFetcherService.swift */,
+			);
+			path = NetworkManager;
+			sourceTree = "<group>";
+		};
+		BF1C6E02286622A900C94383 /* CoreDataManager */ = {
+			isa = PBXGroup;
+			children = (
+				BF59863B27DA5B5400337FFF /* CoreDataStack.swift */,
+			);
+			path = CoreDataManager;
+			sourceTree = "<group>";
+		};
 		BFC89D7827C44FD8004DBEC9 = {
 			isa = PBXGroup;
 			children = (
@@ -167,13 +202,8 @@
 		BFC89D8327C44FD8004DBEC9 /* FourthProject */ = {
 			isa = PBXGroup;
 			children = (
-				BF5986BD27DBD15F00337FFF /* BranchData+CoreDataClass.swift */,
-				BF5986BE27DBD15F00337FFF /* BranchData+CoreDataProperties.swift */,
-				BF5986BF27DBD15F00337FFF /* ATMData+CoreDataClass.swift */,
-				BF5986C027DBD15F00337FFF /* ATMData+CoreDataProperties.swift */,
-				BF5986C127DBD15F00337FFF /* InfoboxData+CoreDataClass.swift */,
-				BF5986C227DBD15F00337FFF /* InfoboxData+CoreDataProperties.swift */,
 				BFC89D9227C44FDA004DBEC9 /* Info.plist */,
+				BF1C6DFA2865FBC800C94383 /* CoreData */,
 				BF10002B27C57DB9006C4E07 /* Views */,
 				BF10002A27C57D9C006C4E07 /* ViewControllers */,
 				BF10002927C57D94006C4E07 /* Models */,
@@ -332,13 +362,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BF1C6DFD2865FE0700C94383 /* NetworkDataFetcher.swift in Sources */,
 				BF5986C727DBD15F00337FFF /* InfoboxData+CoreDataClass.swift in Sources */,
 				BF5986C827DBD15F00337FFF /* InfoboxData+CoreDataProperties.swift in Sources */,
 				BF5986C427DBD15F00337FFF /* BranchData+CoreDataProperties.swift in Sources */,
 				BF10002327C536A8006C4E07 /* DetailedCollectionViewCell.swift in Sources */,
+				BF1C6DFE2865FE0700C94383 /* NetworkService.swift in Sources */,
 				BF59863C27DA5B5400337FFF /* CoreDataStack.swift in Sources */,
 				BF1C6DF92864D45E00C94383 /* InfoboxModel.swift in Sources */,
 				BF8A19E427D36D0200524883 /* FilterViewController.swift in Sources */,
+				BF1C6E002865FE1600C94383 /* DataFetcherService.swift in Sources */,
 				BF1C6DF72864D45E00C94383 /* ATMsModel.swift in Sources */,
 				BF5986C527DBD15F00337FFF /* ATMData+CoreDataClass.swift in Sources */,
 				BF10002127C53646006C4E07 /* DetailedCollectionCollectionViewController.swift in Sources */,
@@ -347,7 +380,6 @@
 				BFC89D8927C44FD8004DBEC9 /* MainViewController.swift in Sources */,
 				BF1C6DF82864D45E00C94383 /* BranchesModel.swift in Sources */,
 				BF943B9027D65DB2007557CB /* ButtomPresentationBranchViewController.swift in Sources */,
-				BF10001D27C50B1F006C4E07 /* APIService.swift in Sources */,
 				BF10002F27C5AE97006C4E07 /* FullInformationViewController.swift in Sources */,
 				BF5986C327DBD15F00337FFF /* BranchData+CoreDataClass.swift in Sources */,
 				BFB7319F27C969DC006CF18A /* SectionHeaderView.swift in Sources */,

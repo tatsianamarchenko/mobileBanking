@@ -106,14 +106,17 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 	private func reloadData() {
 		DispatchQueue.main.async {
 			self.sections.removeAll()
-			let apiService = APIService()
+		//	let apiService = APIService()
 			let group = DispatchGroup()
 			self.view.isUserInteractionEnabled = false
 			self.addSpinner()
 			group.enter()
-			apiService.getJSON(urlString: Constants.share.urlATMsString,
-							   runQueue: .global(),
-							   complitionQueue: .main) { (result: Result<ATMResponse, CustomError>) in
+			DataFetcherService().fetchATMs {
+				//			}
+				//			apiService.getJSON(urlString: Constants.share.urlATMsString,
+				//							   runQueue: .global(),
+				//							   complitionQueue: .main)
+				(result: Result<ATMResponse, CustomError>) in
 				switch result {
 				case .success(let atms) :
 					self.sectionATM.removeAll()
@@ -139,9 +142,10 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 			}
 
 			DispatchQueue.global(qos: .userInteractive).async {
-				apiService.getJSON(urlString: Constants.share.urlInfoboxString,
-								   runQueue: .global(),
-								   complitionQueue: .main) { (result: Result<[InfoBoxElement], CustomError>) in
+//				apiService.getJSON(urlString: Constants.share.urlInfoboxString,
+//								   runQueue: .global(),
+//								   complitionQueue: .main)
+				DataFetcherService().fetchInfoboxes { (result: Result<[InfoBoxElement], CustomError>) in
 					switch result {
 					case .success(let infobox) :
 						self.sectionBranch.removeAll()
@@ -156,9 +160,10 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 					case .failure(let error) :
 						self.addingToSectionsSingle(array: self.sectionBranch)
 					}
-					apiService.getJSON(urlString: Constants.share.urlInfoboxString,
-									   runQueue: .global(),
-									   complitionQueue: .main) { (result: Result<[InfoBoxElement], CustomError>) in
+//					apiService.getJSON(urlString: Constants.share.urlInfoboxString,
+//									   runQueue: .global(),
+//									   complitionQueue: .main)
+					DataFetcherService().fetchInfoboxes { (result: Result<[InfoBoxElement], CustomError>) in
 						switch result {
 						case .success(let infobox) :
 							self.sectionInfobox.removeAll()
@@ -242,7 +247,7 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 	}
 
 	func infoLoading() {
-		let apiService = APIService()
+	//	let apiService = APIService()
 		var errorString: String?
 		let group = DispatchGroup()
 		view.isUserInteractionEnabled = false
@@ -250,9 +255,10 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 		addSpinner()
 		group.enter()
 		//	let minskCoordinates = GeographicCoordinates(latitude: "52.425163", longitude: "31.015039")
-		apiService.getJSON(urlString: Constants.share.urlATMsString,
-						   runQueue: .global(),
-						   complitionQueue: .main) { [self](result: Result<ATMResponse, CustomError>) in
+//		apiService.getJSON(urlString: Constants.share.urlATMsString,
+//						   runQueue: .global(),
+//						   complitionQueue: .main)
+		DataFetcherService().fetchATMs { [self] (result: Result<ATMResponse, CustomError>) in
 			switch result {
 			case .success(var atms) :
 
@@ -289,9 +295,10 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 		}
 
 		group.enter()
-		apiService.getJSON(urlString: Constants.share.urlInfoboxString,
-						   runQueue: .global(),
-						   complitionQueue: .main) { [self] (result: Result<[InfoBoxElement], CustomError>) in
+//		apiService.getJSON(urlString: Constants.share.urlInfoboxString,
+//						   runQueue: .global(),
+//						   complitionQueue: .main)
+		DataFetcherService().fetchInfoboxes { [self] (result: Result<[InfoBoxElement], CustomError>) in
 			switch result {
 			case .success(var infobox) :
 
@@ -325,9 +332,10 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 		}
 
 		group.enter()
-		apiService.getJSON(urlString: Constants.share.urlbBranchesString,
-						   runQueue: .global(),
-						   complitionQueue: .main) { [self] (result: Result<Branch, CustomError>) in
+//		apiService.getJSON(urlString: Constants.share.urlbBranchesString,
+//						   runQueue: .global(),
+//						   complitionQueue: .main)
+		DataFetcherService().fetchBranches { [self] (result: Result<Branch, CustomError>) in
 			switch result {
 			case .success(var branch) :
 

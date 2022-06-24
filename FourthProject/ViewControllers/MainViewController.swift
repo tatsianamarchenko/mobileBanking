@@ -5,7 +5,6 @@
 //  Created by Tatsiana Marchanka on 22.02.22.
 //
 
-
 import UIKit
 import SnapKit
 import MapKit
@@ -14,14 +13,23 @@ import Network
 import CoreData
 
 class MainViewController: UIViewController {
+
 	let monitor = NWPathMonitor()
 	let locationManager = CLLocationManager()
+
 	var atmRecived: AtmElement?
 	var branchRecived: BranchElement?
 	var infoboxRecived: InfoBoxElement?
+
 	var atmAnnotatiom = [PinAnnotation<AtmElement>]()
 	var branchAnnotatiom = [PinAnnotation<BranchElement>]()
 	var infoboxAnnotatiom = [PinAnnotation<InfoBoxElement>]()
+
+
+	var ATMinfofromCoreData = [ATMData]()
+	var branchInfofromCoreData = [BranchData]()
+	var infoboxInfofromCoreData = [InfoboxData]()
+
 	let context = CoreDataStack.sharedInstance.persistentContainer.viewContext
 
 	var displayedAnnotations: [MKAnnotation]? {
@@ -78,44 +86,20 @@ class MainViewController: UIViewController {
 		view.addSubview(mapOrListsegmentedControl)
 		view.addSubview(mapView)
 		mapView.delegate = self
+
 		registerMapAnnotationViews()
-		let saveImage = UIImage(systemName: "arrow.counterclockwise")
-		let filterImage = UIImage(systemName: "square.3.stack.3d")
-		guard let saveImage = saveImage else {
-			return
-		}
-		guard let filterImage = filterImage else {
-			return
-		}
+		makeRightBarButtonItems()
+		makeConstraints()
+		checkAccessToLocation()
 
-		let imageButton = UIBarButtonItem(image: saveImage, style: .plain,
-										  target: self, action: #selector(reloadDataAction))
-
-		let filterButton = UIBarButtonItem(image: filterImage, style: .plain,
-										   target: self, action: #selector(presentFilterList))
-
-		navigationItem.rightBarButtonItems = [imageButton, filterButton]
-
-		if atmRecived == nil {
-			DispatchQueue.main.async {
-				self.checkAccessToLocation()
-			}
-		}
-		monitor.pathUpdateHandler = { [self] path in
+		monitor.pathUpdateHandler = { path in
 			switch path.status {
-			case .satisfied :
-				if atmRecived == nil {
-					DispatchQueue.main.async {
-						checkAccessToLocation()
-					}
-				}
-
 			case .unsatisfied :
-				DispatchQueue.main.async {
+				DispatchQueue.main.async { [self] in
 					present(internetAccessAlert, animated: true)
 				}
 			case .requiresConnection :
-				DispatchQueue.main.async {
+				DispatchQueue.main.async { [self] in
 					present(internetAccessAlert, animated: true)
 				}
 			default : break
@@ -126,37 +110,39 @@ class MainViewController: UIViewController {
 		monitor.start(queue: queue)
 		self.createPins()
 		monitor.cancel()
-		// self.addPerson()
-		makeConstraints()
 	}
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		ATMPresentation()
-		branchPresentation()
-		infoboxPresentation()
-	}
-
-	@objc func presentFilterList(_ sender: UIBarButtonItem) {
-		let filterVC = FilterViewController()
-		filterVC.modalPresentationStyle = .popover
-		let popOverVc = filterVC.popoverPresentationController
-		popOverVc?.delegate = self
-		popOverVc?.sourceView = self.mapView
-		popOverVc?.sourceRect = CGRect(x: view.frame.midX,
-									   y: sender.accessibilityFrame.minY,
-									   width: 0,
-									   height: 0)
-		filterVC.preferredContentSize = CGSize(width: 200, height: 150)
-		self.present(filterVC, animated: true)
-		filterVC.complition = { annotation in
-			if let annotation = annotation {
-				self.filter(index: annotation)
-			}
+		if atmRecived != nil {
+			ATMPresentation(ATM: atmRecived!)
+		}
+		if branchRecived != nil {
+			branchPresentation(branch: branchRecived!)
+		}
+		if infoboxRecived != nil {
+			infoboxPresentation(infobox: infoboxRecived!)
 		}
 	}
 
-	func filter(index: Int) {
+	private func makeRightBarButtonItems() {
+		guard let saveImage = UIImage(systemName: "arrow.counterclockwise") else {
+			return
+		}
+		guard let filterImage = UIImage(systemName: "square.3.stack.3d") else {
+			return
+		}
+
+		let imageButton = UIBarButtonItem(image: saveImage, style: .plain,
+										  target: self, action: #selector(reloadDataAction))
+
+		let filterButton = UIBarButtonItem(image: filterImage, style: .plain,
+										   target: self, action: #selector(presentFilterList))
+
+		navigationItem.rightBarButtonItems = [imageButton, filterButton]
+	}
+
+	private func filter(index: Int) {
 		if 	filteredArray[index].isChecked == true {
 			if index == 0 {
 				displayedAnnotations = atmAnnotatiom
@@ -179,18 +165,29 @@ class MainViewController: UIViewController {
 		}
 	}
 
+	@objc func presentFilterList(_ sender: UIBarButtonItem) {
+		let filterVC = FilterViewController()
+		filterVC.modalPresentationStyle = .popover
+		let popOverVc = filterVC.popoverPresentationController
+		popOverVc?.delegate = self
+		popOverVc?.sourceView = self.mapView
+		popOverVc?.sourceRect = CGRect(x: view.frame.midX,
+									   y: sender.accessibilityFrame.minY,
+									   width: 0,
+									   height: 0)
+		filterVC.preferredContentSize = CGSize(width: 200, height: 150)
+		self.present(filterVC, animated: true)
+		filterVC.complition = { annotation in
+			if let annotation = annotation {
+				self.filter(index: annotation)
+			}
+		}
+	}
+
 	@objc func reloadDataAction(_ sender: UIBarButtonItem) {
 		sender.isEnabled = false
-		let group = DispatchGroup()
-		group.enter()
-		sender.isEnabled = false
-		if sender.isEnabled == false {
-			DispatchQueue.global().async {
-				self.reloadData()
-			}
-			group.leave()
-		}
-		group.notify(queue: .global()) {
+		self.reloadData()
+		DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
 			sender.isEnabled = true
 		}
 	}
@@ -199,15 +196,12 @@ class MainViewController: UIViewController {
 		DispatchQueue.main.async {
 			let annotations = self.mapView.annotations
 			self.mapView.removeAnnotations(annotations)
-			let apiService = APIService()
 			var atmItems = [AtmElement]()
 			let group = DispatchGroup()
 			self.view.isUserInteractionEnabled = false
 			self.addSpiner()
 			group.enter()
-			apiService.getJSON(urlString: Constants.share.urlATMsString,
-							   runQueue: .global(),
-							   complitionQueue: .main) { (result: Result<ATMResponse, CustomError>) in
+			DataFetcherService().fetchATMs { (result: Result<ATMResponse, CustomError>) in
 				switch result {
 				case .success(let atms) :
 					atmItems = atms.data.atm
@@ -217,10 +211,12 @@ class MainViewController: UIViewController {
 					self.mapView.addAnnotations(self.atmAnnotatiom)
 				}
 			}
+
+
 			group.notify(queue: .main) {
 				for atm in 0..<atmItems.count {
 					let item =  atmItems[atm]
-					let loc = self.findCoordinate(item: item)
+					let loc = self.findCoordinate(latitude: item.address.geolocation.geographicCoordinates.latitude, longitude: item.address.geolocation.geographicCoordinates.longitude)
 					self.setATMsPinUsingMKAnnotation(title: item.address.streetName + " " + item.address.buildingNumber,
 													 atm: item,
 													 location: loc)
@@ -230,17 +226,14 @@ class MainViewController: UIViewController {
 			}
 
 			DispatchQueue.global(qos: .userInteractive).async {
-
-				apiService.getJSON(urlString: Constants.share.urlInfoboxString,
-								   runQueue: .global(),
-								   complitionQueue: .main) { (result: Result<[InfoBoxElement], CustomError>) in
+				DataFetcherService().fetchInfoboxes { (result: Result<[InfoBoxElement], CustomError>) in
 					switch result {
 					case .success(let infobox) :
 						self.infoboxAnnotatiom.removeAll()
 						let infoboxItems = infobox
 						for singleBox in 0..<infoboxItems.count {
 							let item = infoboxItems[singleBox]
-							let loc = self.findCoordinate(item: item)
+							let loc = self.findCoordinate(latitude: item.gpsX!, longitude: item.gpsY!)
 							self.setInfoBoxPinUsingMKAnnotation(title: item.city!, infobox: item, location: loc)
 						}
 					case .failure(let error) :
@@ -248,16 +241,14 @@ class MainViewController: UIViewController {
 					}
 				}
 
-				apiService.getJSON(urlString: Constants.share.urlbBranchesString,
-								   runQueue: .global(),
-								   complitionQueue: .main) {  (result: Result<Branch, CustomError>) in
+				DataFetcherService().fetchBranches { (result: Result<Branch, CustomError>) in
 					switch result {
 					case .success(let branch) :
 						let branchItems = branch.data.branch
 						self.branchAnnotatiom.removeAll()
 						for bra in 0..<branchItems.count {
 							let item =  branchItems[bra]
-							let loc = self.findCoordinate(item: item)
+							let loc = self.findCoordinate(latitude: item.address.geolocation.geographicCoordinates.latitude, longitude: item.address.geolocation.geographicCoordinates.longitude)
 							self.setBranchPinUsingMKAnnotation(title: item.type, branch: item, location: loc)
 						}
 					case .failure(let error):
@@ -301,85 +292,90 @@ class MainViewController: UIViewController {
 	}
 
 	private func createPins() {
-		let apiService = APIService()
 		var branchItems = [BranchElement]()
 		var atmItems = [AtmElement]()
 		var infoboxItems = [InfoBoxElement]()
+
 		let group = DispatchGroup()
 		var errorString: String?
+
+		let dataFetcherService = DataFetcherService()
+
 		view.isUserInteractionEnabled = false
 		addSpiner()
+		let queue = DispatchQueue(label: "queue", attributes: .concurrent)
 		group.enter()
-		apiService.getJSON(urlString: Constants.share.urlATMsString,
-						   runQueue: .global(),
-						   complitionQueue: .main) { [self] (result: Result<ATMResponse, CustomError>) in
-			switch result {
-			case .success(let atms) :
-				atmItems = atms.data.atm
-				clearDataATM()
-				saveATMInCoreDataWith(atms: atms)
-				group.leave()
-			case .failure(let error) :
-				fetchInformationATM()
-				if	error == .errorGeneral {
-					if errorString != nil {
-						errorString?.append(" Банкоматы ")} else {
+		queue.async(group: group) {
+			dataFetcherService.fetchATMs { [self] (result: Result<ATMResponse, CustomError>) in
+				switch result {
+				case .success(let atms) :
+					atmItems = atms.data.atm
+					CoreDataStack.sharedInstance.clearData(type: ATMData.self, context: context)
+					CoreDataStack.sharedInstance.saveATMInCoreDataWith(atms: atms, context: context)
+					group.leave()
+				case .failure(let error) :
+					fetchInformationATM()
+					if	error == .errorGeneral {
+						if errorString != nil {
+							errorString?.append(" Банкоматы ")} else {
+								errorString = ""
+								errorString?.append(" Банкоматы ")}
+						group.leave()
+					} else {
+						present(internetErrorAlert, animated: true)
+						// group.leave()
+					}
+				}
+			}
+		}
+
+		group.enter()
+		queue.async(group: group) {
+			dataFetcherService.fetchInfoboxes { [self] (result: Result<[InfoBoxElement], CustomError>) in
+				switch result {
+				case .success(let infobox) : infoboxItems = infobox
+					CoreDataStack.sharedInstance.clearData(type: InfoboxData.self, context: context)
+					CoreDataStack.sharedInstance.saveInfoBoxInCoreDataWith(infoboxes: infobox, context: context)
+					group.leave()
+				case .failure(let error) :
+					fetchInformationInfobox()
+					if	error == .errorGeneral {
+						if errorString != nil { errorString?.append(" Инфокиоски ")} else {
 							errorString = ""
-							errorString?.append(" Банкоматы ")}
-					group.leave()
-				} else {
-					present(internetErrorAlert, animated: true)
-					group.leave()
+							errorString?.append(" Инфокиоски ")}
+						group.leave()
+					} else {
+						present(internetErrorAlert, animated: true)
+						//	group.leave()
+					}
 				}
 			}
 		}
 
 		group.enter()
-		apiService.getJSON(urlString: Constants.share.urlInfoboxString,
-						   runQueue: .global(),
-						   complitionQueue: .main) { [self] (result: Result<[InfoBoxElement], CustomError>) in
-			switch result {
-			case .success(let infobox) : infoboxItems = infobox
-				clearDataInfobox()
-				saveInfoBoxInCoreDataWith(infoboxes: infobox)
-				group.leave()
-			case .failure(let error) :
-				fetchInformationInfobox()
-				if	error == .errorGeneral {
-					if errorString != nil { errorString?.append(" Инфокиоски ")} else {
-						errorString = ""
-						errorString?.append(" Инфокиоски ")}
+		queue.async(group: group) {
+			dataFetcherService.fetchBranches { [self] (result: Result<Branch, CustomError>) in
+				switch result {
+				case .success(let branch) :	branchItems = branch.data.branch
+					CoreDataStack.sharedInstance.clearData(type: BranchData.self, context: context)
+					CoreDataStack.sharedInstance.saveBranchInCoreDataWith(branches: branch, context: context)
 					group.leave()
-				} else {
-					present(internetErrorAlert, animated: true)
-					group.leave()
+				case .failure(let error) :
+					fetchInformationBranch()
+					if	error == .errorGeneral {
+						if errorString != nil {
+							errorString?.append(" Отделения банка ")}
+						else { errorString = ""
+							errorString?.append(" Отделения банка ")}
+						group.leave()
+					} else {
+						present(internetErrorAlert, animated: true)
+						//		group.leave()
+					}
 				}
 			}
 		}
 
-		group.enter()
-		apiService.getJSON(urlString: Constants.share.urlbBranchesString,
-						   runQueue: .global(),
-						   complitionQueue: .main) { [self] (result: Result<Branch, CustomError>) in
-			switch result {
-			case .success(let branch) :	branchItems = branch.data.branch
-				clearDataBranch()
-				saveBranchInCoreDataWith(branches: branch)
-				group.leave()
-			case .failure(let error) :
-				fetchInformationBranch()
-				if	error == .errorGeneral {
-					if errorString != nil {
-						errorString?.append(" Отделения банка ")}
-					else { errorString = ""
-						errorString?.append(" Отделения банка ")}
-					group.leave()
-				} else {
-					present(internetErrorAlert, animated: true)
-					group.leave()
-				}
-			}
-		}
 		group.notify(queue: .main) {
 			if let errorString = errorString {
 				DispatchQueue.main.async { [self] in
@@ -392,40 +388,26 @@ class MainViewController: UIViewController {
 			}
 			for bra in 0..<branchItems.count {
 				let item =  branchItems[bra]
-				let loc = self.findCoordinate(item: item)
+				let loc = self.findCoordinate(latitude: item.address.geolocation.geographicCoordinates.latitude, longitude: item.address.geolocation.geographicCoordinates.longitude)
 				self.setBranchPinUsingMKAnnotation(title: item.type, branch: item, location: loc)
 			}
 			for singleBox in 0..<infoboxItems.count {
 				let item = infoboxItems[singleBox]
-				let loc = self.findCoordinate(item: item)
+				let loc = self.findCoordinate(latitude: item.gpsX!, longitude: item.gpsY!)
 				self.setInfoBoxPinUsingMKAnnotation(title: item.city!, infobox: item, location: loc)
 			}
 			for atm in 0..<atmItems.count {
 				let item =  atmItems[atm]
-				let loc = self.findCoordinate(item: item)
+				let loc = self.findCoordinate(latitude: item.address.geolocation.geographicCoordinates.latitude, longitude: item.address.geolocation.geographicCoordinates.longitude)
 				self.setATMsPinUsingMKAnnotation(title: item.address.streetName + " " + item.address.buildingNumber, atm: item, location: loc)
 			}
 			self.view.isUserInteractionEnabled = true
 			self.removeSpiner()
 		}
 	}
-	var ATMinfofromCoreData = [ATMData]()
-	var branchInfofromCoreData = [BranchData]()
-	var infoboxInfofromCoreData = [InfoboxData]()
 }
 extension MainViewController {
-	private func saveATMInCoreDataWith(atms: ATMResponse) {
-		let encoder = JSONEncoder()
-		do {
-			let newPerson = ATMData(context: self.context)
-			let data = try encoder.encode(atms)
-			newPerson.atmData = data
-			try CoreDataStack.sharedInstance.saveContext()
-			print("saved")
-		} catch  {
-			print(error)
-		}
-	}
+
 	func fetchInformationATM() {
 		do {
 			let request: NSFetchRequest<ATMData> = ATMData.fetchRequest()
@@ -440,18 +422,7 @@ extension MainViewController {
 			print(error)
 		}
 	}
-	private func saveBranchInCoreDataWith(branches: Branch) {
-		let encoder = JSONEncoder()
-		do {
-			let newPerson = BranchData(context: self.context)
-			let data = try encoder.encode(branches)
-			newPerson.branchData = data
-			try CoreDataStack.sharedInstance.saveContext()
-			print("saved")
-		} catch {
-			print(error)
-		}
-	}
+
 	func fetchInformationBranch() {
 		do {
 			let request: NSFetchRequest<BranchData> = BranchData.fetchRequest()
@@ -466,18 +437,7 @@ extension MainViewController {
 			print(error)
 		}
 	}
-	private func saveInfoBoxInCoreDataWith(infoboxes: [InfoBoxElement]) {
-		let encoder = JSONEncoder()
-		do {
-			let newPerson = InfoboxData(context: self.context)
-			let data = try encoder.encode(infoboxes)
-			newPerson.infoboxData = data
-			try CoreDataStack.sharedInstance.saveContext()
-			print("saved")
-		} catch {
-			print(error)
-		}
-	}
+
 	func fetchInformationInfobox() {
 		do {
 			let request: NSFetchRequest<InfoboxData> = InfoboxData.fetchRequest()
@@ -499,7 +459,7 @@ extension MainViewController {
 			let decodedData = try decoder.decode(ATMResponse.self, from: data)
 			for atm in 0..<decodedData.data.atm.count {
 				let item =  decodedData.data.atm[atm]
-				let loc = self.findCoordinate(item: item)
+				let loc = self.findCoordinate(latitude: item.address.geolocation.geographicCoordinates.latitude, longitude: item.address.geolocation.geographicCoordinates.longitude)
 				self.setATMsPinUsingMKAnnotation(title: item.address.streetName + " " + item.address.buildingNumber, atm: item, location: loc)
 			}
 		} catch {
@@ -513,7 +473,7 @@ extension MainViewController {
 			let decodedData = try decoder.decode(Branch.self, from: data)
 			for branch in 0..<decodedData.data.branch.count {
 				let item =  decodedData.data.branch[branch]
-				let loc = self.findCoordinate(item: item)
+				let loc = self.findCoordinate(latitude: item.address.geolocation.geographicCoordinates.latitude, longitude: item.address.geolocation.geographicCoordinates.longitude)
 				self.setBranchPinUsingMKAnnotation(title: item.address.streetName + " " + item.address.buildingNumber,
 												   branch: item, location: loc)
 			}
@@ -528,41 +488,11 @@ extension MainViewController {
 			let decodedData = try decoder.decode([InfoBoxElement].self, from: data)
 			for infobox in 0..<decodedData.count {
 				let item =  decodedData[infobox]
-				let loc = self.findCoordinate(item: item)
+				let loc = self.findCoordinate(latitude: item.gpsX!, longitude: item.gpsY!)
 				self.setInfoBoxPinUsingMKAnnotation(title: item.address! + " " + item.house!, infobox: item, location: loc)
 			}
 		} catch {
 			print("Error: \(error.localizedDescription)")
-		}
-	}
-	private func clearDataATM() {
-			let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: ATMData.self))
-			do {
-				let objects  = try context.fetch(fetchRequest) as? [NSManagedObject]
-				_ = objects.map { $0.map { context.delete($0) } }
-				CoreDataStack.sharedInstance.saveContext()
-			} catch let error {
-				print("ERROR DELETING : \(error)")
-			}
-	}
-	private func clearDataBranch() {
-			let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing:  BranchData.self))
-			do {
-				let objects  = try context.fetch(fetchRequest) as? [NSManagedObject]
-				_ = objects.map { $0.map { context.delete($0) } }
-				CoreDataStack.sharedInstance.saveContext()
-			} catch let error {
-				print("ERROR DELETING : \(error)")
-			}
-	}
-	private func clearDataInfobox() {
-		let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: InfoboxData.self))
-		do {
-			let objects  = try context.fetch(fetchRequest) as? [NSManagedObject]
-			_ = objects.map { $0.map { context.delete($0) } }
-			CoreDataStack.sharedInstance.saveContext()
-		} catch let error {
-			print("ERROR DELETING : \(error)")
 		}
 	}
 }
@@ -611,44 +541,45 @@ extension MainViewController {
 
 extension MainViewController {
 
-	func ATMPresentation() {
-		guard let atmRecived = atmRecived else {
-			return
-		}
-		guard let lat = Double(atmRecived.address.geolocation.geographicCoordinates.latitude) else {return}
-		guard let lng = Double(atmRecived.address.geolocation.geographicCoordinates.longitude) else {return}
+	func ATMPresentation(ATM: AtmElement) {
+
+		let adressOfItem = ATM.address.streetName + " "
+		+ ATM.address.buildingNumber
+		let timeOfWork =
+		ATM.availability.standardAvailability.day[0].openingTime + "-" +
+		ATM.availability.standardAvailability.day[0].closingTime
+		var currancy = ATM.currency.rawValue
+		var cashIn = ATM.services[0].serviceType.rawValue
+		let title = ATM.address.addressLine
+		let itemLng = ATM.address.geolocation.geographicCoordinates.longitude
+		let itemLat = ATM.address.geolocation.geographicCoordinates.latitude
+
+		guard let lat = Double(itemLat) else {return}
+		guard let lng = Double(itemLng) else {return}
 
 		mapView.centerToLocation(CLLocation(latitude: lat, longitude: lng), regionRadius: Constants.share.regionRadius)
 
 		var breake = ""
-		if  atmRecived.availability.standardAvailability.day[0].dayBreak.breakFromTime != "00:00" {
-			breake = atmRecived.availability.standardAvailability.day[0].dayBreak.breakFromTime + "-" +
-			atmRecived.availability.standardAvailability.day[0].dayBreak.breakToTime}
+		if  ATM.availability.standardAvailability.day[0].dayBreak.breakFromTime != "00:00" {
+			breake = ATM.availability.standardAvailability.day[0].dayBreak.breakFromTime + "-" +
+			ATM.availability.standardAvailability.day[0].dayBreak.breakToTime}
 
-		var abc = atmRecived.services[0].serviceType.rawValue
-		for index in 0..<atmRecived.services.count {
-			if atmRecived.services[index].serviceType.rawValue == "CashIn" {
-				abc = "Cash In доступен"
+		for index in 0..<ATM.services.count {
+			if ATM.services[index].serviceType.rawValue == "CashIn" {
+				cashIn = "Cash In доступен"
 				break
 			} else {
-				abc = "нет Сash in"}
+				cashIn = "нет Сash in"}
 		}
 
-		let sheetViewController = ButtomPresentationViewController(adressOfATM: atmRecived.address.streetName + " "
-																	  + atmRecived.address.buildingNumber,
-																   item: atmRecived,
-																	  timeOfWork:
-																		atmRecived.availability.standardAvailability.day[0]
-																		.openingTime
-																	  + "-" +
-																	  atmRecived.availability.standardAvailability.day[0]
-																		.closingTime
-																	  + " " + breake,
-																	  currancy: atmRecived.currency.rawValue,
-																   cashIn: abc,
-																   title: atmRecived.address.addressLine,
-																   itemLng: atmRecived.address.geolocation.geographicCoordinates.longitude,
-																   itemLat: atmRecived.address.geolocation.geographicCoordinates.latitude)
+		let sheetViewController = ButtomPresentationViewController(adressOfItem: adressOfItem,
+																   item: ATM,
+																   timeOfWork: timeOfWork,
+																   currancy: currancy,
+																   cashIn: cashIn,
+																   title: title,
+																   itemLng: itemLng,
+																   itemLat: itemLat)
 
 		let nav = UINavigationController(rootViewController: sheetViewController)
 		nav.modalPresentationStyle = .automatic
@@ -659,37 +590,34 @@ extension MainViewController {
 		self.atmRecived = nil
 	}
 
-	func branchPresentation() {
-		guard let branchRecived = branchRecived else {
-			return
+	func branchPresentation(branch: BranchElement) {
+		let adressOfItem = branch.address.addressLine
+		let timeOfWork = branch.information.availability.standardAvailability.day[0].openingTime + "-" +
+		branch.information.availability.standardAvailability.day[0].dayBreak.breakFromTime + "-" +
+		branch.information.availability.standardAvailability.day[0].dayBreak.breakToTime + "-" +
+		branch.information.availability.standardAvailability.day[0].closingTime
+		var currancy = branch.services.currencyExchange[0].exchangeRate
+		for service in 0..<branch.services.currencyExchange.count {
+			currancy = branch.services.currencyExchange[service].direction
 		}
-		guard let lat = Double(branchRecived.address.geolocation.geographicCoordinates.latitude) else {return}
-		guard let lng = Double(branchRecived.address.geolocation.geographicCoordinates.longitude) else {return}
+		let cashIn = branch.information.contactDetails.mobileNumber
+		let title = branch.address.streetName + " "
+		+ branch.address.buildingNumber
+		let itemLng = branch.address.geolocation.geographicCoordinates.longitude
+		let itemLat = branch.address.geolocation.geographicCoordinates.latitude
+
+		guard let lat = Double(itemLat) else {return}
+		guard let lng = Double(itemLng) else {return}
 
 		mapView.centerToLocation(CLLocation(latitude: lat, longitude: lng), regionRadius: Constants.share.regionRadius)
 
-		var breake = ""
-		if  branchRecived.information.availability.standardAvailability.day[0].dayBreak.breakFromTime != "00:00" {
-			breake = branchRecived.information.availability.standardAvailability.day[0].dayBreak.breakFromTime + "-" +
-			branchRecived.information.availability.standardAvailability.day[0].dayBreak.breakToTime}
-		var abc = ""
-		for service in 0..<branchRecived.services.currencyExchange.count {
-			abc = branchRecived.services.currencyExchange[service].direction
-		}
-
-		let sheetViewController = ButtomPresentationViewController(adressOfATM: branchRecived.address.streetName + " "
-																		 + branchRecived.address.buildingNumber,
-																   item: branchRecived,
-																		 timeOfWork:
-																			branchRecived.information.availability.standardAvailability.day[0].openingTime
-																		 + "-" +
-																		 branchRecived.information.availability.standardAvailability.day[0].openingTime
-																		 + " " + breake,
-																		 currancy: branchRecived.information.contactDetails.phoneNumber,
-																		 cashIn: abc,
-																		 title: branchRecived.address.townName,
-																		 itemLng: branchRecived.address.geolocation.geographicCoordinates.longitude,
-																		 itemLat: branchRecived.address.geolocation.geographicCoordinates.latitude)
+		let sheetViewController = ButtomPresentationViewController(adressOfItem: adressOfItem,
+																   item: branch, timeOfWork: timeOfWork,
+																   currancy: currancy,
+																   cashIn: cashIn,
+																   title: title,
+																   itemLng: itemLng,
+																   itemLat: itemLat)
 
 		let nav = UINavigationController(rootViewController: sheetViewController)
 		nav.modalPresentationStyle = .automatic
@@ -700,22 +628,27 @@ extension MainViewController {
 		self.branchRecived = nil
 	}
 
-	func infoboxPresentation() {
-		guard let infoboxRecived = infoboxRecived else {
-			return
-		}
-		guard let lat = Double((infoboxRecived.gpsX)!) else {return}
-		guard let lng = Double((infoboxRecived.gpsY)!) else {return}
+	func infoboxPresentation(infobox: InfoBoxElement) {
+		guard let adressOfItem = infobox.address else {return}
+		guard let timeOfWork = infobox.workTime else {return}
+		guard let currancy = infobox.currency else {return}
+		guard let cashIn = infobox.cashIn else {return}
+		guard let title = infobox.address else {return}
+		guard let itemLng = infobox.gpsY else {return}
+		guard let itemLat = infobox.gpsX else {return}
+
+		guard let lat = Double(itemLat) else {return}
+		guard let lng = Double(itemLng) else {return}
 
 		mapView.centerToLocation(CLLocation(latitude: lat, longitude: lng), regionRadius: Constants.share.regionRadius)
-
-		let sheetViewController = ButtomPresentationViewController(adressOfATM: infoboxRecived.addressType! +
-																		  " " + infoboxRecived.address!,
-																   item: infoboxRecived,
-																		  timeOfWork:
-																			infoboxRecived.workTime!,
-																		  currancy: infoboxRecived.currency!,
-																   cashIn: infoboxRecived.cashIn!, title: infoboxRecived.address ?? "", itemLng: infoboxRecived.gpsY!, itemLat: infoboxRecived.gpsX!)
+		let sheetViewController = ButtomPresentationViewController(adressOfItem: adressOfItem,
+																   item: infobox,
+																   timeOfWork: timeOfWork,
+																   currancy: currancy,
+																   cashIn: cashIn,
+																   title: title,
+																   itemLng: itemLng,
+																   itemLat: itemLat)
 
 		let nav = UINavigationController(rootViewController: sheetViewController)
 		nav.modalPresentationStyle = .automatic
@@ -768,26 +701,12 @@ extension MainViewController {
 		}
 	}
 
-	func findCoordinate(item: Any) -> CLLocationCoordinate2D {
-		if let item = item as? AtmElement {
-			guard let latitude = Double(item.address.geolocation.geographicCoordinates.latitude) else {
-				return CLLocationCoordinate2D(latitude: 0, longitude: 0) }
-			guard let longitude = Double(item.address.geolocation.geographicCoordinates.longitude) else {
-				return CLLocationCoordinate2D(latitude: 0, longitude: 0) }
-			return CLLocationCoordinate2D(latitude: latitude, longitude: longitude) }
-		else if let item = item as? BranchElement {
-			guard let latitude = Double(item.address.geolocation.geographicCoordinates.latitude) else {
-				return CLLocationCoordinate2D(latitude: 0, longitude: 0) }
-			guard let longitude = Double(item.address.geolocation.geographicCoordinates.longitude)
-			else { return CLLocationCoordinate2D(latitude: 0, longitude: 0) }
-			return CLLocationCoordinate2D(latitude: latitude, longitude: longitude) }
-		else if let item = item as? InfoBoxElement {
-			guard let latitude = Double(item.gpsX!) else {
-				return CLLocationCoordinate2D(latitude: 0, longitude: 0) }
-			guard let longitude = Double(item.gpsY!) else {
-				return CLLocationCoordinate2D(latitude: 0, longitude: 0) }
-			return CLLocationCoordinate2D(latitude: latitude, longitude: longitude) }
-		return CLLocationCoordinate2D(latitude: 0, longitude: 0)
+	func findCoordinate(latitude: String, longitude: String) -> CLLocationCoordinate2D {
+		guard let latitude = Double(latitude) else {
+			return CLLocationCoordinate2D(latitude: 0, longitude: 0) }
+		guard let longitude = Double(longitude) else {
+			return CLLocationCoordinate2D(latitude: 0, longitude: 0) }
+		return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
 	}
 }
 
@@ -805,8 +724,8 @@ extension MainViewController {
 	private	func setATMsPinUsingMKAnnotation(title: String, atm: AtmElement, location: CLLocationCoordinate2D) {
 		DispatchQueue.main.async {
 			let pinAnnotation = (PinAnnotation<AtmElement>(title: title,
-											   item: atm,
-												   coordinate: location))
+														   item: atm,
+														   coordinate: location))
 			self.atmAnnotatiom.append(pinAnnotation)
 			self.mapView.addAnnotations(self.atmAnnotatiom)
 		}
@@ -815,8 +734,8 @@ extension MainViewController {
 	private	func setInfoBoxPinUsingMKAnnotation(title: String, infobox: InfoBoxElement, location: CLLocationCoordinate2D) {
 		DispatchQueue.main.async {
 			let pinAnnotation = (PinAnnotation<InfoBoxElement>(title: title,
-													   item: infobox,
-													   coordinate: location))
+															   item: infobox,
+															   coordinate: location))
 			self.infoboxAnnotatiom.append(pinAnnotation)
 			self.mapView.addAnnotations(self.infoboxAnnotatiom)
 		}
@@ -825,8 +744,8 @@ extension MainViewController {
 	private func setBranchPinUsingMKAnnotation(title: String, branch: BranchElement, location: CLLocationCoordinate2D) {
 		DispatchQueue.main.async {
 			let pinAnnotation = (PinAnnotation<BranchElement>(title: title,
-													   item: branch,
-													   coordinate: location))
+															  item: branch,
+															  coordinate: location))
 			self.branchAnnotatiom.append(pinAnnotation)
 			self.mapView.addAnnotations(self.branchAnnotatiom)
 		}
@@ -910,45 +829,18 @@ extension MainViewController: MKMapViewDelegate {
 		return view
 
 	}
+
 	func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
 		if let annotation = view.annotation as? PinAnnotation<AtmElement> {
-			var breake = " "
-			if  annotation.item.availability.standardAvailability.day[0].dayBreak.breakFromTime != "00:00" {
-				breake = annotation.item.availability.standardAvailability.day[0].dayBreak.breakFromTime + "-" +
-				annotation.item.availability.standardAvailability.day[0].dayBreak.breakToTime}
-			if  annotation.item.availability.standardAvailability.day[0].dayBreak.breakFromTime != "00:00" {
-				breake = annotation.item.availability.standardAvailability.day[0].dayBreak.breakFromTime + "-" +
-				annotation.item.availability.standardAvailability.day[0].dayBreak.breakToTime}
+			ATMPresentation(ATM: annotation.item)
+		}
 
-			let atm = annotation.item
-			var abc = atm.services[0].serviceType.rawValue
-			for index in 0..<atm.services.count {
-				if atm.services[index].serviceType.rawValue == "CashIn" {
-					abc = "Cash In доступен"
-					break
-				} else {
-					abc = "нет Сash in"}
-			}
-			let sheetViewController = ButtomPresentationViewController(adressOfATM: atm.address.streetName + " "
-																		  + atm.address.buildingNumber,
-																	   item: atm, timeOfWork: atm.availability.standardAvailability.day[0].openingTime
-																		  + "-" + atm.availability.standardAvailability.day[0].closingTime
-																		  + " " + breake,
-																	   currancy: atm.currency.rawValue,
-																	   cashIn: abc,
-																	   title: atm.address.townName,
-																	   itemLng: atm.address.geolocation.geographicCoordinates.longitude,
-																	   itemLat: atm.address.geolocation.geographicCoordinates.latitude)
-			mapView.centerToLocation(CLLocation(latitude: annotation.coordinate.latitude,
-												longitude: annotation.coordinate.longitude),
-									 regionRadius: Constants.share.regionRadius)
+		if let annotation = view.annotation as? PinAnnotation<BranchElement> {
+			branchPresentation(branch: annotation.item)
+		}
 
-			let nav = UINavigationController(rootViewController: sheetViewController)
-			nav.modalPresentationStyle = .automatic
-			if let sheet = nav.sheetPresentationController {
-				sheet.detents = [.medium(), .large()]
-			}
-			present(nav, animated: true, completion: nil)
+		if let annotation = view.annotation as? PinAnnotation<InfoBoxElement> {
+			infoboxPresentation(infobox: annotation.item)
 		}
 	}
 }

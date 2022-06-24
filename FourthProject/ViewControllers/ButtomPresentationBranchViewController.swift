@@ -52,14 +52,14 @@ class ButtomPresentationViewController: UIViewController {
 		return stack
 	}()
 
-	init(adressOfATM: String, item: General, timeOfWork: String, currancy: String, cashIn: String,
+	init(adressOfItem: String, item: General, timeOfWork: String, currancy: String, cashIn: String,
 		title: String, itemLng: String, itemLat: String) {
 		self.item = item
 		self.itemLat = itemLat
 		self.itemLng = itemLng
 		super.init(nibName: nil, bundle: nil)
 		self.title = title
-		self.adressOfItemLable.text = adressOfATM
+		self.adressOfItemLable.text = adressOfItem
 		self.timeOfWorkLable.text = timeOfWork
 		self.currancyLable.text = currancy
 		self.cashInLable.text = cashIn
