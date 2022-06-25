@@ -35,6 +35,9 @@
 		BFC89D9127C44FDA004DBEC9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BFC89D8F27C44FDA004DBEC9 /* LaunchScreen.storyboard */; };
 		BFC89D9C27C45866004DBEC9 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = BFC89D9B27C45866004DBEC9 /* .swiftlint.yml */; };
 		BFCB4EBB27CF828D00D7A056 /* PinAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB4EBA27CF828D00D7A056 /* PinAnnotation.swift */; };
+		BFCEC3FA286715B500C23886 /* SectionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCEC3F9286715B500C23886 /* SectionModel.swift */; };
+		BFCEC3FD2867164900C23886 /* ErrorReporting.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCEC3FC2867164900C23886 /* ErrorReporting.swift */; };
+		BFD2FD77286733020008E841 /* SpinerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFD2FD76286733020008E841 /* SpinerManager.swift */; };
 		F99005DCF5F91BBEFDAA8590 /* Pods_FourthProject.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 201B40A932CD948C881225CD /* Pods_FourthProject.framework */; };
 /* End PBXBuildFile section */
 
@@ -71,6 +74,9 @@
 		BFC89D9227C44FDA004DBEC9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BFC89D9B27C45866004DBEC9 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		BFCB4EBA27CF828D00D7A056 /* PinAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinAnnotation.swift; sourceTree = "<group>"; };
+		BFCEC3F9286715B500C23886 /* SectionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionModel.swift; sourceTree = "<group>"; };
+		BFCEC3FC2867164900C23886 /* ErrorReporting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorReporting.swift; sourceTree = "<group>"; };
+		BFD2FD76286733020008E841 /* SpinerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinerManager.swift; sourceTree = "<group>"; };
 		E42D9151B3717D6DF143233C /* Pods-FourthProject.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FourthProject.release.xcconfig"; path = "Target Support Files/Pods-FourthProject/Pods-FourthProject.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -107,23 +113,24 @@
 			path = "Supporting files";
 			sourceTree = "<group>";
 		};
-		BF10002827C57D70006C4E07 /* Manager */ = {
+		BF10002827C57D70006C4E07 /* Managers */ = {
 			isa = PBXGroup;
 			children = (
 				BF10002427C54EA3006C4E07 /* Constants.swift */,
+				BFD2FD76286733020008E841 /* SpinerManager.swift */,
+				BFCEC3FC2867164900C23886 /* ErrorReporting.swift */,
 				BF1C6E02286622A900C94383 /* CoreDataManager */,
 				BF1C6E012866228E00C94383 /* NetworkManager */,
 			);
-			path = Manager;
+			path = Managers;
 			sourceTree = "<group>";
 		};
 		BF10002927C57D94006C4E07 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				BFCEC3FB286715D200C23886 /* MainModels */,
 				BFCB4EB727CF81F100D7A056 /* Annotation */,
-				BF1C6DF42864D45E00C94383 /* ATMsModel.swift */,
-				BF1C6DF52864D45E00C94383 /* BranchesModel.swift */,
-				BF1C6DF62864D45E00C94383 /* InfoboxModel.swift */,
+				BFCEC3F9286715B500C23886 /* SectionModel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -207,7 +214,7 @@
 				BF10002B27C57DB9006C4E07 /* Views */,
 				BF10002A27C57D9C006C4E07 /* ViewControllers */,
 				BF10002927C57D94006C4E07 /* Models */,
-				BF10002827C57D70006C4E07 /* Manager */,
+				BF10002827C57D70006C4E07 /* Managers */,
 				BF008DB827C5030B00CB04F7 /* Supporting files */,
 			);
 			path = FourthProject;
@@ -219,6 +226,16 @@
 				BFCB4EBA27CF828D00D7A056 /* PinAnnotation.swift */,
 			);
 			path = Annotation;
+			sourceTree = "<group>";
+		};
+		BFCEC3FB286715D200C23886 /* MainModels */ = {
+			isa = PBXGroup;
+			children = (
+				BF1C6DF42864D45E00C94383 /* ATMsModel.swift */,
+				BF1C6DF52864D45E00C94383 /* BranchesModel.swift */,
+				BF1C6DF62864D45E00C94383 /* InfoboxModel.swift */,
+			);
+			path = MainModels;
 			sourceTree = "<group>";
 		};
 		FE05A19A00B58CD620EDC73F /* Frameworks */ = {
@@ -363,6 +380,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BF1C6DFD2865FE0700C94383 /* NetworkDataFetcher.swift in Sources */,
+				BFCEC3FA286715B500C23886 /* SectionModel.swift in Sources */,
 				BF5986C727DBD15F00337FFF /* InfoboxData+CoreDataClass.swift in Sources */,
 				BF5986C827DBD15F00337FFF /* InfoboxData+CoreDataProperties.swift in Sources */,
 				BF5986C427DBD15F00337FFF /* BranchData+CoreDataProperties.swift in Sources */,
@@ -371,6 +389,7 @@
 				BF59863C27DA5B5400337FFF /* CoreDataStack.swift in Sources */,
 				BF1C6DF92864D45E00C94383 /* InfoboxModel.swift in Sources */,
 				BF8A19E427D36D0200524883 /* FilterViewController.swift in Sources */,
+				BFD2FD77286733020008E841 /* SpinerManager.swift in Sources */,
 				BF1C6E002865FE1600C94383 /* DataFetcherService.swift in Sources */,
 				BF1C6DF72864D45E00C94383 /* ATMsModel.swift in Sources */,
 				BF5986C527DBD15F00337FFF /* ATMData+CoreDataClass.swift in Sources */,
@@ -383,6 +402,7 @@
 				BF10002F27C5AE97006C4E07 /* FullInformationViewController.swift in Sources */,
 				BF5986C327DBD15F00337FFF /* BranchData+CoreDataClass.swift in Sources */,
 				BFB7319F27C969DC006CF18A /* SectionHeaderView.swift in Sources */,
+				BFCEC3FD2867164900C23886 /* ErrorReporting.swift in Sources */,
 				BFC89D8527C44FD8004DBEC9 /* AppDelegate.swift in Sources */,
 				BFC89D8727C44FD8004DBEC9 /* SceneDelegate.swift in Sources */,
 				BF10002527C54EA3006C4E07 /* Constants.swift in Sources */,

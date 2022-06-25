@@ -8,41 +8,18 @@
 import UIKit
 import MapKit
 
-protocol General {
-	var coor: GeographicCoordinates? {get set}
-}
-
-struct Section: General {
-	var coor: GeographicCoordinates?
-	var sectionName: String
-	var rowData: [General]
-}
-
 class DetailedCollectionViewController: UIViewController, UICollectionViewDelegateFlowLayout {
 	public var complitionATM: ((AtmElement?) -> Void)?
 	public var complitionBranch: ((BranchElement?) -> Void)?
 	public var complitionInfobox: ((InfoBoxElement?) -> Void)?
+
 	var sectionATM = [Section]()
 	var sectionBranch = [Section]()
 	var sectionInfobox = [Section]()
 	var sections = [Section]()
 	var section = [[Section]]()
-
-	private lazy var internetErrorAlert: UIAlertController = {
-		let alert = UIAlertController(title: "No access to internet connection",
-									  message: "приложение не работает без доступа к интернету.",
-									  preferredStyle: .alert)
-		alert.addAction(UIAlertAction(title: "Закрыть", style: .cancel, handler: nil))
-		alert.addAction(UIAlertAction(title: "Повторить ещё раз", style: .default, handler: { _ in
-			self.reloadData()
-		}))
-		return alert
-	}()
-
-	private lazy var spiner: UIActivityIndicatorView = {
-		var spiner = UIActivityIndicatorView(style: .large)
-		return spiner
-	}()
+	
+	private lazy var spiner = SpinerManager()
 
 	private lazy var collectionView: UICollectionView = {
 		let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
@@ -62,12 +39,10 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 		collectionView.delegate = self
 		collectionView.dataSource = self
 
-		let saveImage = UIImage(systemName: "arrow.counterclockwise")
-		let filterImage = UIImage(systemName: "square.3.stack.3d")
-		guard let saveImage = saveImage else {
+		guard let saveImage = UIImage(systemName: "arrow.counterclockwise") else {
 			return
 		}
-		guard let filterImage = filterImage else {
+		guard let filterImage = UIImage(systemName: "square.3.stack.3d") else {
 			return
 		}
 
@@ -108,7 +83,7 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 			self.sections.removeAll()
 			let group = DispatchGroup()
 			self.view.isUserInteractionEnabled = false
-			self.addSpinner()
+			self.spiner.addSpinner(view: self.view)
 			group.enter()
 			DataFetcherService().fetchATMs { (result: Result<ATMResponse, CustomError>) in
 				switch result {
@@ -131,20 +106,19 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 				self.addingToSections()
 				self.collectionView.reloadData()
 				self.view.isUserInteractionEnabled = true
-				self.spiner.stopAnimating()
-				self.spiner.removeFromSuperview()
+				self.spiner.removeSpiner(spiner: self.spiner.spiner)
 			}
 
 			DispatchQueue.global(qos: .userInteractive).async {
 
-				DataFetcherService().fetchInfoboxes { (result: Result<[InfoBoxElement], CustomError>) in
+				DataFetcherService().fetchBranches { (result: Result<Branch, CustomError>) in
 					switch result {
-					case .success(let infobox) :
+					case .success(let branch) :
 						self.sectionBranch.removeAll()
-						let sectionItems = Dictionary(grouping: infobox.sorted {$0.itemID! < $1.itemID!},
-													  by: {$0.city!})
+						let sectionItems = Dictionary(grouping: branch.data.branch.sorted {$0.itemID < $1.itemID},
+													  by: {$0.address.townName})
 						for index in 0..<sectionItems.count {
-							self.sectionInfobox.append(Section(sectionName: Array(sectionItems.keys)[index],
+							self.sectionBranch.append(Section(sectionName: Array(sectionItems.keys)[index],
 															   rowData: Array(sectionItems.values)[index]))
 							self.section[1].append(Section(sectionName: Array(sectionItems.keys)[index],
 														   rowData: Array(sectionItems.values)[index]))
@@ -195,7 +169,7 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 		}
 	}
 
-	func filter(index: Int) {
+	private func filter(index: Int) {
 		if 	filteredArray[index].isChecked == true {
 			if index == 0 {
 				addingToSectionsSingle(array: self.savedSectionATM)
@@ -225,62 +199,56 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 		}
 	}
 
-	private func addSpinner() {
-		view.addSubview(spiner)
-		DispatchQueue.main.async {
-			self.spiner.startAnimating()
-			self.spiner.snp.makeConstraints { (make) -> Void in
-				make.centerY.equalToSuperview()
-				make.centerX.equalToSuperview()
-			}
-		}
-	}
-
-	func infoLoading() {
+	private func infoLoading() {
 		var errorString: String?
 		let group = DispatchGroup()
+		let queue = DispatchQueue(label: "queue", attributes: .concurrent)
 		view.isUserInteractionEnabled = false
 		section = [sectionATM, sectionInfobox, sectionBranch]
-		addSpinner()
+		self.spiner.addSpinner(view: view)
 		group.enter()
+		queue.async(group: group) {
+			DataFetcherService().fetchATMs { [self] (result: Result<ATMResponse, CustomError>) in
+				switch result {
+				case .success(var atms) :
 
-		DataFetcherService().fetchATMs { [self] (result: Result<ATMResponse, CustomError>) in
-			switch result {
-			case .success(var atms) :
-
-				for i in 0..<atms.data.atm.count {
-					atms.data.atm[i].coor = GeographicCoordinates(latitude: atms.data.atm[i].address.geolocation.geographicCoordinates.latitude,
-																  longitude: atms.data.atm[i].address.geolocation.geographicCoordinates.longitude)
-				}
-
-				let sectionItems = Dictionary(grouping: atms.data.atm,
-											  by: { String($0.address.townName) })
-				for index in 0..<sectionItems.count {
-					self.section[0].append(Section(coor: Array(sectionItems.values)[index].first?.coor,
-												   sectionName: Array(sectionItems.keys)[index],
-												   rowData: Array(sectionItems.values)[index]))	}
-				section[0].sort { $0.sectionName > $1.sectionName }
-				print(section[0].first?.sectionName)
-				sectionATM = section[0]
-				group.leave()
-			case .failure(let error) :
-				if	error == .errorGeneral {
-					DispatchQueue.main.async {
-						if errorString != nil {
-							errorString?.append(" Банкоматы ")} else {
-								errorString = ""
-								errorString?.append(" Банкоматы ")}
+					for i in 0..<atms.data.atm.count {
+						atms.data.atm[i].coor = GeographicCoordinates(latitude: atms.data.atm[i].address.geolocation.geographicCoordinates.latitude,
+																	  longitude: atms.data.atm[i].address.geolocation.geographicCoordinates.longitude)
 					}
+
+					let sectionItems = Dictionary(grouping: atms.data.atm,
+												  by: { String($0.address.townName) })
+					for index in 0..<sectionItems.count {
+						self.section[0].append(Section(coor: Array(sectionItems.values)[index].first?.coor,
+													   sectionName: Array(sectionItems.keys)[index],
+													   rowData: Array(sectionItems.values)[index]))	}
+					section[0].sort { $0.sectionName > $1.sectionName }
+					print(section[0].first?.sectionName)
+					sectionATM = section[0]
 					group.leave()
-				} else {
-					present(self.internetErrorAlert, animated: true)
-					group.leave()
+				case .failure(let error) :
+					if	error == .errorGeneral {
+						DispatchQueue.main.async {
+							if errorString != nil {
+								errorString?.append(" Банкоматы ")} else {
+									errorString = ""
+									errorString?.append(" Банкоматы ")}
+						}
+						group.leave()
+					} else {
+						ErrorReporting.share.showNoAccessToInternetConnectionandReloadMessage(on: self) {
+							self.reloadData()
+						}
+						group.leave()
+					}
 				}
 			}
 		}
 
 		group.enter()
 
+		queue.async(group: group) {
 		DataFetcherService().fetchInfoboxes { [self] (result: Result<[InfoBoxElement], CustomError>) in
 			switch result {
 			case .success(var infobox) :
@@ -308,14 +276,17 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 					}
 					group.leave()
 				} else {
-					present(internetErrorAlert, animated: true)
+					ErrorReporting.share.showNoAccessToInternetConnectionandReloadMessage(on: self) {
+						self.reloadData()
+					}
 					group.leave()
 				}
 			}
 		}
+		}
 
 		group.enter()
-
+		queue.async(group: group) {
 		DataFetcherService().fetchBranches { [self] (result: Result<Branch, CustomError>) in
 			switch result {
 			case .success(var branch) :
@@ -344,47 +315,50 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 					}
 					group.leave()
 				} else {
-					present(internetErrorAlert, animated: true)
+					ErrorReporting.share.showNoAccessToInternetConnectionandReloadMessage(on: self) {
+						self.reloadData()
+					}
 					group.leave()
 				}
 			}
+		}
 		}
 
 		group.notify(queue: .main) {
 			if let errorString = errorString {
 				DispatchQueue.main.async { [self] in
-					let alert = createErrorAlert(errorString: errorString)
-					present(alert, animated: true)
+					ErrorReporting.share.showNoAccessToInternetConnectionandReloadMessage (on: self) {
+						self.reloadData()
+					}
 				}
 			}
 			self.finalView()
 		}
 	}
 
-	func finalView() {
+	private func finalView() {
 		self.view.isUserInteractionEnabled = true
 		self.addingToSections()
 
-		self.spiner.stopAnimating()
-		self.spiner.removeFromSuperview()
+		self.spiner.removeSpiner(spiner: self.spiner.spiner)
 		self.collectionView.reloadData()
 	}
 
 	private func addingToSections() {
 		self.sections = [Section]()
-		var arr = [Section]()
+		var arraySection = [Section]()
 		section = [sectionATM, sectionInfobox, sectionBranch]
-		arr.append(contentsOf: sectionATM)
-		arr.append(contentsOf: sectionInfobox)
-		arr.append(contentsOf: sectionBranch)
-		let minskCoordinates = GeographicCoordinates(latitude: "52.425163", longitude: "31.015039")
-		let a = Dictionary(grouping: arr,
+		arraySection.append(contentsOf: sectionATM)
+		arraySection.append(contentsOf: sectionInfobox)
+		arraySection.append(contentsOf: sectionBranch)
+		let minskCoordinates = GeographicCoordinates(latitude: "52.425163",
+													 longitude: "31.015039")
+		let a = Dictionary(grouping: arraySection,
 						   by: {String($0.sectionName) })
 		for i in 0..<a.keys.count {
 			self.sections.append(Section(coor: Array(a.values)[i].first?.coor,
 										 sectionName: Array(a.keys)[i],
 										 rowData: Array(a.values)[i]))
-		//	print(Array(a.values)[i].first?.coor)
 		}
 		sections.sort {
 			var item1 = $0.rowData
@@ -404,10 +378,10 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 	var savedSectionInfobox  =  [Section]()
 
 	private func addingToSectionsSingle(array: [Section]) {
-		let a = Dictionary(grouping: array,
+		let dictionary = Dictionary(grouping: array,
 						   by: {String($0.sectionName) })
-		for i in 0..<a.keys.count {
-			self.sections.append(Section(sectionName: Array(a.keys)[i], rowData: Array(a.values)[i]))
+		for index in 0..<dictionary.keys.count {
+			self.sections.append(Section(sectionName: Array(dictionary.keys)[index], rowData: Array(dictionary.values)[index]))
 		}
 	}
 
@@ -417,17 +391,6 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 			make.top.equalToSuperview()
 			make.bottom.equalToSuperview()
 		}
-	}
-
-	private func createErrorAlert (errorString: String) -> UIAlertController {
-		let alert = UIAlertController(title: "No access to internet connection",
-									  message: "не удалось загрузить  \(errorString)",
-									  preferredStyle: .alert)
-		alert.addAction(UIAlertAction(title: "Закрыть", style: .cancel, handler: nil))
-		alert.addAction(UIAlertAction(title: "Повторить ещё раз", style: .default, handler: { _ in
-			self.reloadData()
-		}))
-		return alert
 	}
 }
 
@@ -458,28 +421,30 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
 		if let item = self.sections[indexPath.section].rowData[indexPath.row] as? Section {
 			let q = item.rowData as [General]
 			if let infobox = q as? [InfoBoxElement] {
-				for i in 0..<infobox.count {
-					let infobox = infobox[i]
+				for index in 0..<infobox.count {
+					let infobox = infobox[index]
 					cell.timeLabel.text = infobox.workTime!
 					cell.placeLabel.text =  infobox.city
 					cell.currancyLabel.text = infobox.currency
+					cell.contentView.backgroundColor = .systemPink
 				}
 			}
 			if	let atm = q as? [AtmElement] {
-				for i in 0..<atm.count {
-					let atm = atm[i]
+				for index in 0..<atm.count {
+					let atm = atm[index]
 					cell.timeLabel.text = atm.availability.standardAvailability.day[0].openingTime
 					+ " " + atm.availability.standardAvailability.day[0].closingTime
 					cell.placeLabel.text =  atm.address.addressLine
 					+ " " + atm.address.buildingNumber
 					+ " " + atm.address.addressLine
 					cell.currancyLabel.text = atm.currency.rawValue
+					cell.contentView.backgroundColor = .orange
 				}
 			}
 
 			if let branch = q as? [BranchElement] {
-				for i in 0..<branch.count {
-					let branch = branch[i]
+				for index in 0..<branch.count {
+					let branch = branch[index]
 					cell.timeLabel.text = branch.information.availability.standardAvailability.day[0].openingTime
 					+ "-" +
 					branch.information.availability.standardAvailability.day[0].closingTime
@@ -487,6 +452,7 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
 					+ " " + branch.address.buildingNumber
 					+ " " + branch.address.addressLine
 					cell.currancyLabel.text = String( branch.services.currencyExchange.count)
+					cell.contentView.backgroundColor = .systemMint
 				}
 			}
 		}

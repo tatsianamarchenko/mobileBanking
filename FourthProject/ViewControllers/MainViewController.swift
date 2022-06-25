@@ -29,6 +29,8 @@ class MainViewController: UIViewController {
 	var branchInfofromCoreData = [BranchData]()
 	var infoboxInfofromCoreData = [InfoboxData]()
 
+	private lazy var spiner = SpinerManager()
+
 	let context = CoreDataStack.sharedInstance.persistentContainer.viewContext
 
 	var displayedAnnotations: [MKAnnotation]? {
@@ -39,29 +41,10 @@ class MainViewController: UIViewController {
 		}
 	}
 
-	private lazy var internetAccessAlert: UIAlertController = {
-		let alert = UIAlertController(title: "No access to internet connection",
-									  message: "приложение не работает без доступа к интернету.",
-									  preferredStyle: .alert)
-		alert.addAction(UIAlertAction(title: "cancel", style: .cancel, handler: nil))
-		return alert
-	}()
-
-	private lazy var internetErrorAlert: UIAlertController = {
-		let alert = UIAlertController(title: "No access to internet connection",
-									  message: "приложение не работает без доступа к интернету.",
-									  preferredStyle: .alert)
-		alert.addAction(UIAlertAction(title: "Закрыть", style: .cancel, handler: nil))
-		alert.addAction(UIAlertAction(title: "Повторить ещё раз", style: .default, handler: { _ in
-			self.reloadData()
-		}))
-		return alert
-	}()
-
-	private lazy var spiner: UIActivityIndicatorView = {
-		var spiner = UIActivityIndicatorView(style: .large)
-		return spiner
-	}()
+//	private lazy var spiner: UIActivityIndicatorView = {
+//		var spiner = UIActivityIndicatorView(style: .large)
+//		return spiner
+//	}()
 
 	var mapView: MKMapView = {
 		var map = MKMapView()
@@ -95,11 +78,11 @@ class MainViewController: UIViewController {
 			switch path.status {
 			case .unsatisfied :
 				DispatchQueue.main.async { [self] in
-					present(internetAccessAlert, animated: true)
+					ErrorReporting.share.showNoAccessTointernetConnectionMessage(on: self)
 				}
 			case .requiresConnection :
 				DispatchQueue.main.async { [self] in
-					present(internetAccessAlert, animated: true)
+					ErrorReporting.share.showNoAccessTointernetConnectionMessage(on: self)
 				}
 			default : break
 			}
@@ -198,7 +181,7 @@ class MainViewController: UIViewController {
 			var atmItems = [AtmElement]()
 			let group = DispatchGroup()
 			self.view.isUserInteractionEnabled = false
-			self.addSpiner()
+			self.spiner.addSpinner(view: self.view)
 			group.enter()
 			DataFetcherService().fetchATMs { (result: Result<ATMResponse, CustomError>) in
 				switch result {
@@ -221,7 +204,7 @@ class MainViewController: UIViewController {
 													 location: loc)
 				}
 				self.view.isUserInteractionEnabled = true
-				self.removeSpiner()
+				self.spiner.removeSpiner(spiner: self.spiner.spiner)
 			}
 
 			DispatchQueue.global(qos: .userInteractive).async {
@@ -301,7 +284,7 @@ class MainViewController: UIViewController {
 		let dataFetcherService = DataFetcherService()
 
 		view.isUserInteractionEnabled = false
-		addSpiner()
+		self.spiner.addSpinner(view: self.view)
 		let queue = DispatchQueue(label: "queue", attributes: .concurrent)
 		group.enter()
 		queue.async(group: group) {
@@ -321,7 +304,9 @@ class MainViewController: UIViewController {
 								errorString?.append(" Банкоматы ")}
 						group.leave()
 					} else {
-						present(internetErrorAlert, animated: true)
+						ErrorReporting.share.showNoAccessToInternetConnectionandReloadMessage (on: self) {
+							self.reloadData()
+						}
 						// group.leave()
 					}
 				}
@@ -344,7 +329,9 @@ class MainViewController: UIViewController {
 							errorString?.append(" Инфокиоски ")}
 						group.leave()
 					} else {
-						present(internetErrorAlert, animated: true)
+						ErrorReporting.share.showNoAccessToInternetConnectionandReloadMessage (on: self) {
+							self.reloadData()
+						}
 						//	group.leave()
 					}
 				}
@@ -368,7 +355,9 @@ class MainViewController: UIViewController {
 							errorString?.append(" Отделения банка ")}
 						group.leave()
 					} else {
-						present(internetErrorAlert, animated: true)
+						ErrorReporting.share.showNoAccessToInternetConnectionandReloadMessage (on: self) {
+							self.reloadData()
+						}
 						//		group.leave()
 					}
 				}
@@ -378,11 +367,12 @@ class MainViewController: UIViewController {
 		group.notify(queue: .main) {
 			if let errorString = errorString {
 				DispatchQueue.main.async { [self] in
-					let alert = createErrorAlert(errorString: errorString)
-					present(alert, animated: true)
+					ErrorReporting.share.createErrorAlert(errorString: errorString , on: self) {
+						self.reloadData()
+					}
 				}
 				self.view.isUserInteractionEnabled = true
-				self.removeSpiner()
+				self.spiner.removeSpiner(spiner: self.spiner.spiner)
 				return
 			}
 			for bra in 0..<branchItems.count {
@@ -401,7 +391,7 @@ class MainViewController: UIViewController {
 				self.setATMsPinUsingMKAnnotation(title: item.address.streetName + " " + item.address.buildingNumber, atm: item, location: loc)
 			}
 			self.view.isUserInteractionEnabled = true
-			self.removeSpiner()
+			self.spiner.removeSpiner(spiner: self.spiner.spiner)
 		}
 	}
 }
@@ -497,33 +487,6 @@ extension MainViewController {
 }
 
 extension MainViewController {
-
-	private func createErrorAlert (errorString: String) -> UIAlertController {
-		let alert = UIAlertController(title: "No access to internet connection",
-									  message: "не удалось загрузить  \(errorString)",
-									  preferredStyle: .alert)
-		alert.addAction(UIAlertAction(title: "Закрыть", style: .cancel, handler: nil))
-		alert.addAction(UIAlertAction(title: "Повторить ещё раз", style: .default, handler: { _ in
-			self.reloadData()
-		}))
-		return alert
-	}
-
-	private func addSpiner() {
-		view.addSubview(spiner)
-		DispatchQueue.main.async {
-			self.spiner.startAnimating()
-			self.spiner.snp.makeConstraints { (make) -> Void in
-				make.centerY.equalToSuperview()
-				make.centerX.equalToSuperview()
-			}
-		}
-	}
-
-	private func removeSpiner() {
-		self.spiner.stopAnimating()
-		self.spiner.removeFromSuperview()
-	}
 
 	private func makeConstraints() {
 		mapOrListsegmentedControl.snp.makeConstraints { (make) -> Void in
@@ -684,15 +647,12 @@ extension MainViewController {
 			locationManager.startUpdatingLocation()
 			mapView.showsUserLocation = true
 		case .restricted, .denied :
-			let alert = UIAlertController(title: "у приложения нет доступа к локации", message: "", preferredStyle: .alert)
-			alert.addAction(UIAlertAction(title: "cancel", style: .cancel, handler: nil))
-			alert.addAction(UIAlertAction(title: NSLocalizedString("access", comment: ""), style: .default, handler: { _ in
+			ErrorReporting.share.showNoAccessToLocationMessage(on: self) {
 				if let appSettings = URL(string: UIApplication.openSettingsURLString),
 				   UIApplication.shared.canOpenURL(appSettings) {
 					UIApplication.shared.open(appSettings)
 				}
-			}))
-			present(alert, animated: true)
+			}
 		@unknown default:
 			break
 		}
