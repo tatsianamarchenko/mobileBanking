@@ -106,17 +106,11 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 	private func reloadData() {
 		DispatchQueue.main.async {
 			self.sections.removeAll()
-		//	let apiService = APIService()
 			let group = DispatchGroup()
 			self.view.isUserInteractionEnabled = false
 			self.addSpinner()
 			group.enter()
-			DataFetcherService().fetchATMs {
-				//			}
-				//			apiService.getJSON(urlString: Constants.share.urlATMsString,
-				//							   runQueue: .global(),
-				//							   complitionQueue: .main)
-				(result: Result<ATMResponse, CustomError>) in
+			DataFetcherService().fetchATMs { (result: Result<ATMResponse, CustomError>) in
 				switch result {
 				case .success(let atms) :
 					self.sectionATM.removeAll()
@@ -142,9 +136,7 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 			}
 
 			DispatchQueue.global(qos: .userInteractive).async {
-//				apiService.getJSON(urlString: Constants.share.urlInfoboxString,
-//								   runQueue: .global(),
-//								   complitionQueue: .main)
+
 				DataFetcherService().fetchInfoboxes { (result: Result<[InfoBoxElement], CustomError>) in
 					switch result {
 					case .success(let infobox) :
@@ -160,9 +152,7 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 					case .failure(let error) :
 						self.addingToSectionsSingle(array: self.sectionBranch)
 					}
-//					apiService.getJSON(urlString: Constants.share.urlInfoboxString,
-//									   runQueue: .global(),
-//									   complitionQueue: .main)
+
 					DataFetcherService().fetchInfoboxes { (result: Result<[InfoBoxElement], CustomError>) in
 						switch result {
 						case .success(let infobox) :
@@ -247,17 +237,13 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 	}
 
 	func infoLoading() {
-	//	let apiService = APIService()
 		var errorString: String?
 		let group = DispatchGroup()
 		view.isUserInteractionEnabled = false
 		section = [sectionATM, sectionInfobox, sectionBranch]
 		addSpinner()
 		group.enter()
-		//	let minskCoordinates = GeographicCoordinates(latitude: "52.425163", longitude: "31.015039")
-//		apiService.getJSON(urlString: Constants.share.urlATMsString,
-//						   runQueue: .global(),
-//						   complitionQueue: .main)
+
 		DataFetcherService().fetchATMs { [self] (result: Result<ATMResponse, CustomError>) in
 			switch result {
 			case .success(var atms) :
@@ -273,7 +259,6 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 					self.section[0].append(Section(coor: Array(sectionItems.values)[index].first?.coor,
 												   sectionName: Array(sectionItems.keys)[index],
 												   rowData: Array(sectionItems.values)[index]))	}
-				//	print(section[0].first?.sectionName, 	print(section[0].first?.coor!) )
 				section[0].sort { $0.sectionName > $1.sectionName }
 				print(section[0].first?.sectionName)
 				sectionATM = section[0]
@@ -295,9 +280,7 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 		}
 
 		group.enter()
-//		apiService.getJSON(urlString: Constants.share.urlInfoboxString,
-//						   runQueue: .global(),
-//						   complitionQueue: .main)
+
 		DataFetcherService().fetchInfoboxes { [self] (result: Result<[InfoBoxElement], CustomError>) in
 			switch result {
 			case .success(var infobox) :
@@ -332,9 +315,7 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 		}
 
 		group.enter()
-//		apiService.getJSON(urlString: Constants.share.urlbBranchesString,
-//						   runQueue: .global(),
-//						   complitionQueue: .main)
+
 		DataFetcherService().fetchBranches { [self] (result: Result<Branch, CustomError>) in
 			switch result {
 			case .success(var branch) :

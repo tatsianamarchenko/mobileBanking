@@ -17,7 +17,7 @@ class ButtomPresentationViewController: UIViewController {
 
 	private lazy var infoButton: UIButton = {
 		var button = UIButton(type: .roundedRect)
-		button.setTitle("open full  info", for: .normal)
+		button.setTitle("open full info", for: .normal)
 		button.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
 		button.imageView?.contentMode = .scaleAspectFit
 		button.backgroundColor = .systemGray6

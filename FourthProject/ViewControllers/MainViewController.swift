@@ -21,10 +21,9 @@ class MainViewController: UIViewController {
 	var branchRecived: BranchElement?
 	var infoboxRecived: InfoBoxElement?
 
-	var atmAnnotatiom = [PinAnnotation<AtmElement>]()
-	var branchAnnotatiom = [PinAnnotation<BranchElement>]()
-	var infoboxAnnotatiom = [PinAnnotation<InfoBoxElement>]()
-
+	var atmAnnotation = [PinAnnotation<AtmElement>]()
+	var branchAnnotation = [PinAnnotation<BranchElement>]()
+	var infoboxAnnotation = [PinAnnotation<InfoBoxElement>]()
 
 	var ATMinfofromCoreData = [ATMData]()
 	var branchInfofromCoreData = [BranchData]()
@@ -145,22 +144,22 @@ class MainViewController: UIViewController {
 	private func filter(index: Int) {
 		if 	filteredArray[index].isChecked == true {
 			if index == 0 {
-				displayedAnnotations = atmAnnotatiom
+				displayedAnnotations = atmAnnotation
 				return
 			} else if index == 1 {
-				displayedAnnotations = infoboxAnnotatiom
+				displayedAnnotations = infoboxAnnotation
 				return
 			} else if index == 2 {
-				displayedAnnotations = branchAnnotatiom
+				displayedAnnotations = branchAnnotation
 				return
 			}
 		} else if filteredArray[index].isChecked == false {
 			if index == 0 {
-				self.mapView.removeAnnotations(atmAnnotatiom)
+				self.mapView.removeAnnotations(atmAnnotation)
 			} else if index == 1 {
-				self.mapView.removeAnnotations(infoboxAnnotatiom)
+				self.mapView.removeAnnotations(infoboxAnnotation)
 			} else if index == 2 {
-				self.mapView.removeAnnotations(branchAnnotatiom)
+				self.mapView.removeAnnotations(branchAnnotation)
 			}
 		}
 	}
@@ -205,10 +204,10 @@ class MainViewController: UIViewController {
 				switch result {
 				case .success(let atms) :
 					atmItems = atms.data.atm
-					self.atmAnnotatiom.removeAll()
+					self.atmAnnotation.removeAll()
 					group.leave()
 				case .failure(let error) :
-					self.mapView.addAnnotations(self.atmAnnotatiom)
+					self.mapView.addAnnotations(self.atmAnnotation)
 				}
 			}
 
@@ -229,7 +228,7 @@ class MainViewController: UIViewController {
 				DataFetcherService().fetchInfoboxes { (result: Result<[InfoBoxElement], CustomError>) in
 					switch result {
 					case .success(let infobox) :
-						self.infoboxAnnotatiom.removeAll()
+						self.infoboxAnnotation.removeAll()
 						let infoboxItems = infobox
 						for singleBox in 0..<infoboxItems.count {
 							let item = infoboxItems[singleBox]
@@ -237,7 +236,7 @@ class MainViewController: UIViewController {
 							self.setInfoBoxPinUsingMKAnnotation(title: item.city!, infobox: item, location: loc)
 						}
 					case .failure(let error) :
-						self.mapView.addAnnotations(self.infoboxAnnotatiom)
+						self.mapView.addAnnotations(self.infoboxAnnotation)
 					}
 				}
 
@@ -245,14 +244,14 @@ class MainViewController: UIViewController {
 					switch result {
 					case .success(let branch) :
 						let branchItems = branch.data.branch
-						self.branchAnnotatiom.removeAll()
+						self.branchAnnotation.removeAll()
 						for bra in 0..<branchItems.count {
 							let item =  branchItems[bra]
 							let loc = self.findCoordinate(latitude: item.address.geolocation.geographicCoordinates.latitude, longitude: item.address.geolocation.geographicCoordinates.longitude)
 							self.setBranchPinUsingMKAnnotation(title: item.type, branch: item, location: loc)
 						}
 					case .failure(let error):
-						self.mapView.addAnnotations(self.branchAnnotatiom)
+						self.mapView.addAnnotations(self.branchAnnotation)
 					}
 				}
 			}
@@ -593,8 +592,6 @@ extension MainViewController {
 	func branchPresentation(branch: BranchElement) {
 		let adressOfItem = branch.address.addressLine
 		let timeOfWork = branch.information.availability.standardAvailability.day[0].openingTime + "-" +
-		branch.information.availability.standardAvailability.day[0].dayBreak.breakFromTime + "-" +
-		branch.information.availability.standardAvailability.day[0].dayBreak.breakToTime + "-" +
 		branch.information.availability.standardAvailability.day[0].closingTime
 		var currancy = branch.services.currencyExchange[0].exchangeRate
 		for service in 0..<branch.services.currencyExchange.count {
@@ -726,18 +723,18 @@ extension MainViewController {
 			let pinAnnotation = (PinAnnotation<AtmElement>(title: title,
 														   item: atm,
 														   coordinate: location))
-			self.atmAnnotatiom.append(pinAnnotation)
-			self.mapView.addAnnotations(self.atmAnnotatiom)
+			self.atmAnnotation.append(pinAnnotation)
+			self.mapView.addAnnotations(self.atmAnnotation)
 		}
 	}
 
-	private	func setInfoBoxPinUsingMKAnnotation(title: String, infobox: InfoBoxElement, location: CLLocationCoordinate2D) {
+	private func setInfoBoxPinUsingMKAnnotation(title: String, infobox: InfoBoxElement, location: CLLocationCoordinate2D) {
 		DispatchQueue.main.async {
 			let pinAnnotation = (PinAnnotation<InfoBoxElement>(title: title,
 															   item: infobox,
 															   coordinate: location))
-			self.infoboxAnnotatiom.append(pinAnnotation)
-			self.mapView.addAnnotations(self.infoboxAnnotatiom)
+			self.infoboxAnnotation.append(pinAnnotation)
+			self.mapView.addAnnotations(self.infoboxAnnotation)
 		}
 	}
 
@@ -746,8 +743,8 @@ extension MainViewController {
 			let pinAnnotation = (PinAnnotation<BranchElement>(title: title,
 															  item: branch,
 															  coordinate: location))
-			self.branchAnnotatiom.append(pinAnnotation)
-			self.mapView.addAnnotations(self.branchAnnotatiom)
+			self.branchAnnotation.append(pinAnnotation)
+			self.mapView.addAnnotations(self.branchAnnotation)
 		}
 	}
 }
@@ -773,61 +770,31 @@ extension MainViewController: MKMapViewDelegate {
 	func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
 		var annotationView: MKAnnotationView?
 		if let annotation = annotation as? PinAnnotation<AtmElement> {
-			annotationView = setupATMsAnnotationView(for: annotation, on: mapView)
+			annotationView = setupAnnotationView(for: annotation, on: mapView, imageOfPin: "atm", color: .orange)
 		} else if let annotation = annotation as? PinAnnotation<InfoBoxElement> {
-			annotationView = setupInfoBoxAnnotationView(for: annotation, on: mapView)
+			annotationView = setupAnnotationView(for: annotation, on: mapView, imageOfPin: "info", color: .systemPink)
 		} else if let annotation = annotation as? PinAnnotation<BranchElement> {
-			annotationView = setupBranchAnnotationView(for: annotation, on: mapView)
+			annotationView = setupAnnotationView(for: annotation, on: mapView, imageOfPin: "bank", color: .systemMint)
 		}
 		return annotationView
 	}
 
-	private func setupATMsAnnotationView(for annotation: PinAnnotation<AtmElement>, on mapView: MKMapView) -> MKAnnotationView {
-		let identifier = NSStringFromClass(PinAnnotation<AtmElement>.self)
-		let view = mapView.dequeueReusableAnnotationView(withIdentifier: identifier, for: annotation)
-		view.canShowCallout = true
-		let image = UIImage(named: "atm")
-		view.clusteringIdentifier = "PinCluster"
-		if let markerAnnotationView = view as? MKMarkerAnnotationView {
-			markerAnnotationView.animatesWhenAdded = true
-			markerAnnotationView.canShowCallout = true
-			markerAnnotationView.markerTintColor = .orange
-			markerAnnotationView.glyphImage = image
-		}
-		return view
-	}
-
-	private func setupInfoBoxAnnotationView(for annotation: PinAnnotation<InfoBoxElement>,
-											on mapView: MKMapView) -> MKAnnotationView {
-		let identifier = NSStringFromClass(PinAnnotation<InfoBoxElement>.self)
-		let view = mapView.dequeueReusableAnnotationView(withIdentifier: identifier, for: annotation)
-		view.canShowCallout = true
-		let image = UIImage(named: "info")
-		view.clusteringIdentifier = "PinCluster"
-		if let markerAnnotationView = view as? MKMarkerAnnotationView {
-			markerAnnotationView.animatesWhenAdded = true
-			markerAnnotationView.canShowCallout = true
-			markerAnnotationView.markerTintColor = .systemPink
-			markerAnnotationView.glyphImage = image
-		}
-		return view
-	}
-
-	private func setupBranchAnnotationView(for annotation: PinAnnotation<BranchElement>,
-										   on mapView: MKMapView) -> MKAnnotationView {
-		let identifier = NSStringFromClass(PinAnnotation<BranchElement>.self)
+	private func setupAnnotationView<T: Decodable>(for annotation: PinAnnotation<T>,
+											on mapView: MKMapView,
+											imageOfPin: String,
+											color: UIColor?) -> MKAnnotationView {
+		let identifier = NSStringFromClass(PinAnnotation<T>.self)
 		let view = mapView.dequeueReusableAnnotationView(withIdentifier: identifier, for: annotation)
 		view.canShowCallout = false
-		let image = UIImage(named: "bank")
+		let image = UIImage(named: imageOfPin)
 		view.clusteringIdentifier = "PinCluster"
 		if let markerAnnotationView = view as? MKMarkerAnnotationView {
 			markerAnnotationView.animatesWhenAdded = true
 			markerAnnotationView.canShowCallout = true
-			markerAnnotationView.markerTintColor = .systemMint
+			markerAnnotationView.markerTintColor = color
 			markerAnnotationView.glyphImage = image
 		}
 		return view
-
 	}
 
 	func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
