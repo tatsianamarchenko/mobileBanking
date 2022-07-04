@@ -7,7 +7,6 @@
 
 import Foundation
 
-// MARK: - Welcome
 struct Branch: Codable {
 	var data: DataClass
 
@@ -94,13 +93,11 @@ struct AvailabilityBranch: Codable {
 	let access24Hours, isRestricted, sameAsOrganization: Int
 	let availabilityDescription: String
 	let standardAvailability: StandardAvailabilityBranch
-	//	let nonStandardAvailability: [JSONAny]
 
 	enum CodingKeys: String, CodingKey {
 		case access24Hours, isRestricted, sameAsOrganization
 		case availabilityDescription = "description"
 		case standardAvailability = "StandardAvailability"
-		//	case nonStandardAvailability = "NonStandardAvailability"
 	}
 }
 

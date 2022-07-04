@@ -9,9 +9,9 @@ import UIKit
 import MapKit
 
 class DetailedCollectionViewController: UIViewController, UICollectionViewDelegateFlowLayout {
-	public var complitionATM: ((AtmElement?) -> Void)?
-	public var complitionBranch: ((BranchElement?) -> Void)?
-	public var complitionInfobox: ((InfoBoxElement?) -> Void)?
+	public var complitionATM: AtmElement?
+	public var complitionBranch: BranchElement?
+	public var complitionInfobox: InfoBoxElement?
 
 	var sectionATM = [Section]()
 	var sectionBranch = [Section]()
@@ -224,7 +224,6 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 													   sectionName: Array(sectionItems.keys)[index],
 													   rowData: Array(sectionItems.values)[index]))	}
 					section[0].sort { $0.sectionName > $1.sectionName }
-					print(section[0].first?.sectionName)
 					sectionATM = section[0]
 					group.leave()
 				case .failure(let error) :
@@ -235,12 +234,10 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 									errorString = ""
 									errorString?.append(" Банкоматы ")}
 						}
-						group.leave()
 					} else {
 						ErrorReporting.share.showNoAccessToInternetConnectionandReloadMessage(on: self) {
 							self.reloadData()
 						}
-						group.leave()
 					}
 				}
 			}
@@ -274,12 +271,10 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 								errorString = ""
 								errorString?.append(" Инфокиоски ")}
 					}
-					group.leave()
 				} else {
 					ErrorReporting.share.showNoAccessToInternetConnectionandReloadMessage(on: self) {
 						self.reloadData()
 					}
-					group.leave()
 				}
 			}
 		}
@@ -311,14 +306,13 @@ class DetailedCollectionViewController: UIViewController, UICollectionViewDelega
 						if errorString != nil {
 							errorString?.append(" Отделения банка ")} else {
 								errorString = ""
-								errorString?.append(" Отделения банка ")}
+								errorString?.append(" Отделения банка ")
+							}
 					}
-					group.leave()
 				} else {
 					ErrorReporting.share.showNoAccessToInternetConnectionandReloadMessage(on: self) {
 						self.reloadData()
 					}
-					group.leave()
 				}
 			}
 		}
@@ -483,12 +477,12 @@ extension DetailedCollectionViewController: UICollectionViewDelegate, UICollecti
 		navigationController?.popToRootViewController(animated: true)
 		if let item = self.sections[indexPath.section].rowData[indexPath.row] as? Section {
 			let q = item.rowData as [General]
-			if let atm = q as? [AtmElement] {
-				complitionATM?(atm[indexPath.item])
-			} else if let infobox = q as? [InfoBoxElement] {
-				complitionInfobox?(infobox[indexPath.item])
-			} else if let branch = q as? [BranchElement] {
-				complitionBranch?(branch[indexPath.item])
+			if let atm = q[indexPath.row] as? AtmElement {
+				complitionATM = atm
+			} else if let infobox = q[indexPath.row] as? InfoBoxElement {
+				complitionInfobox = infobox
+			} else if let branch = q[indexPath.row] as? BranchElement {
+				complitionBranch = branch
 			}
 		}
 	}

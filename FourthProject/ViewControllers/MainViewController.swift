@@ -13,7 +13,7 @@ import Network
 import CoreData
 
 class MainViewController: UIViewController {
-
+	var detailed: DetailedCollectionViewController?
 	let monitor = NWPathMonitor()
 	let locationManager = CLLocationManager()
 
@@ -40,11 +40,6 @@ class MainViewController: UIViewController {
 			}
 		}
 	}
-
-//	private lazy var spiner: UIActivityIndicatorView = {
-//		var spiner = UIActivityIndicatorView(style: .large)
-//		return spiner
-//	}()
 
 	var mapView: MKMapView = {
 		var map = MKMapView()
@@ -96,14 +91,22 @@ class MainViewController: UIViewController {
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
+		guard let  detailed = detailed else {
+			return
+		}
+		atmRecived = detailed.complitionATM
+		branchRecived = detailed.complitionBranch
+		infoboxRecived = detailed.complitionInfobox
+
+		if infoboxRecived != nil {
+			infoboxPresentation(infobox: infoboxRecived!)
+		}
+
 		if atmRecived != nil {
 			ATMPresentation(ATM: atmRecived!)
 		}
 		if branchRecived != nil {
 			branchPresentation(branch: branchRecived!)
-		}
-		if infoboxRecived != nil {
-			infoboxPresentation(infobox: infoboxRecived!)
 		}
 	}
 
@@ -189,11 +192,10 @@ class MainViewController: UIViewController {
 					atmItems = atms.data.atm
 					self.atmAnnotation.removeAll()
 					group.leave()
-				case .failure(let error) :
+				case .failure(_) :
 					self.mapView.addAnnotations(self.atmAnnotation)
 				}
 			}
-
 
 			group.notify(queue: .main) {
 				for atm in 0..<atmItems.count {
@@ -218,7 +220,7 @@ class MainViewController: UIViewController {
 							let loc = self.findCoordinate(latitude: item.gpsX!, longitude: item.gpsY!)
 							self.setInfoBoxPinUsingMKAnnotation(title: item.city!, infobox: item, location: loc)
 						}
-					case .failure(let error) :
+					case .failure(let _) :
 						self.mapView.addAnnotations(self.infoboxAnnotation)
 					}
 				}
@@ -233,7 +235,7 @@ class MainViewController: UIViewController {
 							let loc = self.findCoordinate(latitude: item.address.geolocation.geographicCoordinates.latitude, longitude: item.address.geolocation.geographicCoordinates.longitude)
 							self.setBranchPinUsingMKAnnotation(title: item.type, branch: item, location: loc)
 						}
-					case .failure(let error):
+					case .failure(let _):
 						self.mapView.addAnnotations(self.branchAnnotation)
 					}
 				}
@@ -251,25 +253,13 @@ class MainViewController: UIViewController {
 	}
 
 	@objc func action (_ sender: UISegmentedControl) {
-		let detailed = DetailedCollectionViewController()
-		detailed.complitionATM = { atm in
-			DispatchQueue.main.async {
-				self.atmRecived = atm
-			}
-		}
-		detailed.complitionBranch = { branch in
-			DispatchQueue.main.async {
-				self.branchRecived = branch
-			}
-		}
-		detailed.complitionInfobox = { infobox in
-			DispatchQueue.main.async {
-				self.infoboxRecived = infobox
-			}
-		}
-		if sender.selectedSegmentIndex != 0 {
+		detailed = DetailedCollectionViewController()
+		infoboxRecived = nil
+		atmRecived = nil
+		branchRecived = nil
+		if sender.selectedSegmentIndex != 0 && detailed != nil {
 			sender.selectedSegmentIndex = 0
-			self.navigationController?.pushViewController(detailed, animated: true)
+			self.navigationController?.pushViewController(detailed!, animated: true)
 		}
 	}
 
@@ -304,10 +294,10 @@ class MainViewController: UIViewController {
 								errorString?.append(" Банкоматы ")}
 						group.leave()
 					} else {
-						ErrorReporting.share.showNoAccessToInternetConnectionandReloadMessage (on: self) {
+						ErrorReporting.share.showNoAccessToInternetConnectionandReloadMessage(on: self) {
 							self.reloadData()
+							group.leave()
 						}
-						// group.leave()
 					}
 				}
 			}
@@ -331,8 +321,8 @@ class MainViewController: UIViewController {
 					} else {
 						ErrorReporting.share.showNoAccessToInternetConnectionandReloadMessage (on: self) {
 							self.reloadData()
+							group.leave()
 						}
-						//	group.leave()
 					}
 				}
 			}
@@ -357,8 +347,8 @@ class MainViewController: UIViewController {
 					} else {
 						ErrorReporting.share.showNoAccessToInternetConnectionandReloadMessage (on: self) {
 							self.reloadData()
+							group.leave()
 						}
-						//		group.leave()
 					}
 				}
 			}
@@ -401,7 +391,6 @@ extension MainViewController {
 		do {
 			let request: NSFetchRequest<ATMData> = ATMData.fetchRequest()
 			self.ATMinfofromCoreData = try context.fetch(request)
-			print(self.ATMinfofromCoreData.count)
 
 			DispatchQueue.main.async {
 				guard let a = self.ATMinfofromCoreData.first?.atmData else {return}
@@ -416,7 +405,6 @@ extension MainViewController {
 		do {
 			let request: NSFetchRequest<BranchData> = BranchData.fetchRequest()
 			self.branchInfofromCoreData = try context.fetch(request)
-			print(self.branchInfofromCoreData.count)
 
 			DispatchQueue.main.async {
 				guard let a = self.branchInfofromCoreData.first?.branchData else {return}
@@ -431,7 +419,6 @@ extension MainViewController {
 		do {
 			let request: NSFetchRequest<InfoboxData> = InfoboxData.fetchRequest()
 			self.infoboxInfofromCoreData = try context.fetch(request)
-			print(self.infoboxInfofromCoreData.count)
 
 			DispatchQueue.main.async {
 				guard let a = self.infoboxInfofromCoreData.first?.infoboxData else {return}
@@ -510,7 +497,7 @@ extension MainViewController {
 		let timeOfWork =
 		ATM.availability.standardAvailability.day[0].openingTime + "-" +
 		ATM.availability.standardAvailability.day[0].closingTime
-		var currancy = ATM.currency.rawValue
+		let currancy = ATM.currency.rawValue
 		var cashIn = ATM.services[0].serviceType.rawValue
 		let title = ATM.address.addressLine
 		let itemLng = ATM.address.geolocation.geographicCoordinates.longitude
